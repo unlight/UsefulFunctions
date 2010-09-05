@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__FILE__).DS.'vendors'.DS.'IMAPv2.php';
+require_once PLUGINUTILS_VENDORS.DS.'IMAPv2.php';
 
 class ImapMailbox extends Gdn_Pluggable {
 	

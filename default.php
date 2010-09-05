@@ -5,13 +5,13 @@ $PluginInfo['PluginUtils'] = array(
 	'Description' => 'Useful functions for plugin and application developers.',
 	'Version' => '2.0.0',
 	'Author' => 'Vanilla Fan'
-	//'RequiredPlugins' => array('HtmlPurifier' => '*')
 );
 
 define('PLUGINUTILS_LIBRARY', dirname(__FILE__).DS.'library');
+define('PLUGINUTILS_VENDORS', dirname(__FILE__).DS.'vendors');
 
-Gdn::FactoryInstall('Zip', 'PclZip', dirname(__FILE__).DS.'vendors'.DS.'pclzip.lib.php', Gdn::FactoryInstance);
-Gdn::FactoryInstall('Snoopy', 'Snoopy', dirname(__FILE__).DS.'vendors'.DS.'Snoopy.class.php', Gdn::FactorySingleton);
+Gdn::FactoryInstall('Zip', 'PclZip', PLUGINUTILS_VENDORS.DS.'pclzip.lib.php', Gdn::FactoryInstance);
+Gdn::FactoryInstall('Snoopy', 'Snoopy', PLUGINUTILS_VENDORS.DS.'Snoopy.class.php', Gdn::FactorySingleton);
 Gdn::FactoryInstall('Mailbox', 'ImapMailbox', PLUGINUTILS_LIBRARY.DS.'class.imapmailbox.php', Gdn::FactorySingleton);
 require PLUGINUTILS_LIBRARY.DS.'functions.render.php';
 require PLUGINUTILS_LIBRARY.DS.'functions.time.php';
@@ -26,6 +26,11 @@ require PLUGINUTILS_LIBRARY.DS.'functions.debug.php';
 require PLUGINUTILS_LIBRARY.DS.'functions.misc.php';
 
 /*
+
+INSTAL
+======
+Soon.
+
 TODO
 ====
 want to rename
@@ -34,6 +39,8 @@ want to rename
 
 CHANGELOG
 =========
+2.0.0 (04 Sep 2010)
+
 1.999 (14 Aug 2010)
 [new] ConsolidateDataSetValues()
 [new] AltAttribute()

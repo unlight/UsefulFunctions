@@ -3,7 +3,7 @@
 // */5 * * * * /home/www/htdocs/plugins/PluginUtils/bin/tick.php
 
 require dirname(__FILE__) . DS . '../bootstrap.console.php';
-require dirname(__FILE__) . DS . '../library/class.tick.php';
+require PLUGINUTILS_LIBRARY . DS .  'class.tick.php';
 
 $bLoop = Console::Argument('loop', False) !== False;
 $Handler = new Tick();
@@ -15,24 +15,8 @@ $Events = array();
 $LastYearSeconds = 0;
 do {
 	$YearSeconds = (int)(YearSeconds()/60) * 60; // rewind to begining of the minute
-	//d($YearSeconds % 60, $YearSeconds % 3600);
-
-	
-
-	//$YearMicroSeconds = microtime(1) - strtotime('1 Jan');
-	//$Fraction = $YearMicroSeconds - $YearSeconds;
-	/*$SleepSeconds = 60 - $YearSeconds % 60;
-	$CorrectYearSeconds = (int)($YearSeconds/60) * 60;
-	d(Gdn_Format::TimeSpan($CorrectYearSeconds), $CorrectYearSeconds, $YearSeconds, $SleepSeconds, $YearSeconds % 60);
-	Console::Message('Sleep (%s %s)', $SleepSeconds, Plural($SleepSeconds, 'second', 'seconds'));
-	sleep($SleepSeconds);
-	$YearSeconds = $YearSeconds + $SleepSeconds;
-	//if($YearSeconds % 60 != 0) throw new Exception('Failed');*/
-	
-	// matches
 	$Event = '';
 	foreach($Matches as $Name => $Token){
-		//$Events[] = 'Any_' . date($Token) . '_' . $Name;
 		$Event = PrefixString('Match', $Event . '_' . date($Token) . '_' . $Name);
 		Console::Message('Tick: %s', $Event);
 		$Handler->FireEvent($Event);
@@ -41,8 +25,8 @@ do {
 	
 	$Range = Flatten(array(
 		range(1, 99, 1),
-		range(100, 999, 5)
-	));
+		range(100, 999, 5))
+	);
 	
 	foreach ($Range as $i) {
 		foreach($Ticks as $Second => $Name){
@@ -50,14 +34,8 @@ do {
 			if($YearSeconds % $Second == 0 && ($YearSeconds / $Second) % $i == 0){
 				$Event = 'Every_'.$i.'_'.$Name.$Suffix;
 				Console::Message('Tick: %s', $Event);
+				// TODO: FIX ME, chain break if error, maybe use try/catch here
 				$Handler->FireEvent($Event);
-				// TODO: FIX ME
-				/*try {
-					$Handler->FireEvent($Event);
-				} catch(Exception $Exception) {
-					$ErrorMessage = $Exception->GetMessage();
-					
-				}*/
 				$Events[] = $Event;
 			}
 		}
@@ -67,10 +45,11 @@ do {
 		$LastYearSeconds = $YearSeconds;
 		$SleepSeconds = 60 - YearSeconds() % 60;
 		Console::Message('Sleep (%s %s)', $SleepSeconds, Plural($SleepSeconds, 'second', 'seconds'));
-		sleep($SleepSeconds);		
+		// prevent tick in second while in loop
+		sleep($SleepSeconds);
 	}
 	
-} while ($bLoop); // prevent tick in second while in loop
+} while ($bLoop);
 
 
 $Database = Gdn::Database();
