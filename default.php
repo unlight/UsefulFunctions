@@ -8,13 +8,31 @@ $PluginInfo['PluginUtils'] = array(
 	//'RequiredPlugins' => array('HtmlPurifier' => '*')
 );
 
+define('PLUGINUTILS_LIBRARY', dirname(__FILE__).DS.'library');
+
 Gdn::FactoryInstall('Zip', 'PclZip', dirname(__FILE__).DS.'vendors'.DS.'pclzip.lib.php', Gdn::FactoryInstance);
-Gdn::FactoryInstall('Mailbox', 'ImapMailbox', dirname(__FILE__).DS.'library'.DS.'class.imapmailbox.php', Gdn::FactorySingleton);
 Gdn::FactoryInstall('Snoopy', 'Snoopy', dirname(__FILE__).DS.'vendors'.DS.'Snoopy.class.php', Gdn::FactorySingleton);
-require dirname(__FILE__).DS.'library'.DS.'functions.php';
+Gdn::FactoryInstall('Mailbox', 'ImapMailbox', PLUGINUTILS_LIBRARY.DS.'class.imapmailbox.php', Gdn::FactorySingleton);
+require PLUGINUTILS_LIBRARY.DS.'functions.render.php';
+require PLUGINUTILS_LIBRARY.DS.'functions.time.php';
+require PLUGINUTILS_LIBRARY.DS.'functions.dom.php';
+require PLUGINUTILS_LIBRARY.DS.'functions.network.php';
+require PLUGINUTILS_LIBRARY.DS.'functions.array-object.php';
+require PLUGINUTILS_LIBRARY.DS.'functions.string-number.php';
+require PLUGINUTILS_LIBRARY.DS.'functions.file.php';
+require PLUGINUTILS_LIBRARY.DS.'functions.language.php';
+require PLUGINUTILS_LIBRARY.DS.'functions.validate.php';
+require PLUGINUTILS_LIBRARY.DS.'functions.debug.php';
+require PLUGINUTILS_LIBRARY.DS.'functions.misc.php';
 
 /*
-CHANGELOG 
+TODO
+====
+want to rename
+1. Garden Gears
+2. Garden Tools
+
+CHANGELOG
 =========
 1.999 (14 Aug 2010)
 [new] ConsolidateDataSetValues()
