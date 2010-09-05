@@ -2,7 +2,7 @@
 
 function LoadPhpQuery(){
 	//if(!class_exists('PhpQuery')) require_once dirname(__FILE__).DS.'vendors' . DS . 'phpQuery.php';
-	if(!function_exists('Pq')) require_once dirname(__FILE__).DS.'vendors' . DS . 'phpQuery.php';
+	if(!function_exists('Pq')) require_once PLUGINUTILS_VENDORS . DS . 'phpQuery.php';
 }
 
 function LoadQueryPath($Document = ''){
