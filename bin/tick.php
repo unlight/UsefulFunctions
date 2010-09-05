@@ -2,7 +2,7 @@
 <?php
 // */5 * * * * /home/www/htdocs/plugins/PluginUtils/bin/tick.php
 
-require dirname(__FILE__) . DS . '../bootstrap.console.php';
+require dirname(__FILE__) . '/../bootstrap.console.php';
 require PLUGINUTILS_LIBRARY . DS .  'class.tick.php';
 
 $bLoop = Console::Argument('loop', False) !== False;
@@ -18,8 +18,8 @@ do {
 	$Event = '';
 	foreach($Matches as $Name => $Token){
 		$Event = PrefixString('Match', $Event . '_' . date($Token) . '_' . $Name);
-		Console::Message('Tick: %s', $Event);
 		$Handler->FireEvent($Event);
+		Console::Message('Tick: %s', $Event);
 		$Events[] = $Event;
 	}
 	
@@ -33,10 +33,10 @@ do {
 			$Suffix = ($i == 1) ? '' : 's';
 			if($YearSeconds % $Second == 0 && ($YearSeconds / $Second) % $i == 0){
 				$Event = 'Every_'.$i.'_'.$Name.$Suffix;
-				Console::Message('Tick: %s', $Event);
+				$Events[] = $Event;
 				// TODO: FIX ME, chain break if error, maybe use try/catch here
 				$Handler->FireEvent($Event);
-				$Events[] = $Event;
+				Console::Message('Tick: %s', $Event);
 			}
 		}
 	}
