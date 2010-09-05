@@ -14,7 +14,7 @@ if(!defined('PATH_ROOT')) define('PATH_ROOT', realpath('.'));
 //$_SERVER['SHELL'] = 'php';
 
 require_once PATH_ROOT.DS.'bootstrap.php';
-require_once dirname(__FILE__).DS.'../library/class.console.php';
+require_once PLUGINUTILS_LIBRARY.DS.'class.console.php';
 
 if(!Console::Check()) die('Please, run script from command line!');
 
