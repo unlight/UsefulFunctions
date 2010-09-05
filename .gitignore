@@ -1,0 +1,5 @@
+cmd.lnk
+__*
+build-query-path-onefile.php
+vendors/QueryPath/*
+locale/*
