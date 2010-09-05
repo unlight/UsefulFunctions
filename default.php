@@ -3,7 +3,7 @@
 $PluginInfo['PluginUtils'] = array(
 	'Name' => 'Plugin utils',
 	'Description' => 'Useful functions for plugin and application developers.',
-	'Version' => '2.0.0',
+	'Version' => '2.0.1',
 	'Author' => 'Vanilla Fan'
 );
 
@@ -30,6 +30,10 @@ require PLUGINUTILS_LIBRARY.DS.'functions.misc.php';
 INSTAL
 ======
 Soon.
+
+CONFIG
+======
+$Configuration['Plugins']['Console']['MessageEnconding'] = '';
 
 TODO
 ====
