@@ -15,8 +15,7 @@ if(!defined('PATH_ROOT')) define('PATH_ROOT', realpath('.'));
 
 require_once PATH_ROOT.DS.'bootstrap.php';
 require_once PLUGINUTILS_LIBRARY.DS.'class.console.php';
-
-if(!Console::Check()) die('Please, run script from command line!');
+if(!Console::Check() && C('Plugins.Console.Check')) die('Please, run script from command line!');
 
 /*if(Console::Check()){
 	$Callback = array('Console', 'ErrorHandler');

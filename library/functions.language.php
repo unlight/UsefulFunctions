@@ -15,7 +15,8 @@ function LingvoTranslate($Word, $Options = array()){
 
 	if(!isset($Result[$Word]) || $ResetCache){
 		$Direction = $From.'-'.$To;
-		$Doc = PhpQuery::NewDocumentFile('http://lingvo.abbyyonline.com/en/'.$Direction.'/'.rawurlencode($Word));
+		$Url = 'http://lingvo.abbyyonline.com/en/'.$Direction.'/'.rawurlencode($Word);
+		$Doc = PhpQuery::NewDocumentFile($Url);
 		/*$Translation = Pq('div.card-short > span.Bold')->Text();
 		if($Translation != ''){
 			$Translation = preg_replace('/\n/', '', $Translation);

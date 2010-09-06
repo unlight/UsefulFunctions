@@ -3,7 +3,7 @@
 $PluginInfo['PluginUtils'] = array(
 	'Name' => 'Plugin utils',
 	'Description' => 'Useful functions for plugin and application developers.',
-	'Version' => '2.0.1',
+	'Version' => '2.0.2',
 	'Author' => 'Vanilla Fan'
 );
 
@@ -34,6 +34,7 @@ Soon.
 CONFIG
 ======
 $Configuration['Plugins']['Console']['MessageEnconding'] = '';
+$Configuration['Plugins']['Console']['Check'] = True;
 
 TODO
 ====
