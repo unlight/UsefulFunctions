@@ -109,7 +109,7 @@ if(!function_exists('Flatten')) {
 }
 
 if(!function_exists('RandomValue')) {
-	function RandomValue($Key, $Collection, $Default = False) {
+	function RandomValue($Collection, $Default = False) {
 		if(is_array($Collection)) return $Collection[array_rand($Collection)];
 		return $Default;
 	}
