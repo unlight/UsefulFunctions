@@ -65,6 +65,9 @@ if(!function_exists('SmallImage')) {
 		$SmallImage = GenerateCleanTargetName($TargetFolder, $Filename.'-'.$Hash, $Extension, False, True);
 		if(!file_exists($SmallImage)) Gdn_UploadImage::SaveImageAs($Source, $SmallImage, $Height, $Width, False);
 		
+		if(GetValue('MakeOnly', $Attributes, False, True)) return Url($SmallImage);
+		
+		
 		TouchValue('alt', $Attributes, $Filename);
 		// Fail. ImageSY expects parameter 1 to be resource
 		//if(!array_key_exists('height', $Attributes)) TouchValue('height', $Attributes, ImageSY($SmallImage));
