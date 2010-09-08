@@ -109,8 +109,12 @@ if(!function_exists('Flatten')) {
 }
 
 if(!function_exists('RandomValue')) {
-	function RandomValue($Collection, $Default = False) {
-		if(is_array($Collection)) return $Collection[array_rand($Collection)];
+	function RandomValue(&$Collection, $Default = False, $Remove = False) {
+		if (is_array($Collection)) {
+			$Index = array_rand($Collection);
+			$Default = $Collection[$Index];
+			if($Remove) unset($Collection[$Index]);
+		}
 		return $Default;
 	}
 }
