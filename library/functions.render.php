@@ -57,7 +57,7 @@ if(!function_exists('SmallImage')) {
 		$Height = ArrayValue('height', $Attributes, '');
 		$ImageQuality = GetValue('ImageQuality', $Attributes, 85, True);
 		
-		$Hash = Crc32Value($Source, $Attributes, $ImageQuality);
+		$Hash = Crc32Value($Source, array($Width, $Height, $ImageQuality));
 		$TargetFolder = 'uploads/cached/' . date('Y'); // cache directory
 		if(!is_dir($TargetFolder)) mkdir($TargetFolder, 0777, True);
 		$Filename = pathinfo($Source, 8);

@@ -1,5 +1,13 @@
 <?php
 
+// loota-php_util
+if(!function_exists('IsEmpty')){
+	function IsEmpty($Array) {
+		if (!is_array($Array)) $Array = (array)$Array;
+		return (count(array_filter($Array)) > 0);
+	}
+}
+
 if(!function_exists('TableDataValues')){
 	function TableDataValues($Data, $TableName){
 		static $Cache;
