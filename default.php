@@ -3,7 +3,7 @@
 $PluginInfo['PluginUtils'] = array(
 	'Name' => 'Plugin utils',
 	'Description' => 'Useful functions for plugin and application developers.',
-	'Version' => '2.0.3',
+	'Version' => '2.0.4',
 	'Author' => 'Vanilla Fan'
 );
 
@@ -14,6 +14,7 @@ Gdn::FactoryInstall('Zip', 'PclZip', PLUGINUTILS_VENDORS.DS.'pclzip.lib.php', Gd
 Gdn::FactoryInstall('Snoopy', 'Snoopy', PLUGINUTILS_VENDORS.DS.'Snoopy.class.php', Gdn::FactorySingleton);
 Gdn::FactoryInstall('Mailbox', 'ImapMailbox', PLUGINUTILS_LIBRARY.DS.'class.imapmailbox.php', Gdn::FactorySingleton);
 require PLUGINUTILS_LIBRARY.DS.'functions.render.php';
+require PLUGINUTILS_LIBRARY.DS.'functions.table.php';
 require PLUGINUTILS_LIBRARY.DS.'functions.time.php';
 require PLUGINUTILS_LIBRARY.DS.'functions.dom.php';
 require PLUGINUTILS_LIBRARY.DS.'functions.network.php';
