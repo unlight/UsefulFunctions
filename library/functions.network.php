@@ -1,5 +1,15 @@
 <?php
 
+if(!function_exists('CheckIpMask')){
+	function CheckIpMask($MaskIp, $RemoteAddr = False) {
+		if($RemoteAddr === False) $RemoteAddr = $_SERVER['REMOTE_ADDR'];
+		list($Ip, $MaskBit) = explode('/', $MaskIp);
+		$IpLong = ip2long($Ip) >> (32 - $MaskBit);
+        $SelfIpLong = ip2long($RemoteAddr) >> (32 - $MaskBit);
+        return ($SelfIpLong == $IpLong);
+	}
+}
+
 if(!function_exists('GetRealIpAddress')){
 	function GetRealIpAddress($bIPv4Format = False) {
 		if (!empty($_SERVER['HTTP_CLIENT_IP'])) $Ip = $_SERVER['HTTP_CLIENT_IP'];

@@ -1,5 +1,27 @@
 <?php
 
+if(!function_exists('IncomingArguments')) {
+	function IncomingArguments() {
+		$Arguments = func_get_args();
+		while(is_array($Arguments[0])) $Arguments = $Arguments[0];
+		$Return = array();
+		for($Count = count($Arguments), $i = 0; $i < $Count; $i += 2) {
+			if(!($i & 1)) $Return[$Arguments[$i]] = $Arguments[$i+1];
+		}
+		return $Return;
+	}
+}
+
+if(!function_exists('LoadExtension')) {
+	function LoadExtension($Ext) {
+		$Ext = strtolower($Ext);
+		if (extension_loaded($Ext)) return True;
+		$Prefix = (PHP_SHLIB_SUFFIX == 'dll') ? 'php_' : '';
+		$Loaded = dl($Prefix . $Ext . '.' . PHP_SHLIB_SUFFIX);
+		return ($Loaded > 0);
+	}
+}
+
 if(!function_exists('Pick')) {
 	function Pick($Default = False) {
 		$Arguments = func_get_args();

@@ -128,7 +128,7 @@ if(!function_exists('RandomValue')) {
 }
 
 if(!function_exists('ReplaceEmpty')) {
-	function ReplaceEmpty(&$Collection, $R = ' ') {
+	function ReplaceEmpty(&$Collection, $R = '-') {
 		if(is_object($Collection)){
 			foreach(get_object_vars($Collection) as $Property => $Value){
 				if(StringIsNullOrEmpty($Value)) $Collection->$Property = $R;
