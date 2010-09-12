@@ -10,9 +10,7 @@ if(!function_exists('IncomingArguments')) {
 			array_splice($Arguments, -1);
 			$Count--;
 		}
-		for($i = 0; $i < $Count; $i += 2) {
-			if(!($i & 1)) $Return[$Arguments[$i]] = $Arguments[$i+1];
-		}
+		for($i = 0; $i < $Count; $i += 2) $Return[$Arguments[$i]] = $Arguments[$i+1];
 		return $Return;
 	}
 }
