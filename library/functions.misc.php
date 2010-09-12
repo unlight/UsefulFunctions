@@ -1,11 +1,16 @@
 <?php
 
 if(!function_exists('IncomingArguments')) {
-	function IncomingArguments() {
+	function NewArray() {
 		$Arguments = func_get_args();
 		while(is_array($Arguments[0])) $Arguments = $Arguments[0];
 		$Return = array();
-		for($Count = count($Arguments), $i = 0; $i < $Count; $i += 2) {
+		$Count = count($Arguments);
+		if($Count % 2 == 1){
+			array_splice($Arguments, -1);
+			$Count--;
+		}
+		for($i = 0; $i < $Count; $i += 2) {
 			if(!($i & 1)) $Return[$Arguments[$i]] = $Arguments[$i+1];
 		}
 		return $Return;
