@@ -111,10 +111,12 @@ if(!function_exists('GenerateCleanTargetName')) {
 	}
 }
 
-
 if(!function_exists('UploadFile')) {
 	function UploadFile($TargetFolder, $InputName, $Options = False) {
-		// TODO: InputName - may be array
+/*		if (is_array($InputName)) {
+			$Options = $InputName;
+			$InputName = $TargetFolder;
+		}*/
 
 		$FileName = ArrayValue('name', ArrayValue($InputName, $_FILES));
 		if($FileName == '') return; // no upload, return null
@@ -136,14 +138,37 @@ if(!function_exists('UploadFile')) {
 			if (!is_array($AllowFileExtension)) $AllowFileExtension = SplitString($AllowFileExtension);
 			foreach ($AllowFileExtension as $Extension) $Upload->AllowFileExtension($Extension);
 		}
-
-		$TempFile = $Upload->ValidateUpload($InputName);
+		
+		$IsMultipleUpload = is_array($FileName);
+		$Count = ($IsMultipleUpload) ? count($FileName) : 1;
+		$OriginalFiles = $_FILES;
+		$Result = array();
+		for($i = 0; $i < $Count; $i++){
+			if ($IsMultipleUpload != False) {
+				$_FILES[$InputName] = array();
+				foreach(array('name', 'type', 'tmp_name', 'error', 'size') as $Key) {
+					$Value = GetValueR($InputName.'.'.$Key.'.'.$i, $OriginalFiles);
+					SetValue($Key, $_FILES[$InputName], $Value);
+				}
+			} else $FileName = array($FileName);
+			$TempFile = $Upload->ValidateUpload($InputName);
+			$TargetFile = GenerateCleanTargetName($TargetFolder, $FileName[$i], '', $TempFile, $CanOverwrite);
+			$Upload->SaveAs($TempFile, $TargetFile);
+			if($WebTarget != False) $File = str_replace(DS, '/', $TargetFile);
+			elseif(array_key_exists('WithTargetFolder', $Options)) $File = $TargetFile;
+			else $File = pathinfo($TargetFile, PATHINFO_BASENAME);
+			$Result[] = $File;
+		}
+		$_FILES = $OriginalFiles;
+		if ($IsMultipleUpload) return $Result;
+		return $File;
+/*		$TempFile = $Upload->ValidateUpload($InputName);
 		$TargetFile = GenerateCleanTargetName($TargetFolder, $FileName, '', $TempFile, $CanOverwrite);
 
 		$Upload->SaveAs($TempFile, $TargetFile);
 		$File = pathinfo($TargetFile, PATHINFO_BASENAME);
 		if($WebTarget != False) $File = str_replace(DS, '/', $TargetFile);
-		return $File;
+		return $File;*/
 	}
 }
 
