@@ -3,7 +3,7 @@
 $PluginInfo['PluginUtils'] = array(
 	'Name' => 'Plugin utils',
 	'Description' => 'Useful functions for plugin and application developers.',
-	'Version' => '2.0.4',
+	'Version' => '2.0.6',
 	'Author' => 'Vanilla Fan'
 );
 
@@ -45,6 +45,8 @@ want to rename
 
 CHANGELOG
 =========
+Changelog is not writing anymore.
+
 2.0.0 (04 Sep 2010)
 
 1.999 (14 Aug 2010)

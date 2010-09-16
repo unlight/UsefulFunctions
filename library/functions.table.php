@@ -1,6 +1,6 @@
 <?php
 
-if (!function_exists('OpenTable')) {
+/*if (!function_exists('OpenTable')) {
 	function OpenTable(){
 		$Arguments = func_get_args();
 		$Headers = array_filter($Arguments, 'is_string');
@@ -15,4 +15,4 @@ if (!function_exists('OpenTable')) {
 
 if (!function_exists('CloseTable')) {
 	return '</table>';
-}
+}*/
