@@ -9,11 +9,16 @@ function LoadQueryPath($Document = ''){
 	static $HTMLPurifier;
 	if(!function_exists('qp')) require_once PLUGINUTILS_VENDORS . DS . 'QueryPath.php';
 	if($Document == '') return;
+	try {
+		$Doc = Qp($Document);
+	} catch(Exception $Exception) {
+		if(is_null($HTMLPurifier)) $HTMLPurifier = new HTMLPurifierPlugin();
+		if(strpos($Document, '>') === False) $Document = file_get_contents($Document);
+		$Document = $HTMLPurifier->Format($Document);
+		$Document = trim($Document);
+		if(!StringBeginsWith($Document, '<?xml')) $Document = '<?xml version="1.0" encoding="utf-8"?>'.$Document;
+		$Doc = Qp($Document);
+	}
 	// TODO: check for HTMLPurifierPlugin and throw Exception if not exists
-	if(is_null($HTMLPurifier)) $HTMLPurifier = new HTMLPurifierPlugin();
-	if(strpos($Document, '>') === False) $Document = file_get_contents($Document);
-	$Document = $HTMLPurifier->Format($Document);
-	$Document = trim($Document);
-	if(!StringBeginsWith($Document, '<?xml')) $Document = '<?xml version="1.0" encoding="utf-8"?>'.$Document;
-	return Qp($Document);
+	return $Doc;
 }
