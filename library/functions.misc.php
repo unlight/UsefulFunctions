@@ -1,5 +1,66 @@
 <?php
 
+// key/value storage table
+function K($Name, $Value = Null) {
+	static $SQL, $Cache, $StorageTableCreated;
+	
+	if (is_null($StorageTableCreated)) {
+		$StorageTableCreated = Gdn::Config('Plugins.PluginUtils.StorageTableCreated');
+		if ($StorageTableCreated === False) {
+			Gdn::Structure()
+				->Table('Storage')
+				->Column('Name', 'varchar(200)', False, 'unique')
+				->Column('Value', 'text')
+				->Set(False, False);
+			$StorageTableCreated = True;
+			SaveToConfig('Plugins.PluginUtils.StorageTableCreated', $StorageTableCreated);
+		}
+	}
+	
+	if ($SQL === Null) $SQL = Gdn::SQL();
+	if (is_string($Name) && $Value === Null) {
+		if (!isset($Cache[$Name])) {
+			$Result = Null;
+			$ResultSet = $SQL
+				->Select('Name, Value')
+				->Select('Name, ".", 1', 'substring_index', 'Key1')
+				//->Select('substring_index(Name, ".", 2), ".", -1', 'substring_index', 'Key2')
+				//->Select('substring_index(Name, ".", 3), ".", -1', 'substring_index', 'Key3')
+				//->Select('substring_index(Name, ".", 4), ".", -1', 'substring_index', 'Key4')
+				->From('Storage')
+				->Like('Name', $Name, 'right')
+				->Get();
+			if ($ResultSet->NumRows() == 0) return False;
+			if ($ResultSet->NumRows() == 1) {
+				$Result = $ResultSet->FirstRow()->Value;
+				$Result = Gdn_Format::Unserialize($Result);
+			} else {
+				foreach($ResultSet as $Data) {
+					$K = array_pop(explode('.', $Data->Name));
+					$Result[$K] = $Cache[$Data->Name] = Gdn_Format::Unserialize($Data->Value);
+				}
+				// reduce result array
+				//while(count($Result) == 1) $Result = array_shift($Result);
+			}
+			$Cache[$Name] = $Result;
+		}
+		return $Cache[$Name];
+	}
+
+	// Delete
+	if($Value === False) {
+		if (!is_array($Name)) $Name = array($Name);
+		return $SQL->WhereIn('Name', $Name)->Delete('Storage');
+	}
+
+	// Insert/Update
+	if (!is_array($Name)) $Name = array($Name => $Value);	
+	foreach ($Name as $Key => $Value) {
+		$Value = Gdn_Format::Serialize($Value);
+		$SQL->Replace('Storage', array('Value' => $Value), array('Name' => $Key));
+	}
+}
+
 if(!function_exists('IncomingArguments')) {
 	function NewArray() {
 		$Arguments = func_get_args();
