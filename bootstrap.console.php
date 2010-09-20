@@ -26,3 +26,6 @@ if(!Console::Check() && C('Plugins.PluginUtils.Console.Check')) die('Please, run
 if(PHP_SAPI == 'cli') $_GET['DeliveryType'] = 'VIEW';
 
 @ob_end_clean();
+
+$Host = GetValue(1, explode('//', Gdn::Config('Garden.Domain')));
+Gdn::Request()->RequestHost($Host);
