@@ -63,7 +63,7 @@ if(!function_exists('K')) {
 	}
 }
 
-if(!function_exists('IncomingArguments')) {
+if(!function_exists('NewArray')) {
 	function NewArray() {
 		$Arguments = func_get_args();
 		while(is_array($Arguments[0])) $Arguments = $Arguments[0];
