@@ -20,7 +20,14 @@ if(!function_exists('TableDataValues')){
 		$Data = Gdn_Format::ObjectAsArray($Data);
 		foreach ($Data as $Name => $Value) {
 			if(is_object($Value) || is_array($Value)) continue;
-			if(array_key_exists($Name, $Columns)) {
+			
+			// TODO: WE CAN PUT THIS INTO CACHE
+			$ColumnKeys = array_keys($Columns);
+			$ColumnKeys = array_combine(array_map('strtolower', $ColumnKeys), $ColumnKeys);
+			$NameLowered = strtolower($Name);
+
+			if(array_key_exists($NameLowered, $ColumnKeys)) {
+				$Name = $ColumnKeys[$NameLowered];
 				$Field = $Columns[$Name];
 				$Float = array('float', 'double');
 				$Int = array('int', 'tinyint', 'smallint', 'mediumint', 'bigint');
