@@ -50,8 +50,9 @@ if(!function_exists('K')) {
 
 		// Delete
 		if($Value === False) {
-			if (!is_array($Name)) $Name = array($Name);
-			return $SQL->WhereIn('Name', $Name)->Delete('Storage');
+			if (is_array($Name)) return $SQL->WhereIn('Name', $Name)->Delete('Storage');
+			if (is_string($Name)) return $SQL->Like('Name', $Name, 'right')->Delete('Storage');
+			trigger_error(sprintf('Incorrect type of Key (%s)', gettype($Name)));
 		}
 
 		// Insert/Update
