@@ -1,5 +1,39 @@
 <?php
 
+if(!function_exists('ArraySum')) {
+	function ArraySum($Array){
+		$N = 0;
+		$Array = array_values($Array);
+		for($Count = Count($Array), $i = 0; $i < $Count; $i++) $N = Summation($N, $Array[$i]);
+		return $N;
+	}
+}
+
+// TODO: ADD $C, $D... func_get_args
+if(!function_exists('Summation')) {
+	function Summation($A, $B) {
+		
+		settype($A, 'string');
+		settype($B, 'string');
+		
+		$AL = strlen($A);
+		$BL = strlen($B);
+		$MaxLength = ($AL > $BL) ? $AL : $BL;
+		$A = str_pad($A, $MaxLength, '0', STR_PAD_LEFT);
+		$B = str_pad($B, $MaxLength, '0', STR_PAD_LEFT);
+		
+		for($i = $MaxLength - 1; $i >= 0; $i--) {
+			if(!isset($C[$i])) $C[$i] = 0;
+			$C[$i] += (int)$A[$i] + (int)$B[$i];
+			if($C[$i] > 9){
+				$C[$i] -= 10;
+				$C[$i-1] = 1;
+			}
+		}
+		return implode('', array_reverse($C));
+	}
+}
+
 if(!function_exists('Crc32Value')) {
 	function Crc32Value($Length = -1){
 		$Value = func_get_args();
