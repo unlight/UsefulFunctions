@@ -40,14 +40,14 @@ if(!function_exists('TableDataValues')){
 	}
 }
 
-if(!function_exists('ConsolidateDataSetValues')){
+if(!function_exists('ConsolidateDataSetValues')) {
+	$Result = array();
 	function ConsolidateDataSetValues($Array, $Options, $ValueKey = Null) {
 		if (is_string($Options) && substr($Options, 0, 1) == '{') $Options = json_decode($Options);
 		if (is_scalar($Options)) $Options = array('Key' => $Options);
 		$Key = GetValue('Key', $Options);
 		$ValueKey = GetValue('ValueKey', $Options, $ValueKey);
 
-		$Result = array();
 		foreach ($Array as $Index => $Data) {
 			$N = GetValue($Key, $Data);
 			if($ValueKey == 'full') $Result[$N][] = $Data;
