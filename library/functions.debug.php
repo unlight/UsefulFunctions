@@ -2,11 +2,16 @@
 
 if(!function_exists('d')) {
 	function d(){
+		static $bSetStyle = True;
 		static $bExit = True;
 		if(!defined('DPHP_USE_ACCESSIBLE')) require PLUGINUTILS_VENDORS.DS.'class.dumphper.php';
 		$Args = func_get_args();
 		if(count($Args) == 0 && $bExit) $bExit = False;
 		if (PHP_SAPI != 'cli') {
+			if($bSetStyle) {
+				$bSetStyle = False;
+				echo "<style type='text/css'>.dumphper span{font-size:13px !important;font-family:'Arial' !important;}</style>\n";
+			}
 			foreach($Args as $A) Dumphper::dump($A);
 		} else {
 			$i = 1;
