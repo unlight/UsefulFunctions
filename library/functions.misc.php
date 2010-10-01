@@ -1,10 +1,4 @@
-<?php
-# ﻿
-
-/*function SaveTags($TagString) {
-	$SQL = Gdn::SQL();
-	$TagNames = array_unique(SplitString($TagString, ' '));
-}*/
+<?php #﻿
 
 // key/value storage table
 if(!function_exists('K')) {

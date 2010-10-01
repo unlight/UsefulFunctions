@@ -70,15 +70,34 @@ if(!function_exists('ConvertEncoding')) {
 	}
 }
 
+/*if(!function_exists('SplitString')) {
+	function SplitString($String, $RegExpr = False, $FilterFunction = Null){
+		-----------
+		if($RegExpr{0} != '/') $RegExpr = '/'.$RegExpr.'/';
+		$Array = preg_split($RegExpr, $String);
+		$Array = array_map('trim', $Array);
+		$Array = (is_callable($FilterFunction)) ? array_filter($Array, $FilterFunction) : array_filter($Array);
+		return $Array;
+	}
+}*/
+
 if(!function_exists('SplitString')) {
 	function SplitString($String, $RegExpr = False, $FilterFunction = Null) {
 		if($RegExpr == False) $RegExpr = '/\s*,\s*/';
 		if($RegExpr{0} != '/') $RegExpr = '/'.$RegExpr.'/';
 		$Array = preg_split($RegExpr, $String);
 		$Array = array_map('trim', $Array);
-		if (!is_callable($FilterFunction)) $FilterFunction = 'array_filter';
-		if (!is_array($FilterFunction)) $FilterFunction = array($FilterFunction);
-		foreach($FilterFunction as $Callback) $Array = $Callback($Array);
+		$Type = gettype($FilterFunction);
+		$Callbacks = array();
+		switch($Type){
+			case 'NULL': $Array = array_filter($Array); break;
+			case 'string': $Array = array_filter($Array, $FilterFunction); break;
+			case 'array': {
+				foreach($FilterFunction as $Function) 
+					$Array = array_map($Function, $Array);
+			} break;
+			default: trigger_error(sprintf('Unexpected type (%s) given', $Type));
+		}
 		return $Array;
 	}
 }
