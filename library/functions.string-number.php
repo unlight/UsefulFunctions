@@ -93,8 +93,7 @@ if(!function_exists('SplitString')) {
 			case 'NULL': $Array = array_filter($Array); break;
 			case 'string': $Array = array_filter($Array, $FilterFunction); break;
 			case 'array': {
-				foreach($FilterFunction as $Function) 
-					$Array = array_map($Function, $Array);
+				foreach($FilterFunction as $Function) $Array = $Function($Array);
 			} break;
 			default: trigger_error(sprintf('Unexpected type (%s) given', $Type));
 		}
