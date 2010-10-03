@@ -23,15 +23,22 @@ if(!function_exists('K')) {
 		
 		if ($SQL === Null) $SQL = Gdn::SQL();
 		if (is_string($Name) && $Value === Null) {
+			$ReturnType = $Name{0};
+			switch($ReturnType){
+				case '#': $SQL->Where('Name', substr($Name, 1)); break;
+				case '%': 
+				case '@':
+				default: $SQL->Like('Name', substr($Name, 1), 'right')
+			}
+			
 			if (!isset($Cache[$Name])) {
 				$Result = Null;
 				$ResultSet = $SQL
 					->Select('Name, Value')
-					->From('Storage')
-					->Like('Name', $Name, 'right')
+					->From('Data')
 					->Get();
 				if ($ResultSet->NumRows() == 0) return False;
-				if ($ResultSet->NumRows() == 1) {
+				if ($ReturnType == '#' || $ResultSet->NumRows() == 1) {
 					$Result = $ResultSet->FirstRow()->Value;
 					$Result = Gdn_Format::Unserialize($Result);
 				} else {
@@ -49,8 +56,8 @@ if(!function_exists('K')) {
 
 		// Delete
 		if($Value === False) {
-			if (is_array($Name)) return $SQL->WhereIn('Name', $Name)->Delete('Storage');
-			if (is_string($Name)) return $SQL->Like('Name', $Name, 'right')->Delete('Storage');
+			if (is_array($Name)) return $SQL->WhereIn('Name', $Name)->Delete('Data');
+			if (is_string($Name)) return $SQL->Like('Name', $Name, 'right')->Delete('Data');
 			trigger_error(sprintf('Incorrect type of Key (%s)', gettype($Name)));
 		}
 
@@ -58,7 +65,7 @@ if(!function_exists('K')) {
 		if (!is_array($Name)) $Name = array($Name => $Value);	
 		foreach ($Name as $Key => $Value) {
 			$Value = Gdn_Format::Serialize($Value);
-			$SQL->Replace('Storage', array('Value' => $Value), array('Name' => $Key));
+			$SQL->Replace('Data', array('Value' => $Value), array('Name' => $Key));
 		}
 	}
 }
