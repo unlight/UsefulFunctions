@@ -21,33 +21,32 @@ if(!function_exists('K')) {
 			}
 		}
 		
+		// Select
 		if ($SQL === Null) $SQL = Gdn::SQL();
 		if (is_string($Name) && $Value === Null) {
-			$ReturnType = $Name{0};
-			switch($ReturnType){
-				case '#': $SQL->Where('Name', substr($Name, 1)); break;
+			$Modificator = $Name{0};
+			if (in_array($Modificator, array('#', '%', '@'))) $Name = substr($Name, 1);
+			switch($Modificator){
+				case '#': $SQL->Where('Name', $Name); break;
 				case '%': 
 				case '@':
-				default: $SQL->Like('Name', substr($Name, 1), 'right')
+				default: $SQL->Like('Name', $Name, 'right');
 			}
 			
 			if (!isset($Cache[$Name])) {
 				$Result = Null;
-				$ResultSet = $SQL
-					->Select('Name, Value')
-					->From('Data')
-					->Get();
+				$ResultSet = $SQL->Select('Name, Value')->From('Data')->Get();
 				if ($ResultSet->NumRows() == 0) return False;
-				if ($ReturnType == '#' || $ResultSet->NumRows() == 1) {
-					$Result = $ResultSet->FirstRow()->Value;
-					$Result = Gdn_Format::Unserialize($Result);
-				} else {
+				elseif ($Modificator == '@' || $ResultSet->NumRows() > 1) {
 					foreach($ResultSet as $Data) {
 						$K = array_pop(explode('.', $Data->Name));
 						$Result[$K] = $Cache[$Data->Name] = Gdn_Format::Unserialize($Data->Value);
 					}
 					// reduce result array
-					//while(count($Result) == 1) $Result = array_shift($Result);
+					//if ($Modificator == '@') while(count($Result) == 1) $Result = array_shift($Result);
+				} else {
+					$Result = $ResultSet->FirstRow()->Value;
+					$Result = Gdn_Format::Unserialize($Result);
 				}
 				$Cache[$Name] = $Result;
 			}
