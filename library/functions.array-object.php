@@ -1,5 +1,18 @@
 <?php
 
+/*if(!function_exists('ArrayMap')){
+	function ArrayMap($Array, $Filter = Null, $Callbacks = Null) {
+		if(is_array($Filter)){
+			foreach($Filter as $Function) $Array = array_filter($Array, $Function);
+		}
+		if(is_array($Callbacks)){
+			foreach($Callbacks as $Function) $Array = array_map($Function, $Array);
+		}
+		return $Array;
+	}
+}*/
+
+
 // loota-php_util
 if(!function_exists('IsEmpty')){
 	function IsEmpty($Array) {
@@ -39,6 +52,18 @@ if(!function_exists('TableDataValues')){
 		return $Result;
 	}
 }
+
+// Same as ConsolidateDataSetValues($Array, 'ID', 'unique')
+/*if(!function_exists('PromoteKey')) {
+	function PromoteKey($Collection, $PromotedKey) {
+		$Result = array();
+		foreach($Collection as $Data) {
+			$K = GetValue($PromotedKey, $Data);
+			$Result[$K] = $Data;
+		}
+		return $Result;
+	}
+}*/
 
 if(!function_exists('ConsolidateDataSetValues')) {
 	function ConsolidateDataSetValues($Array, $Options, $ValueKey = Null) {

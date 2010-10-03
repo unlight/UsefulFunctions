@@ -23,6 +23,11 @@ do {
 		$Events[] = $Event;
 	}
 	
+	$Event = $Events[1].'_'.date('l');
+	$Handler->FireEvent($Event);
+	Console::Message('Tick: %s', $Event);
+	$Events[] = $Event;
+	
 	$Range = Flatten(array(
 		range(1, 99, 1),
 		range(100, 999, 5))
@@ -69,6 +74,10 @@ class ExamplePlugin implements Gdn_IPlugin{
 		// 
 	}
 
+	public function Tick_Match_55_Minutes_15_Hours_Sunday(){
+		// 
+	}
+	
 	public function Tick_Every_25_Hours_Handler(){
 		//
 	}

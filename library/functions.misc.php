@@ -1,20 +1,23 @@
 <?php #﻿
 
+// TODO:
+//http://browsers.garykeith.com/stream.asp?PHP_BrowsCapINI
+
 // key/value storage table
 if(!function_exists('K')) {
 	function K($Name, $Value = Null) {
-		static $SQL, $Cache, $StorageTableCreated;
+		static $SQL, $Cache, $DataTableCreated;
 		
-		if (is_null($StorageTableCreated)) {
-			$StorageTableCreated = Gdn::Config('Plugins.PluginUtils.StorageTableCreated');
-			if ($StorageTableCreated === False) {
+		if (is_null($DataTableCreated)) {
+			$DataTableCreated = C('Plugins.PluginUtils.DataTableCreated');
+			if ($DataTableCreated === False) {
 				Gdn::Structure()
-					->Table('Storage')
+					->Table('Data')
 					->Column('Name', 'varchar(200)', False, 'unique')
 					->Column('Value', 'text')
 					->Set(False, False);
-				$StorageTableCreated = True;
-				SaveToConfig('Plugins.PluginUtils.StorageTableCreated', $StorageTableCreated);
+				$DataTableCreated = True;
+				SaveToConfig('Plugins.PluginUtils.DataTableCreated', $DataTableCreated);
 			}
 		}
 		
@@ -24,10 +27,6 @@ if(!function_exists('K')) {
 				$Result = Null;
 				$ResultSet = $SQL
 					->Select('Name, Value')
-					->Select('Name, ".", 1', 'substring_index', 'Key1')
-					//->Select('substring_index(Name, ".", 2), ".", -1', 'substring_index', 'Key2')
-					//->Select('substring_index(Name, ".", 3), ".", -1', 'substring_index', 'Key3')
-					//->Select('substring_index(Name, ".", 4), ".", -1', 'substring_index', 'Key4')
 					->From('Storage')
 					->Like('Name', $Name, 'right')
 					->Get();

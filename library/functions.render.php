@@ -277,16 +277,5 @@ if(!function_exists('ThumbnailImage')){
 if(!function_exists('Size')) {
 	function Size($Bytes, $Precision = 2) {
 		return Gdn_Format::Bytes($Bytes, $Precision);
-		// DEPRECATED, USE Gdn_Format::Bytes($Bytes)
-		/*$Units = array('B', 'KB', 'MB', 'GB', 'TB');
-
-		$Bytes = max($Bytes, 0);
-		$Pow = floor(($Bytes ? log($Bytes) : 0) / log(1024));
-		$Pow = min($Pow, count($Units) - 1);
-
-		$Bytes /= pow(1024, $Pow);
-
-		return round($Bytes, $Precision) . ' ' . $Units[$Pow];
-		*/
 	}
 }
