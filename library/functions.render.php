@@ -208,8 +208,9 @@ if(!function_exists('JavaScript')){
 
 if(!function_exists('NoIndex')){
 	function NoIndex($String){
+		$String = JavaScript($String, True);
 		$String = "<!-- This text shouldn't be indexed //-->\n" . $String;
-		return JavaScript($String, True);
+		return $String;
 	}
 }
 
