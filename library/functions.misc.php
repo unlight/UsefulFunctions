@@ -1,7 +1,4 @@
-<?php #﻿
-
-// TODO:
-//http://browsers.garykeith.com/stream.asp?PHP_BrowsCapINI
+<?php
 
 // key/value storage table
 if(!function_exists('K')) {
@@ -26,18 +23,30 @@ if(!function_exists('K')) {
 		if (is_string($Name) && $Value === Null) {
 			$Modificator = $Name{0};
 			if (in_array($Modificator, array('#', '%', '@'))) $Name = substr($Name, 1);
-			switch($Modificator){
-				case '#': $SQL->Where('Name', $Name); break;
-				case '%': 
-				case '@':
-				default: $SQL->Like('Name', $Name, 'right');
-			}
 			
 			if (!isset($Cache[$Name])) {
+				
+				switch($Modificator){
+					case '#': $SQL->Where('Name', $Name); break;
+					case '%': 
+					case '@':
+					default: $SQL->Like('Name', $Name, 'right');
+				}
+				
 				$Result = Null;
 				$ResultSet = $SQL->Select('Name, Value')->From('Data')->Get();
 				if ($ResultSet->NumRows() == 0) return False;
-				elseif ($Modificator == '@' || $ResultSet->NumRows() > 1) {
+				elseif ($Modificator == '%') {
+					foreach($ResultSet as $Data) {
+						$S = "['".str_replace('.', "']['", $Data->Name)."']";
+						eval("\$Value =& \$Result{$S};"); // eval is evil
+						if (is_null($Value) || $Value === '' || is_array($Value)) {
+							$Value = $Cache[$Data->Name] = Gdn_Format::Unserialize($Data->Value);
+						} else {
+							// Lost value. What should we do? Delete? Throw Exception?
+						}
+					}
+				} elseif ($Modificator == '@' || $ResultSet->NumRows() > 1) {
 					foreach($ResultSet as $Data) {
 						$K = array_pop(explode('.', $Data->Name));
 						$Result[$K] = $Cache[$Data->Name] = Gdn_Format::Unserialize($Data->Value);
@@ -144,5 +153,5 @@ if(!function_exists('Kick')){
 
 
 
-
+#﻿
 
