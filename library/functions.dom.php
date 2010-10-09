@@ -2,8 +2,19 @@
 
 function LoadPhpQuery(){
 	//if(!class_exists('PhpQuery')) require_once dirname(__FILE__).DS.'vendors' . DS . 'phpQuery.php';
-	if(!function_exists('Pq')) require_once PLUGINUTILS_VENDORS . DS . 'phpQuery.php';
+	if (!function_exists('Pq')) require_once PLUGINUTILS_VENDORS . DS . 'phpQuery.php';
 }
+
+function PqDocument($Document) {
+	if (!function_exists('Pq')) require_once PLUGINUTILS_VENDORS . DS . 'phpQuery.php';
+	$HtmlFormatter = Gdn::Factory('HtmlFormatter');
+	if (strpos($Document, '<') === False) $Document = file_get_contents($Document);
+	if ($HtmlFormatter) $Document = $HtmlFormatter->Format($Document);
+	$Doc = phpQuery::newDocumentXHTML($Document);
+	return $Doc;
+}
+
+// QueryPath cant work with utf-8 (non latin chars), will be removed.
 
 function LoadQueryPath($Document = ''){
 	static $HTMLPurifier;

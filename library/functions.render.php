@@ -1,5 +1,8 @@
 <?php
 
+/**
+* Writes an HTML5 video tag.
+*/
 if(!function_exists('Video')) {
 	function Video($Source, $Attributes = array()){
 		static $DefaultAttributes = array('width' => 640, 'height' => 360, 'poster' => '', 'autoplay' => False, 'controls' => 'controls');
