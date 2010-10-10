@@ -8,28 +8,9 @@ function LoadPhpQuery(){
 function PqDocument($Document) {
 	if (!function_exists('Pq')) require_once PLUGINUTILS_VENDORS . DS . 'phpQuery.php';
 	$HtmlFormatter = Gdn::Factory('HtmlFormatter');
-	if (strpos($Document, '<') === False) $Document = file_get_contents($Document);
-	if ($HtmlFormatter) $Document = $HtmlFormatter->Format($Document);
-	$Doc = phpQuery::newDocumentXHTML($Document);
-	return $Doc;
-}
-
-// QueryPath cant work with utf-8 (non latin chars), will be removed.
-
-function LoadQueryPath($Document = ''){
-	static $HTMLPurifier;
-	if(!function_exists('qp')) require_once PLUGINUTILS_VENDORS . DS . 'QueryPath.php';
-	if($Document == '') return;
-	try {
-		$Doc = Qp($Document);
-	} catch(Exception $Exception) {
-		if(is_null($HTMLPurifier)) $HTMLPurifier = new HTMLPurifierPlugin();
-		if(strpos($Document, '>') === False) $Document = file_get_contents($Document);
-		$Document = $HTMLPurifier->Format($Document);
-		$Document = trim($Document);
-		if(!StringBeginsWith($Document, '<?xml')) $Document = '<?xml version="1.0" encoding="utf-8"?>'.$Document;
-		$Doc = Qp($Document);
+	if (strpos($Document, '<') === False) {
+		if (is_file($Document)) $Document = file_get_contents($Document);
 	}
-	// TODO: check for HTMLPurifierPlugin and throw Exception if not exists
-	return $Doc;
+	if ($HtmlFormatter) $Document = $HtmlFormatter->Format($Document);
+	return phpQuery::newDocumentXHTML($Document);
 }
