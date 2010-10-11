@@ -5,6 +5,28 @@ function LocaleLanguageCode(){
 	return ArrayValue(0, $T, 'en');
 }
 
+function GoogleTranslate($Text, $Options = False) {
+	static $LanguageCode;
+	if (is_null($LanguageCode)) $LanguageCode = LocaleLanguageCode();
+	$ResetCache = ArrayValue('ResetCache', $Options, False);
+	$From = ArrayValue('From', $Options, $LanguageCode);
+	$To = ArrayValue('To', $Options, $LanguageCode);
+	
+	$String = rawurlencode($Text);
+	if (!LoadExtension('curl')) throw new Exception('You need to load/activate the cURL extension (http://www.php.net/cURL).');
+	$Resource = curl_init();
+	$Protocol = (GetValue('HTTPS', $_SERVER) == 'on') ? 'https://' : 'http://';
+	$Host = GetValue('HTTP_HOST', $_SERVER, 'google.com');
+	$Referer = $Protocol.$Host;
+	curl_setopt($Resource, CURLOPT_URL, "http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q={$String}&langpair={$From}%7C{$To}");
+	curl_setopt($Resource, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($Resource, CURLOPT_REFERER, $Referer);
+	$Body = curl_exec($Resource);
+	curl_close($Resource);
+	$TranslatedText = GetValueR('responseData.translatedText', json_decode($Body));
+	return $TranslatedText;
+}
+
 function LingvoTranslate($Word, $Options = array()){
 	LoadPhpQuery();
 	static $Result, $LanguageCode;
