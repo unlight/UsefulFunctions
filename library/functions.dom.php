@@ -10,6 +10,8 @@ function PqDocument($Document, $Options = False) {
 	if (strpos($Document, '<') === False) {
 		if (is_file($Document)) $Document = file_get_contents($Document);
 	}
+	if (GetValue('ConvertEncoding', $Options)) $Document = ConvertEncoding($Document);
+	
 	if (GetValue('FixHtml', $Options, True)) {
 		$HtmlFormatter = Gdn::Factory('HtmlFormatter');
 		if ($HtmlFormatter) $Document = $HtmlFormatter->Format($Document);
