@@ -156,16 +156,27 @@ if(!function_exists('AltAttribute')){
 
 if(!function_exists('FlashHtml')){
 	function FlashHtml($Movie, $Attributes = array(), $Params = array(), $FlashVars = False) {
+		// TODO: We can get width/height by GetImageSize()
 		static $DefaultAttributes = array('width' => 400, 'height' => 300, 'type' => 'application/x-shockwave-flash');
 		static $DefaultParams = array('allowfullscreen' => 'true', 'allowscriptaccess' => 'always', 'quality' => 'best', 'menu' => 'false');
 		// BUG: 'wmode' => 'transparent'
-
+		
 		$ScriptRender = GetValue('ScriptRender', $Attributes, False, True);
 
 		if(!is_array($Params)) $Params = array();
 		$Params = array_merge($DefaultParams, $Params);
 		$Attributes = array_merge($DefaultAttributes, $Attributes);
 		$Movie = Asset($Movie);
+		
+		// check size
+		if (array_key_exists('width', $Attributes) || array_key_exists('height', $Attributes)) {
+			$ImageInfo = GetImageSize($Movie);
+			if ($ImageInfo != False) {
+				TouchValue('width', $Attributes, $ImageInfo[0]);
+				TouchValue('height', $Attributes, $ImageInfo[1]);
+			}
+		}
+		
 		$FlashVars = GetValue('FlashVars', $Attributes, $FlashVars, True);
 		if($FlashVars != False){
 			$FlashVars = Gdn_Format::ObjectAsArray($FlashVars);
