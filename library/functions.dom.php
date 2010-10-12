@@ -5,12 +5,14 @@ function LoadPhpQuery(){
 	if (!function_exists('Pq')) require_once PLUGINUTILS_VENDORS . DS . 'phpQuery.php';
 }
 
-function PqDocument($Document) {
+function PqDocument($Document, $Options = False) {
 	if (!function_exists('Pq')) require_once PLUGINUTILS_VENDORS . DS . 'phpQuery.php';
-	$HtmlFormatter = Gdn::Factory('HtmlFormatter');
 	if (strpos($Document, '<') === False) {
 		if (is_file($Document)) $Document = file_get_contents($Document);
 	}
-	if ($HtmlFormatter) $Document = $HtmlFormatter->Format($Document);
+	if (GetValue('FixHtml', $Options, True)) {
+		$HtmlFormatter = Gdn::Factory('HtmlFormatter');
+		if ($HtmlFormatter) $Document = $HtmlFormatter->Format($Document);
+	}
 	return phpQuery::newDocumentXHTML($Document);
 }
