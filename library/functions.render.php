@@ -169,7 +169,7 @@ if(!function_exists('FlashHtml')){
 		$Movie = Asset($Movie);
 		
 		// check size
-		if (array_key_exists('width', $Attributes) || array_key_exists('height', $Attributes)) {
+		if (!array_key_exists('width', $Attributes) || !array_key_exists('height', $Attributes)) {
 			$ImageInfo = GetImageSize($Movie);
 			if ($ImageInfo != False) {
 				TouchValue('width', $Attributes, $ImageInfo[0]);
