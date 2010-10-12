@@ -165,8 +165,7 @@ if(!function_exists('FlashHtml')){
 
 		if(!is_array($Params)) $Params = array();
 		$Params = array_merge($DefaultParams, $Params);
-		$Attributes = array_merge($DefaultAttributes, $Attributes);
-		$Movie = Asset($Movie);
+		$Movie = Asset($Movie, True);
 		
 		// check size
 		if (!array_key_exists('width', $Attributes) || !array_key_exists('height', $Attributes)) {
@@ -176,6 +175,8 @@ if(!function_exists('FlashHtml')){
 				TouchValue('height', $Attributes, $ImageInfo[1]);
 			}
 		}
+		
+		$Attributes = array_merge($DefaultAttributes, $Attributes);
 		
 		$FlashVars = GetValue('FlashVars', $Attributes, $FlashVars, True);
 		if($FlashVars != False){
