@@ -3,13 +3,14 @@
 $PluginInfo['PluginUtils'] = array(
 	'Name' => 'Plugin utils',
 	'Description' => 'Useful functions for plugin and application developers.',
-	'Version' => '2.0.20',
+	'Version' => '2.0.21',
 	'Author' => 'Vanilla Fan'
 );
 
 define('PLUGINUTILS_LIBRARY', dirname(__FILE__).DS.'library');
 define('PLUGINUTILS_VENDORS', dirname(__FILE__).DS.'vendors');
 
+// TODO: PclZip since 12 Oct 2010 exists vendors library
 Gdn::FactoryInstall('Zip', 'PclZip', PLUGINUTILS_VENDORS.DS.'pclzip.lib.php', Gdn::FactoryInstance);
 Gdn::FactoryInstall('Snoopy', 'Snoopy', PLUGINUTILS_VENDORS.DS.'Snoopy.class.php', Gdn::FactorySingleton);
 Gdn::FactoryInstall('Mailbox', 'ImapMailbox', PLUGINUTILS_LIBRARY.DS.'class.imapmailbox.php', Gdn::FactorySingleton);

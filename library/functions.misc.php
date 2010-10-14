@@ -1,6 +1,37 @@
 <?php
 
-// key/value storage table
+/**
+* Function saves new tags. Return existing.
+*/
+
+if(!function_exists('SaveTags')) {
+	function SaveTags($TagString) {
+		if(!is_string($TagString)) $TagString = GetValue('Tags', $TagString);
+		$TagString = mb_strtolower($TagString, 'utf-8');
+		$TagString = preg_replace('/[^ \-0-9a-zа-я]/iu', ' ', $TagString);
+		$TagsNames = SplitString($TagString, ' ', array('array_filter', 'array_unique'));
+		$ExistingTagData = Gdn::SQL()
+			->Select('TagID, Name')
+			->From('Tag')
+			->WhereIn('Name', $TagsNames)
+			->Get();
+		$ConsolidatedTags = ConsolidateArrayValuesByKey($ExistingTagData->ResultArray(), 'Name', 'TagID');
+		foreach($TagsNames as $TagName) {
+			$TagID = GetValue($TagName, $ConsolidatedTags);
+			if($TagID === False) {
+				$TagID = Gdn::SQL()
+					->History(False, True)
+					->Insert('Tag', array('Name' => $TagName));
+			}
+			$ConsolidatedTags[$TagName] = $TagID;
+		}
+		return $ConsolidatedTags;
+	}
+}
+
+/**
+* Key/value storage.
+*/
 if(!function_exists('K')) {
 	function K($Name, $Value = Null) {
 		static $SQL, $Cache, $DataTableCreated;
