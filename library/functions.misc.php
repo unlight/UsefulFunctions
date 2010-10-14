@@ -1,6 +1,18 @@
 <?php
 
-# TODO: Recount tags for table
+/**
+* Saves data to tables wguch are in many-to-many relationship
+*/
+if(!function_exists('SaveManyToManyData')) {
+	function SaveManyToManyData($TableName, $Where, $OtherFieldName, $Values) {
+		$SQL = Gdn::SQL();
+		$SQL->Where($Where)->Delete($TableName);
+		$DataInsert = array();
+		foreach ($Values as $Value) $DataInsert[] = array_merge($Where, array($OtherFieldName => $Value));
+		return $SQL->Insert($TableName, $DataInsert);
+	}
+}
+
 
 /**
 * Function saves new tags. Return existing.

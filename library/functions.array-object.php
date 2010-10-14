@@ -17,7 +17,7 @@
 if(!function_exists('IsEmpty')){
 	function IsEmpty($Array) {
 		if (!is_array($Array)) $Array = (array)$Array;
-		return (count(array_filter($Array)) > 0);
+		return (count(array_filter($Array)) == 0);
 	}
 }
 
