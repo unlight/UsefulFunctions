@@ -1,5 +1,7 @@
 <?php
 
+# TODO: Recount tags for table
+
 /**
 * Function saves new tags. Return existing.
 */
