@@ -1,5 +1,33 @@
 <?php
 
+
+/**
+* Count something in many-to-many relationship tables
+* SQL statement:
+update News n set n.TagCount = (
+	select count(*) from NewsTags nt
+		where nt.NewsID = n.NewsID
+)
+*/ 
+
+if(!function_exists('CountManyToManyData')) {
+	// TODO: FIX ME: No escape values here
+	function CountManyToManyData($OuterTableName, $OuterField, $InnerTableName, $Where) {
+		$SQL = Gdn::SQL();
+		$Sql = $SQL
+			->Select('*', 'count', 'RowCount')
+			->From($InnerTableName)
+			->Where($Where, Null, False, False)
+			->GetSelect();
+		$SQL->Reset();
+		$Result = $SQL
+			->Update($OuterTableName)
+			->Set($OuterField, "($Sql)", False)
+			->Put();
+		return $Result;
+	}
+}
+
 /**
 * Saves data to tables wguch are in many-to-many relationship
 */
