@@ -29,7 +29,7 @@ if(!function_exists('CountManyToManyData')) {
 }
 
 /**
-* Saves data to tables wguch are in many-to-many relationship
+* Saves data to tables which are in many-to-many relationship
 */
 if(!function_exists('SaveManyToManyData')) {
 	function SaveManyToManyData($TableName, $Where, $OtherFieldName, $Values) {
