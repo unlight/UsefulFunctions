@@ -77,7 +77,7 @@ if(!function_exists('SplitString')) {
 		$Array = preg_split($RegExpr, $String);
 		$Array = array_map('trim', $Array);
 		$Type = gettype($FilterFunction);
-		$Callbacks = array();
+		//$Callbacks = array();
 		switch($Type){
 			case 'NULL': $Array = array_filter($Array); break;
 			case 'string': $Array = array_filter($Array, $FilterFunction); break;

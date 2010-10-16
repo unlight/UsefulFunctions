@@ -59,14 +59,15 @@ if(!function_exists('SmallImage')) {
 		$Width = ArrayValue('width', $Attributes, '');
 		$Height = ArrayValue('height', $Attributes, '');
 		$ImageQuality = GetValue('ImageQuality', $Attributes, 85, True);
+		$Crop = GetValue('Crop', $Attributes, False, True);
 		
-		$Hash = Crc32Value($Source, array($Width, $Height, $ImageQuality));
+		$Hash = Crc32Value($Source, array($Width, $Height, $ImageQuality, $Crop));
 		$TargetFolder = 'uploads/cached/' . date('Y'); // cache directory
 		if(!is_dir($TargetFolder)) mkdir($TargetFolder, 0777, True);
 		$Filename = pathinfo($Source, 8);
 		$Extension = pathinfo($Source, 4);
 		$SmallImage = GenerateCleanTargetName($TargetFolder, $Filename.'-'.$Hash, $Extension, False, True);
-		if(!file_exists($SmallImage)) Gdn_UploadImage::SaveImageAs($Source, $SmallImage, $Height, $Width, False);
+		if(!file_exists($SmallImage)) Gdn_UploadImage::SaveImageAs($Source, $SmallImage, $Height, $Width, $Crop);
 		
 		if(GetValue('MakeOnly', $Attributes, False, True)) return Url($SmallImage);
 		
