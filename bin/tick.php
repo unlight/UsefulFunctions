@@ -1,6 +1,7 @@
 #!/usr/local/bin/php
 <?php
 // */5 * * * * /home/www/htdocs/plugins/PluginUtils/bin/tick.php
+ini_set('memory_limit', '256M');
 
 require dirname(__FILE__) . '/../bootstrap.console.php';
 require PLUGINUTILS_LIBRARY . DS .  'class.tick.php';

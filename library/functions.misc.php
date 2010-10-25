@@ -34,9 +34,9 @@ if(!function_exists('CountManyToManyData')) {
 if(!function_exists('SaveManyToManyData')) {
 	function SaveManyToManyData($TableName, $Where, $OtherFieldName, $Values) {
 		$SQL = Gdn::SQL();
-		$SQL->Where($Where)->Delete($TableName);
 		$DataInsert = array();
 		foreach ($Values as $Value) $DataInsert[] = array_merge($Where, array($OtherFieldName => $Value));
+		$SQL->Where($Where)->Delete($TableName);
 		return $SQL->Insert($TableName, $DataInsert);
 	}
 }
