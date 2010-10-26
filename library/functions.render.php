@@ -62,7 +62,7 @@ if(!function_exists('SmallImage')) {
 		$Crop = GetValue('Crop', $Attributes, False, True);
 		
 		$Hash = Crc32Value($Source, array($Width, $Height, $ImageQuality, $Crop));
-		$TargetFolder = 'uploads/cached/' . date('Y'); // cache directory
+		$TargetFolder = 'uploads/cached'; // cache directory
 		if(!is_dir($TargetFolder)) mkdir($TargetFolder, 0777, True);
 		$Filename = pathinfo($Source, 8);
 		$Extension = pathinfo($Source, 4);
@@ -93,7 +93,7 @@ if(!function_exists('FancyZoomImage')) {
 
 		if(!array_key_exists('SmallImage', $Attributes)){
 			// make directory
-			$TargetFolder = 'uploads/cached/' . date('Y'); // cache directory
+			$TargetFolder = 'uploads/cached'; // cache directory
 			if(!is_dir($TargetFolder)) mkdir($TargetFolder, 0777, True);
 			$SmallImage = GenerateCleanTargetName($TargetFolder, $Filename.'-'.$Hash, $Extension, False, True);
 			$Attributes['SmallImage'] = $SmallImage;
@@ -261,7 +261,7 @@ if(!function_exists('ThumbnailImage')){
 			$IncomingImage = $Data;
 		}
 
-		$CacheDirectory = 'uploads/cached/' . date('Y');
+		$CacheDirectory = 'uploads/cached';
 		if(!Is_Writable($CacheDirectory)){
 			mkdir($CacheDirectory, 0777, True);
 			if(!Is_Writable($CacheDirectory)){
