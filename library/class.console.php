@@ -78,15 +78,13 @@ class Console extends Gdn_Pluggable {
 	
 	public static function Argument($Name, $Default = False){
 		$argv = ArrayValue('argv', $GLOBALS);
-		if(!is_array($argv)) return $Default;
-
-		if(is_int($Name)) return ArrayValue($Name, $argv);
-		
+		if (!is_array($argv)) return $Default;
+		if (is_int($Name)) return ArrayValue($Name, $argv);
 		$Key = array_search('-'.$Name, $argv);
-		if($Key === False) return $Default;
+		if ($Key === False) return $Default;
 		$Result = ArrayValue($Key + 1, $argv);
 		$Result = array_map('trim', explode(',', $Result));
-		if(Count($Result) == 1) $Result = $Result[0];
+		if (count($Result) == 1) $Result = $Result[0];
 		return $Result;
 	}
 	
