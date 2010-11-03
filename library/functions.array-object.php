@@ -13,6 +13,24 @@
 }*/
 
 
+// http://code-snippets.co.cc/PHP/PHP-array-rotation
+function RotateArray($Steps, $Array) {
+	if ($Steps >= 0) {
+		for ($i = 0; $i < $Steps; $i++) {
+			$Element = array_shift($Array);
+			array_push($Array, $Element);
+		}
+	} else {
+		for($i = 0; $i > $Steps; $i--) {
+			$Element = array_pop($Array);
+			array_unshift($Array, $Element);
+		}
+	}
+	return $Array;
+}
+
+
+
 // loota-php_util
 if(!function_exists('IsEmpty')){
 	function IsEmpty($Array) {

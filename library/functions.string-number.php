@@ -1,5 +1,38 @@
 <?php
 
+function NCrypt($String, $Password, $Decrypt = True) {
+	if (!defined('ALPHABET')) {
+		define('RALPHABET', pack('H*', '4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a31323334353637383930205c212c2e3a3b3f7e402324255e262a28295f2b2d3d5d5b7d7b2f3e3c2227607c4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a31323334353637383930205c212c2e3a3b3f7e402324255e262a28295f2b2d3d5d5b7d7b2f3e3c2227607c'));
+		define('ALPHABET', strrev(RALPHABET));
+	}
+	//if (!$Password) $Password = Gdn::Config()
+	$String = (!$Decrypt) ? array_pop(unpack('H*', $String)) : pack('H*', $String);
+	$RevAlphabetLength = strlen(RALPHABET);
+	$PasswordLength = strlen($Password);
+	for ($i = 0; $i < $PasswordLength; $i++) {
+		$CurrentPasswordLtr = substr($Password, $i, 1);
+		$PosAlphaArray[] = substr(strstr(ALPHABET, $CurrentPasswordLtr), 0, $RevAlphabetLength);
+	}
+	$n = 0;
+	$Result = '';
+	for ($Length = strlen($String), $i = 0; $i < $Length; $i++) {
+		$Pos = strpos(RALPHABET, substr($String, $i, 1));
+   		$Result .= substr($PosAlphaArray[$n], $Pos, 1);
+   		if (++$n == $PasswordLength) $n = 0;
+  	}
+	$Result = (!$Decrypt) ? array_pop(unpack('H*', $Result)) : pack('H*', $Result);
+	return $Result;
+}
+
+function Encrypt($String, $Password) {
+	return NCrypt($String, $Password);
+}
+
+function Decrypt($String, $Password) {
+	return NCrypt($String, $Password, True);
+}
+
+
 if(!function_exists('ArraySum')) {
 	function ArraySum($Array){
 		$N = 0;
