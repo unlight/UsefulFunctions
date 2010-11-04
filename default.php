@@ -3,7 +3,7 @@
 $PluginInfo['PluginUtils'] = array(
 	'Name' => 'Plugin utils',
 	'Description' => 'Useful functions for plugin and application developers.',
-	'Version' => '2.0.27',
+	'Version' => '2.0.28',
 	'Author' => 'Vanilla Fan'
 );
 

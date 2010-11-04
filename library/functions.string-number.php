@@ -1,6 +1,6 @@
 <?php
 
-function NCrypt($String, $Password, $Decrypt = True) {
+function NCrypt($String, $Password, $Decrypt) {
 	if (!defined('ALPHABET')) {
 		define('RALPHABET', pack('H*', '4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a31323334353637383930205c212c2e3a3b3f7e402324255e262a28295f2b2d3d5d5b7d7b2f3e3c2227607c4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a31323334353637383930205c212c2e3a3b3f7e402324255e262a28295f2b2d3d5d5b7d7b2f3e3c2227607c'));
 		define('ALPHABET', strrev(RALPHABET));
@@ -25,7 +25,7 @@ function NCrypt($String, $Password, $Decrypt = True) {
 }
 
 function Encrypt($String, $Password) {
-	return NCrypt($String, $Password);
+	return NCrypt($String, $Password, False);
 }
 
 function Decrypt($String, $Password) {
