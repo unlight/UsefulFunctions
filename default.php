@@ -4,7 +4,7 @@ $PluginInfo['PluginUtils'] = array(
 	'Name' => 'Plugin utils',
 	'Description' => 'Useful functions for plugin and application developers.',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.13'),
-	'Version' => '2.0.29',
+	'Version' => '2.0.30',
 	'Author' => 'Vanilla Fan'
 );
 
@@ -41,9 +41,6 @@ $Configuration['Plugins']['Console']['Check'] = True;
 
 TODO
 ====
-want to rename
-1. Garden Gears
-2. Garden Tools
 
 CHANGELOG
 =========

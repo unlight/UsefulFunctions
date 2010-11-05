@@ -8,7 +8,9 @@ function LoadPhpQuery(){
 function PqDocument($Document, $Options = False) {
 	if (!function_exists('Pq')) require_once PLUGINUTILS_VENDORS . DS . 'phpQuery.php';
 	if (strpos($Document, '<') === False) {
-		if (is_file($Document)) $Document = file_get_contents($Document);
+		if (is_file($Document) || (substr($Document, 0, 4) == 'http')) {
+			$Document = file_get_contents($Document);
+		}
 	}
 	if (GetValue('ConvertEncoding', $Options)) $Document = ConvertEncoding($Document);
 	
