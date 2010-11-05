@@ -1,5 +1,11 @@
 <?php
 
+if(!function_exists('IsOnline')){
+	function IsOnline() {
+		return is_int(ip2long(gethostbyname('google.com')));
+	}
+}
+
 if(!function_exists('CheckIpMask')){
 	function CheckIpMask($MaskIp, $RemoteAddr = False) {
 		if($RemoteAddr === False) $RemoteAddr = $_SERVER['REMOTE_ADDR'];
