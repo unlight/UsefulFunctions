@@ -40,12 +40,13 @@ if(!function_exists('IsEmpty')){
 }
 
 if(!function_exists('TableDataValues')){
-	function TableDataValues($Data, $TableName){
+	function TableDataValues($Data, $TableName, $Options = False){
 		static $Cache;
 		if(!isset($Cache[$TableName])){
 			$SQL = Gdn::SQL();
 			$Cache[$TableName] = $SQL->FetchTableSchema($TableName);
 		}
+		//$CoerceString = GetValue('CoerceString', $Options);
 		$Columns = $Cache[$TableName];
 		$Result = array();
 		$Data = Gdn_Format::ObjectAsArray($Data);
@@ -64,7 +65,8 @@ if(!function_exists('TableDataValues')){
 				$Int = array('int', 'tinyint', 'smallint', 'mediumint', 'bigint');
 				if(in_array($Field->Type, $Int)) $Value = intval($Value);
 				else if(in_array($Field->Type, $Float)) $Value = floatval($Value);
-				$Result[$Name] = strval($Value);
+				if (!is_null($Value)) $Value = strval($Value);
+				$Result[$Name] = $Value;
 			}
 		}
 		return $Result;
