@@ -1,5 +1,8 @@
 <?php
 
+/**
+* UTF-8 string padding. str_pad() for multibyte string.
+*/
 function mb_str_pad($String, $PadLength, $PadString = ' ', $PadType = STR_PAD_RIGHT) {
     $Diff = strlen($String) - mb_strlen($String, 'utf-8');
     return str_pad($String, $PadLength + $Diff, $PadString, $PadType);
@@ -78,7 +81,6 @@ function Decrypt($String, $Password) {
 	return NCrypt($String, $Password, True);
 }
 
-
 if(!function_exists('ArraySum')) {
 	function ArraySum($Array){
 		$N = 0;
@@ -88,28 +90,33 @@ if(!function_exists('ArraySum')) {
 	}
 }
 
-// TODO: ADD $C, $D... func_get_args
+/**
+* Calculate the sum of integer values (values can be any length)
+*/ 
 if(!function_exists('Summation')) {
-	function Summation($A, $B) {
-		
-		settype($A, 'string');
-		settype($B, 'string');
-		
-		$AL = strlen($A);
-		$BL = strlen($B);
-		$MaxLength = ($AL > $BL) ? $AL : $BL;
-		$A = str_pad($A, $MaxLength, '0', STR_PAD_LEFT);
-		$B = str_pad($B, $MaxLength, '0', STR_PAD_LEFT);
-		
-		for($i = $MaxLength - 1; $i >= 0; $i--) {
-			if(!isset($C[$i])) $C[$i] = 0;
-			$C[$i] += (int)$A[$i] + (int)$B[$i];
-			if($C[$i] > 9){
-				$C[$i] -= 10;
-				$C[$i-1] = 1;
+	function Summation($A) {
+		$Arguments = func_get_args();
+		if (is_array($A)) $Arguments = Flatten($Arguments);
+		$MaxLengthArray = array_map('strlen', $Arguments);
+		$MaxLength = max($MaxLengthArray);
+		foreach ($Arguments as $Index => $Value) {
+			settype($Value, 'string');
+			$Arguments[$Index] = str_pad($Value, $MaxLength, '0', STR_PAD_LEFT);
+		}
+		//$Result = array_fill(0, $MaxLength, 0);
+		for ($i = $MaxLength - 1; $i >= 0; $i--) {
+			if(!isset($Result[$i])) $Result[$i] = 0;
+			foreach ($Arguments as $Value) $Result[$i] += (int)($Value{$i});
+			$Sum = strval($Result[$i]);
+			$Length = strlen($Sum);
+			for ($n = $Length - 1; $n >= 0; $n--) {
+				$k = $i - ($Length - $n - 1);
+				$Result[$k] = $Sum[$n];
 			}
 		}
-		return implode('', array_reverse($C));
+		ksort($Result);
+		$Result = implode('', $Result);
+		return $Result;
 	}
 }
 
