@@ -1,8 +1,8 @@
 <?php
 
-function mb_str_pad($input, $pad_length, $pad_string= ' ', $pad_type = STR_PAD_RIGHT) {
-    $diff = strlen($input) - mb_strlen($input, 'UTF-8');
-    return str_pad($input, $pad_length+$diff, $pad_string, $pad_type);
+function mb_str_pad($String, $PadLength, $PadString = ' ', $PadType = STR_PAD_RIGHT) {
+    $Diff = strlen($String) - mb_strlen($String, 'utf-8');
+    return str_pad($String, $PadLength + $Diff, $PadString, $PadType);
 }
 
 function FormatTextAsRow($Array, $MaxLengthArray) {
@@ -41,9 +41,8 @@ function FormatTextAsTable($Headers, $DataArray, $Options = False) { // very slo
 	}
 	$Result = '';
 	// 2. Draw headers / data lines
-	foreach($DataArray as $Data) {
+	foreach($DataArray as $Data)
 		$Result .= FormatTextAsRow($Data, $MaxLengthArray) . "\n";
-	}
 	return $Result;
 }
 
@@ -114,28 +113,32 @@ if(!function_exists('Summation')) {
 	}
 }
 
+
+/**
+* Calculates small hash for any data based on crc32()
+* Length of string 6-7 chars of [a-z0-9]
+*/ 
 if(!function_exists('Crc32Value')) {
-	function Crc32Value($Length = -1){
+	function Crc32Value() {
 		$Value = func_get_args();
 		$Crc = crc32(serialize($Value));
 		$Crc = sprintf('%u', $Crc);
 		$Hash = base_convert($Crc, 10, 36);
-		if($Length > 0) $Hash = substr($Hash, -$Length);
 		return $Hash;
 	}
 }
 
 if(!function_exists('Clamp')) {
-	function Clamp($V, $A, $B){
-		if($V > $B) return $B;
-		else if($V < $A) return $A;
+	function Clamp($V, $A, $B) {
+		if ($V > $B) return $B;
+		else if ($V < $A) return $A;
 		else return $V;
 	}
 }
 
 // Fixed CleanupString function from Vanilla I
 if(!function_exists('CleanupString')) {
-	function CleanupString($String) { // deprecated, use Gdn_Format::Clean()
+	function CleanupString($String) {
 		return Gdn_Format::Clean($String);
 	}
 }
@@ -157,7 +160,6 @@ if(!function_exists('SplitString')) {
 		$Array = preg_split($RegExpr, $String);
 		$Array = array_map('trim', $Array);
 		$Type = gettype($FilterFunction);
-		//$Callbacks = array();
 		switch($Type){
 			case 'NULL': $Array = array_filter($Array); break;
 			case 'string': $Array = array_filter($Array, $FilterFunction); break;
