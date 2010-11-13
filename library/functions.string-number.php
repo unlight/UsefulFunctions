@@ -1,5 +1,52 @@
 <?php
 
+function mb_str_pad($input, $pad_length, $pad_string= ' ', $pad_type = STR_PAD_RIGHT) {
+    $diff = strlen($input) - mb_strlen($input, 'UTF-8');
+    return str_pad($input, $pad_length+$diff, $pad_string, $pad_type);
+}
+
+function FormatTextAsRow($Array, $MaxLengthArray) {
+	$Result = '';
+	$Array = array_values($Array);
+	$LastNum = count($Array) - 1;
+	foreach($Array as $N => $Value) {
+		$MaxLengthOfRow = $MaxLengthArray[$N];
+		$LocalLength = mb_strlen($Value, 'utf-8');
+		$NumOfSpace = $MaxLengthOfRow - $LocalLength + 4;
+		$Value = mb_str_pad($Value, $MaxLengthOfRow + 4, ' ');
+		$NumOfTabs = floor($NumOfSpace/4);
+		if ($NumOfTabs >= 1) {
+			$Value = mb_substr($Value, 0, -($NumOfTabs * 4), 'utf-8');
+			$Value .= str_repeat("\t", $NumOfTabs);
+		}
+		if ($LastNum == $N) $Value = trim($Value);
+		$Result .= $Value;
+	}
+	return $Result;
+	
+}
+
+function FormatTextAsTable($Headers, $DataArray, $Options = False) { // very slooooow
+	$bHeaderLength = '';
+	$Length = count($Headers);
+	$MaxLengthArray = array_fill(0, $Length, 0);
+	array_unshift($DataArray, $Headers);
+	// 1. Detect max length
+	foreach($DataArray as $Data) {
+		$Data = array_values($Data);
+		for ($i = 0; $i < $Length; $i++) {
+			$LocalLength = mb_strlen($Data[$i], 'utf-8');
+			if ($LocalLength > $MaxLengthArray[$i]) $MaxLengthArray[$i] = $LocalLength;
+		}
+	}
+	$Result = '';
+	// 2. Draw headers / data lines
+	foreach($DataArray as $Data) {
+		$Result .= FormatTextAsRow($Data, $MaxLengthArray) . "\n";
+	}
+	return $Result;
+}
+
 function NCrypt($String, $Password, $Decrypt) {
 	if (!defined('ALPHABET')) {
 		define('RALPHABET', pack('H*', '4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a31323334353637383930205c212c2e3a3b3f7e402324255e262a28295f2b2d3d5d5b7d7b2f3e3c2227607c4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a31323334353637383930205c212c2e3a3b3f7e402324255e262a28295f2b2d3d5d5b7d7b2f3e3c2227607c'));

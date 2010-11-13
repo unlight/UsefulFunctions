@@ -1,5 +1,6 @@
 #!/usr/local/bin/php
 <?php
+// Add this line to cron task file, 'crontab -e'
 // */5 * * * * /home/www/htdocs/plugins/PluginUtils/bin/tick.php
 ini_set('memory_limit', '256M');
 

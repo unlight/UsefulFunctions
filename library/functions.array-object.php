@@ -39,42 +39,12 @@ if(!function_exists('IsEmpty')){
 	}
 }
 
-if(!function_exists('TableDataValues')){
-	function TableDataValues($Data, $TableName, $Options = False){
-		static $Cache;
-		if(!isset($Cache[$TableName])){
-			$SQL = Gdn::SQL();
-			$Cache[$TableName] = $SQL->FetchTableSchema($TableName);
-		}
-		//$CoerceString = GetValue('CoerceString', $Options);
-		$Columns = $Cache[$TableName];
-		$Result = array();
-		$Data = Gdn_Format::ObjectAsArray($Data);
-		foreach ($Data as $Name => $Value) {
-			if(is_object($Value) || is_array($Value)) continue;
-			
-			// TODO: WE CAN PUT THIS INTO CACHE
-			$ColumnKeys = array_keys($Columns);
-			$ColumnKeys = array_combine(array_map('strtolower', $ColumnKeys), $ColumnKeys);
-			$NameLowered = strtolower($Name);
 
-			if(array_key_exists($NameLowered, $ColumnKeys)) {
-				$Name = $ColumnKeys[$NameLowered];
-				$Field = $Columns[$Name];
-				$Float = array('float', 'double');
-				$Int = array('int', 'tinyint', 'smallint', 'mediumint', 'bigint');
-				if(in_array($Field->Type, $Int)) $Value = intval($Value);
-				else if(in_array($Field->Type, $Float)) $Value = floatval($Value);
-				if (!is_null($Value)) $Value = strval($Value);
-				$Result[$Name] = $Value;
-			}
-		}
-		return $Result;
-	}
-}
+/**
+* Promote key for associative array/dataset
+*/
 
-// Same as ConsolidateDataSetValues($Array, 'ID', 'unique')
-/*if(!function_exists('PromoteKey')) {
+if(!function_exists('PromoteKey')) {
 	function PromoteKey($Collection, $PromotedKey) {
 		$Result = array();
 		foreach($Collection as $Data) {
@@ -83,52 +53,21 @@ if(!function_exists('TableDataValues')){
 		}
 		return $Result;
 	}
-}*/
+}
 
-if(!function_exists('ConsolidateDataSetValues')) {
-	function ConsolidateDataSetValues($Array, $Options, $ValueKey = Null) {
+if (!function_exists('BunchCollection')) {
+	function BunchCollection($Collection, $Key) {
 		$Result = array();
-		if (is_string($Options) && substr($Options, 0, 1) == '{') $Options = json_decode($Options);
-		if (is_scalar($Options)) $Options = array('Key' => $Options);
-		$Key = GetValue('Key', $Options);
-		$ValueKey = GetValue('ValueKey', $Options, $ValueKey);
-
-		foreach ($Array as $Index => $Data) {
-			$N = GetValue($Key, $Data);
-			if($ValueKey == 'full') $Result[$N][] = $Data;
-			elseif($ValueKey == 'unique') $Result[$N] = $Data;
-			elseif($ValueKey != '') $Result[$N] = GetValue($ValueKey, $Data);
-			else $Result[] = $N;
+		foreach ($DataSet as $Data) {
+			$BunchKeyValue = GetValue($Key, $Data);
+			$Result[$BunchKeyValue][] = $Data;
 		}
 		return $Result;
 	}
 }
 
-
-if(!function_exists('GroupArrayByKey')){
-	function GroupArrayByKey($Array, $Key, $ValueKey = '', $AssociativeArrayValueKey = '', $DefaultValue = False) {
-		$Return = array();
-
-		foreach($Array as $Index => $AssociativeArray){
-			if(!array_key_exists($Key, $AssociativeArray)) continue;
-			if($ValueKey === '') $Return[] = $AssociativeArray[$Key];
-			elseif($ValueKey === 0){
-				$K = GetValue($Key, $AssociativeArray);
-				// Full Array
-				$Return[$K][] = $AssociativeArray;
-			}elseif($ValueKey === True){ // unique
-				$Return[$AssociativeArray[$Key]] = $AssociativeArray;
-			}
-			elseif(array_key_exists($ValueKey, $AssociativeArray))
-				$Return[$AssociativeArray[$Key]][] = $AssociativeArray[$ValueKey];
-			else $Return[$AssociativeArray[$Key]] = $DefaultValue;
-		}
-		return $Return;
-	}
-}
-
-if(!function_exists('CombineArrays')) {
-	function CombineArrays(){
+if (!function_exists('CombineArrays')) {
+	function CombineArrays() {
 		$Result = array();
 		$Arrays = func_get_args();
 		foreach($Arrays as $Array) foreach($Array as $Value) $Result[] = $Value;
@@ -179,8 +118,14 @@ if(!function_exists('RandomValue')) {
 	}
 }
 
+if (!function_exists('SetNullValues')) {
+	function SetNullValues(&$Collection) {
+		ReplaceEmpty($Collection, Null);
+	}
+}
+
 if(!function_exists('ReplaceEmpty')) {
-	function ReplaceEmpty(&$Collection, $R = '-') {
+	function ReplaceEmpty(&$Collection, $R) {
 		if(is_object($Collection)){
 			foreach(get_object_vars($Collection) as $Property => $Value){
 				if(StringIsNullOrEmpty($Value)) $Collection->$Property = $R;
@@ -206,5 +151,49 @@ if(!function_exists('CamelizeResult')){
 		}
 		$Data = Gdn_Format::ArrayAsObject($Data);
 		return $Data;
+	}
+}
+
+
+
+if (!function_exists('GroupArrayByKey')) {
+	function GroupArrayByKey($Array, $Key, $ValueKey = '', $AssociativeArrayValueKey = '', $DefaultValue = False) {
+		if (defined('DEBUG')) trigger_error('GroupArrayByKey() is deprecated. Use BunchCollection() instead.', E_USER_DEPRECATED);
+		$Return = array();
+		foreach($Array as $Index => $AssociativeArray){
+			if(!array_key_exists($Key, $AssociativeArray)) continue;
+			if($ValueKey === '') $Return[] = $AssociativeArray[$Key];
+			elseif($ValueKey === 0){
+				$K = GetValue($Key, $AssociativeArray);
+				// Full Array
+				$Return[$K][] = $AssociativeArray;
+			}elseif($ValueKey === True){ // unique
+				$Return[$AssociativeArray[$Key]] = $AssociativeArray;
+			}
+			elseif(array_key_exists($ValueKey, $AssociativeArray))
+				$Return[$AssociativeArray[$Key]][] = $AssociativeArray[$ValueKey];
+			else $Return[$AssociativeArray[$Key]] = $DefaultValue;
+		}
+		return $Return;
+	}
+}
+
+if(!function_exists('ConsolidateDataSetValues')) { // deprecated
+	function ConsolidateDataSetValues($Array, $Options, $ValueKey = Null) {
+		if (defined('DEBUG')) trigger_error('ConsolidateDataSetValues() is deprecated. Use PromoteKey() / ConsolidateArrayValuesByKey() instead.', E_USER_DEPRECATED);
+		$Result = array();
+		if (is_string($Options) && substr($Options, 0, 1) == '{') $Options = json_decode($Options);
+		if (is_scalar($Options)) $Options = array('Key' => $Options);
+		$Key = GetValue('Key', $Options);
+		$ValueKey = GetValue('ValueKey', $Options, $ValueKey);
+
+		foreach ($Array as $Index => $Data) {
+			$N = GetValue($Key, $Data);
+			if($ValueKey == 'full') $Result[$N][] = $Data;
+			elseif($ValueKey == 'unique') $Result[$N] = $Data;
+			elseif($ValueKey != '') $Result[$N] = GetValue($ValueKey, $Data);
+			else $Result[] = $N;
+		}
+		return $Result;
 	}
 }
