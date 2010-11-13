@@ -77,6 +77,9 @@ function CompileFile($File = Null, $bSave = False) {
 
 }
 
+/**
+* Calculates the crc32 checksum of a file
+*/ 
 if(!function_exists('Crc32File')) {
 	function Crc32File($File) {
 		return crc32( sha1_file($File) );
@@ -233,7 +236,7 @@ if(!function_exists('RecursiveRemoveDirectory')) {
 
 
 if(!function_exists('FileExtension')) {
-	function FileExtension($Basename){ // deprecated
+	function FileExtension($Basename) {
 		return strtolower(pathinfo($Basename, 4));
 	}
 }

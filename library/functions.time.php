@@ -6,6 +6,9 @@ if(!function_exists('Now')) {
 	}
 }
 
+/**
+* Get the number of seconds since the current year
+*/
 if(!function_exists('YearSeconds')) {
 	function YearSeconds(){
 		return (time() - strtotime('1 Jan'));

@@ -58,7 +58,7 @@ if(!function_exists('PromoteKey')) {
 if (!function_exists('BunchCollection')) {
 	function BunchCollection($Collection, $Key) {
 		$Result = array();
-		foreach ($DataSet as $Data) {
+		foreach ($Collection as $Data) {
 			$BunchKeyValue = GetValue($Key, $Data);
 			$Result[$BunchKeyValue][] = $Data;
 		}
