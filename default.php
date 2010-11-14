@@ -4,7 +4,7 @@ $PluginInfo['PluginUtils'] = array(
 	'Name' => 'Plugin utils',
 	'Description' => 'Useful functions for plugin and application developers.',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.13'),
-	'Version' => '2.0.36',
+	'Version' => '2.0.37',
 	'Author' => 'Vanilla Fan'
 );
 
@@ -27,6 +27,9 @@ require PLUGINUTILS_LIBRARY.DS.'functions.validate.php';
 require PLUGINUTILS_LIBRARY.DS.'functions.debug.php';
 require PLUGINUTILS_LIBRARY.DS.'functions.misc.php';
 require PLUGINUTILS_LIBRARY.DS.'functions.sql.php';
+require PLUGINUTILS_LIBRARY.DS.'functions.deprecated.php';
+require PLUGINUTILS_LIBRARY.DS.'functions.dev.php';
+
 
 # INSTAL
 # ======

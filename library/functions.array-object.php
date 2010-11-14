@@ -1,18 +1,5 @@
 <?php
 
-/*if(!function_exists('ArrayMap')){
-	function ArrayMap($Array, $Filter = Null, $Callbacks = Null) {
-		if(is_array($Filter)){
-			foreach($Filter as $Function) $Array = array_filter($Array, $Function);
-		}
-		if(is_array($Callbacks)){
-			foreach($Callbacks as $Function) $Array = array_map($Function, $Array);
-		}
-		return $Array;
-	}
-}*/
-
-
 // http://code-snippets.co.cc/PHP/PHP-array-rotation
 function RotateArray($Steps, $Array) {
 	if ($Steps >= 0) {
@@ -55,12 +42,14 @@ if(!function_exists('PromoteKey')) {
 	}
 }
 
-if (!function_exists('BunchCollection')) {
-	function BunchCollection($Collection, $Key) {
+if (!function_exists('GroupByKey')) {
+	function GroupByKey($Collection, $Key, $Options = False) {
+		// $PromoteKey = GetValue('PromoteKey', $Options);
+		// TODO: Add option $Result[$KeyValue][$K] = $Data;
 		$Result = array();
 		foreach ($Collection as $Data) {
-			$BunchKeyValue = GetValue($Key, $Data);
-			$Result[$BunchKeyValue][] = $Data;
+			$KeyValue = GetValue($Key, $Data);
+			$Result[$KeyValue][] = $Data;
 		}
 		return $Result;
 	}
@@ -77,7 +66,6 @@ if (!function_exists('CombineArrays')) {
 	}
 }
 
-// temporary compatibility function
 if(!function_exists('ObjectValue')){
 	function ObjectValue($Key, $Object, $Default = False) {
 		return GetValue($Key, $Object, $Default);
@@ -156,44 +144,3 @@ if(!function_exists('CamelizeResult')){
 
 
 
-if (!function_exists('GroupArrayByKey')) {
-	function GroupArrayByKey($Array, $Key, $ValueKey = '', $AssociativeArrayValueKey = '', $DefaultValue = False) {
-		if (defined('DEBUG')) trigger_error('GroupArrayByKey() is deprecated. Use BunchCollection() instead.', E_USER_DEPRECATED);
-		$Return = array();
-		foreach($Array as $Index => $AssociativeArray){
-			if(!array_key_exists($Key, $AssociativeArray)) continue;
-			if($ValueKey === '') $Return[] = $AssociativeArray[$Key];
-			elseif($ValueKey === 0){
-				$K = GetValue($Key, $AssociativeArray);
-				// Full Array
-				$Return[$K][] = $AssociativeArray;
-			}elseif($ValueKey === True){ // unique
-				$Return[$AssociativeArray[$Key]] = $AssociativeArray;
-			}
-			elseif(array_key_exists($ValueKey, $AssociativeArray))
-				$Return[$AssociativeArray[$Key]][] = $AssociativeArray[$ValueKey];
-			else $Return[$AssociativeArray[$Key]] = $DefaultValue;
-		}
-		return $Return;
-	}
-}
-
-if(!function_exists('ConsolidateDataSetValues')) { // deprecated
-	function ConsolidateDataSetValues($Array, $Options, $ValueKey = Null) {
-		if (defined('DEBUG')) trigger_error('ConsolidateDataSetValues() is deprecated. Use PromoteKey() / ConsolidateArrayValuesByKey() instead.', E_USER_DEPRECATED);
-		$Result = array();
-		if (is_string($Options) && substr($Options, 0, 1) == '{') $Options = json_decode($Options);
-		if (is_scalar($Options)) $Options = array('Key' => $Options);
-		$Key = GetValue('Key', $Options);
-		$ValueKey = GetValue('ValueKey', $Options, $ValueKey);
-
-		foreach ($Array as $Index => $Data) {
-			$N = GetValue($Key, $Data);
-			if($ValueKey == 'full') $Result[$N][] = $Data;
-			elseif($ValueKey == 'unique') $Result[$N] = $Data;
-			elseif($ValueKey != '') $Result[$N] = GetValue($ValueKey, $Data);
-			else $Result[] = $N;
-		}
-		return $Result;
-	}
-}
