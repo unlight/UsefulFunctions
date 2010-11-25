@@ -54,7 +54,7 @@ if(!function_exists('Video')) {
 }
 
 if(!function_exists('SmallImage')) {
-	function SmallImage($Source, $Attributes = array()) {
+	function SmallImage($Source, &$Attributes = array()) {
 		
 		$Width = ArrayValue('width', $Attributes, '');
 		$Height = ArrayValue('height', $Attributes, '');
@@ -63,13 +63,18 @@ if(!function_exists('SmallImage')) {
 		
 		$Hash = Crc32Value($Source, array($Width, $Height, $ImageQuality, $Crop));
 		$TargetFolder = 'uploads/cached'; // cache directory
-		if(!is_dir($TargetFolder)) mkdir($TargetFolder, 0777, True);
+		if (!is_dir($TargetFolder)) mkdir($TargetFolder, 0777, True);
 		$Filename = pathinfo($Source, 8);
 		$Extension = pathinfo($Source, 4);
 		$SmallImage = GenerateCleanTargetName($TargetFolder, $Filename.'-'.$Hash, $Extension, False, True);
 		if(!file_exists($SmallImage)) Gdn_UploadImage::SaveImageAs($Source, $SmallImage, $Height, $Width, $Crop);
 		
-		if(GetValue('MakeOnly', $Attributes, False, True)) return Url($SmallImage);
+		if(GetValue('MakeOnly', $Attributes, False, True)) {
+			if (GetValue('OutOriginalImageSize', $Attributes, True)) {
+				$Attributes['ImageSize'] = getimagesize($Source);
+			}
+			return Url($SmallImage);
+		}
 		
 		
 		TouchValue('alt', $Attributes, $Filename);
