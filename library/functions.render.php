@@ -70,8 +70,11 @@ if(!function_exists('SmallImage')) {
 		if(!file_exists($SmallImage)) Gdn_UploadImage::SaveImageAs($Source, $SmallImage, $Height, $Width, $Crop);
 		
 		if(GetValue('MakeOnly', $Attributes, False, True)) {
-			if (GetValue('OutOriginalImageSize', $Attributes, True)) { // tmp, TODO: REMOVE ME
-				$Attributes['ImageSize'] = getimagesize($Source);
+			if (GetValue('OutOriginalImageSize', $Attributes, True)) { // TEMP, TODO: FIX ME
+				$Return = array();
+				$Return['ImageSize'] = getimagesize($Source);
+				$Return['Result'] = Url($SmallImage);
+				return $Return;
 			}
 			return Url($SmallImage);
 		}
