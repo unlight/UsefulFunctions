@@ -54,7 +54,7 @@ if(!function_exists('Video')) {
 }
 
 if(!function_exists('SmallImage')) {
-	function SmallImage($Source, &$Attributes = array()) {
+	function SmallImage($Source, $Attributes = array()) {
 		
 		$Width = ArrayValue('width', $Attributes, '');
 		$Height = ArrayValue('height', $Attributes, '');
@@ -70,7 +70,7 @@ if(!function_exists('SmallImage')) {
 		if(!file_exists($SmallImage)) Gdn_UploadImage::SaveImageAs($Source, $SmallImage, $Height, $Width, $Crop);
 		
 		if(GetValue('MakeOnly', $Attributes, False, True)) {
-			if (GetValue('OutOriginalImageSize', $Attributes, True)) {
+			if (GetValue('OutOriginalImageSize', $Attributes, True)) { // tmp, TODO: REMOVE ME
 				$Attributes['ImageSize'] = getimagesize($Source);
 			}
 			return Url($SmallImage);
