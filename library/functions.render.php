@@ -70,7 +70,7 @@ if(!function_exists('SmallImage')) {
 		if(!file_exists($SmallImage)) Gdn_UploadImage::SaveImageAs($Source, $SmallImage, $Height, $Width, $Crop);
 		
 		if(GetValue('MakeOnly', $Attributes, False, True)) {
-			if (GetValue('OutOriginalImageSize', $Attributes, True)) { // TEMP, TODO: FIX ME
+			if (GetValue('OutOriginalImageSize', $Attributes, False, True)) { // TEMP, TODO: FIX ME
 				$Return = array();
 				$Return['ImageSize'] = getimagesize($Source);
 				$Return['Result'] = Url($SmallImage);
