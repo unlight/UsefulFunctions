@@ -108,7 +108,7 @@ if(!function_exists('RandomValue')) {
 
 if (!function_exists('SetNullValues')) {
 	function SetNullValues(&$Collection) {
-		ReplaceEmpty($Collection, Null);
+		return ReplaceEmpty($Collection, Null);
 	}
 }
 
@@ -124,6 +124,7 @@ if(!function_exists('ReplaceEmpty')) {
 				if(StringIsNullOrEmpty($Value)) $Value = $R;
 			}
 		}
+		return $Collection;
 	}
 }
 

@@ -44,7 +44,8 @@ if(!function_exists('ConsolidateDataSetValues')) {
 
 if (!function_exists('GroupArrayByKey')) {
 	function GroupArrayByKey($Array, $Key, $ValueKey = '', $AssociativeArrayValueKey = '', $DefaultValue = False) {
-		if (defined('DEBUG')) trigger_error('GroupArrayByKey() is deprecated. Use BunchCollection() instead.', E_USER_DEPRECATED);
+		if (defined('DEBUG')) 
+			trigger_error('GroupArrayByKey() is deprecated. Use GroupByKey() instead.', E_USER_DEPRECATED);
 		$Return = array();
 		foreach($Array as $Index => $AssociativeArray){
 			if(!array_key_exists($Key, $AssociativeArray)) continue;
