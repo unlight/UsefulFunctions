@@ -44,7 +44,7 @@ update News n set n.TagCount = (
 )
 */ 
 
-if(!function_exists('CountManyToManyData')) {
+if (!function_exists('CountManyToManyData')) {
 	// TODO: FIX ME: No escape values here
 	function CountManyToManyData($OuterTableName, $OuterField, $InnerTableName, $Where) {
 		$SQL = Gdn::SQL();
@@ -65,7 +65,7 @@ if(!function_exists('CountManyToManyData')) {
 /**
 * Saves data to tables which are in many-to-many relationship
 */
-if(!function_exists('SaveManyToManyData')) {
+if (!function_exists('SaveManyToManyData')) {
 	function SaveManyToManyData($TableName, $Where, $OtherFieldName, $Values) {
 		$SQL = Gdn::SQL();
 		$DataInsert = array();
@@ -80,7 +80,7 @@ if(!function_exists('SaveManyToManyData')) {
 * Function saves new tags. Return existing.
 */
 
-if(!function_exists('SaveTags')) {
+if (!function_exists('SaveTags')) {
 	function SaveTags($TagString) {
 		if(!is_string($TagString)) $TagString = GetValue('Tags', $TagString);
 		$TagString = mb_strtolower($TagString, 'utf-8');
@@ -108,7 +108,7 @@ if(!function_exists('SaveTags')) {
 /**
 * Key/value storage.
 */
-if(!function_exists('K')) {
+if (!function_exists('K')) {
 	function K($Name, $Value = Null) {
 		static $SQL, $Cache, $DataTableCreated;
 		

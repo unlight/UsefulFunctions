@@ -33,16 +33,25 @@ if(!function_exists('d')) {
 }
 
 function dplg($PluginFunction){
+	if (!isset($_GET['d'])) return;
+	if (in_array($PluginFunction, array('gdn_locale_beforetranslate_handler', 'base_beforetranslate_handler'))) return;
 	
-	if(!IsSet($_GET['d'])) return;
-	if(in_array($PluginFunction, array('gdn_locale_beforetranslate_handler', 'base_beforetranslate_handler'))) return;
+	$CamelizedFunction = str_replace(' ', '_', ucwords(str_replace('_', ' ', $PluginFunction)));
 	
+	$Search = array('handler', 'model', 'controller', 'query', 'after', 'before', 'add', 'module',
+		'asset', 'collection', 'method', 'fetch', 'master', 'pre', 'user', 'session', 'application', 
+		'comment', 'body', 'meta', 'form', 'buttons', 'tabs', 'get', 'render');
+	$Replace = array_map('ucfirst', $Search);
+	
+	$CamelizedFunction = str_replace($Search, $Replace, $CamelizedFunction);
+
 	$Args = func_get_args();
 	if(!defined('DPLG_STYLE')){
 		define('DPLG_STYLE', 1);
 		echo "<style type='text/css'>em.d{border:1px dashed black;font-size:13px;font-family:Tahoma;display:inline-block;padding:0 2;margin:1;}</style>";
 	}
 
-	printf("\n<em class='d'>%s</em>", $PluginFunction);
+	printf("\n<em class='d'>%s</em>", $CamelizedFunction);
 	
 }
+
