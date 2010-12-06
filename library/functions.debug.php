@@ -48,10 +48,10 @@ function dplg($PluginFunction){
 	$Args = func_get_args();
 	if(!defined('DPLG_STYLE')){
 		define('DPLG_STYLE', 1);
-		echo "<style type='text/css'>em.d{border:1px dashed black;font-size:13px;font-family:Tahoma;display:inline-block;padding:0 2;margin:1;}</style>";
+		echo "<style type='text/css'>span.d{border:1px dashed black;font-size:13px;font-family:Tahoma;display:inline-block;padding:0 2;margin:1;}</style>";
 	}
 
-	printf("\n<em class='d'>%s</em>", $CamelizedFunction);
+	printf("\n<span class='d'>%s</span>", $CamelizedFunction);
 	
 }
 

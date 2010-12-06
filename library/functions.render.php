@@ -195,7 +195,9 @@ if(!function_exists('FlashHtml')){
 			$Params['flashvars'] = implode('&', $Vars);
 		}
 		$MSIE = (strpos(ArrayValue('HTTP_USER_AGENT', $_SERVER), 'MSIE') > 0);
-		if($MSIE != False){
+		if ($MSIE != False) {
+			$Mode = GetValue('wmode', $Attributes, False, True);
+			if ($Mode !== False) $Params['wmode'] = $Mode;
 			$Params['movie'] = $Movie;
 			$ObjectParams = '';
 			foreach($Params as $Name => $Value) $ObjectParams .= '<param name="'.$Name.'" value="'.$Value.'" />';
