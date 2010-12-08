@@ -8,16 +8,16 @@ class Console extends Gdn_Pluggable {
 		parent::__construct();
 	}*/
 	
-	public static function ErrorHandler($Error, $Message = '', $File = '', $Line = ''){
+	public static function ErrorHandler($Error, $Message = '', $File = '', $Line = '') {
 		
 		if(error_reporting() == 0) return False;
 		
 		$Object = 'PHP';
 		$Method = 'Function';
 		
-		if(is_object($Error)){
+		if (is_object($Error)) {
 			$Info = False;
-			foreach($Error->GetTrace() as $Info) break;
+			foreach ($Error->GetTrace() as $Info) break;
 			$Method = ArrayValue('function', $Info, $Method);
 			$Object = ArrayValue('class', $Info, $Object);
 			$Message = $Error->GetMessage();
@@ -28,7 +28,7 @@ class Console extends Gdn_Pluggable {
 		
 		$File = str_replace(PATH_ROOT.DS, '', $File);
 		
-		switch($Error){
+		switch ($Error) {
 			case E_NOTICE: $Code = 'NOTICE'; break;
 			case E_WARNING: $Code = 'WARNING'; break;
 			case -1: $Code = 'UNCAUGHT EXCEPTION'; break;
@@ -42,9 +42,9 @@ class Console extends Gdn_Pluggable {
 		
 		// send error to email
 		$To = Gdn::Config('Plugins.PluginUtils.Console.Errors.EmailToAddress');
-		if(self::Check() && $To != False){
+		if (self::Check() && $To != False) {
 			$Text = sprintf(Gdn::Translate('Error in console script %1$s %2$s %3$s %4$s'), $Code, $Message, $File, $Line);
-			if(!class_exists('Gdn_Email')) return error_log("Error ($Code)", 1, $To, $Text);
+			if (!class_exists('Gdn_Email')) return error_log("Error ($Code)", 1, $To, $Text);
 			$Email = new Gdn_Email();
 			$Email
 				->To($To)
@@ -56,8 +56,28 @@ class Console extends Gdn_Pluggable {
 		exit();
 	}
 	
-	public static function Message(){
-		if(!defined('STDOUT')) return;
+	public static CheckColorSupport() {
+		static $Result;
+		if ($Result === Null) {
+			$bWindows = (substr(PHP_OS, 0, 3) == 'WIN');
+			if ($bWindows) $Result = (getenv('ANSICON') !== False);
+			else $Result = (function_exists('posix_isatty') && posix_isatty(STDOUT));
+		}
+		return $Result;
+	}
+	
+	public static function Colorize($S) {
+		$bColorSupport = self::CheckColorSupport();
+		if ($bColorSupport) {
+			// colorize
+		} else {
+			// strip color tokens
+		}
+		return $S;
+	}
+	
+	public static function Message() {
+		if (!defined('STDOUT')) return;
 		static $Encoding;
 		if (is_null($Encoding)) $Encoding = strtolower(C('Plugins.PluginUtils.Console.MessageEnconding', 'utf-8'));
 		$Args = func_get_args();
@@ -76,7 +96,7 @@ class Console extends Gdn_Pluggable {
 		fwrite(STDOUT, $S);
 	}*/
 	
-	public static function Argument($Name, $Default = False){
+	public static function Argument($Name, $Default = False) {
 		$argv = ArrayValue('argv', $GLOBALS);
 		if (!is_array($argv)) return $Default;
 		if (is_int($Name)) return ArrayValue($Name, $argv);
@@ -88,7 +108,7 @@ class Console extends Gdn_Pluggable {
 		return $Result;
 	}
 	
-	public static function TimeSeconds(){
+	public static function TimeSeconds() {
 		static $Started;
 		if(is_null($Started)) $Started = Now();
 		return Gdn_Format::Timespan(Now() - $Started);
