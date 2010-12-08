@@ -87,7 +87,7 @@ class Console extends Gdn_Pluggable {
 		$Message = call_user_func_array('sprintf', $Args);
 		if($Encoding && $Encoding != 'utf-8') $Message = mb_convert_encoding($Message, $Encoding, 'utf-8');
 		$S = self::TimeSeconds() . ' -!- ' . $Message;
-		if(substr($S, -1, 1) != "\n") $S .= "\n";
+		if (substr($S, -1, 1) != "\n") $S .= "\n";
 		fwrite(STDOUT, $S);
 	}
 	
