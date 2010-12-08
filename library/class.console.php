@@ -56,7 +56,7 @@ class Console extends Gdn_Pluggable {
 		exit();
 	}
 	
-	public static CheckColorSupport() {
+	public static function CheckColorSupport() {
 		static $Result;
 		if ($Result === Null) {
 			$bWindows = (substr(PHP_OS, 0, 3) == 'WIN');
