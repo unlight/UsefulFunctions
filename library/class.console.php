@@ -8,16 +8,16 @@ class Console extends Gdn_Pluggable {
 		parent::__construct();
 	}*/
 	
-	public static function ErrorHandler($Error, $Message = '', $File = '', $Line = ''){
+	public static function ErrorHandler($Error, $Message = '', $File = '', $Line = '') {
 		
 		if(error_reporting() == 0) return False;
 		
 		$Object = 'PHP';
 		$Method = 'Function';
 		
-		if(is_object($Error)){
+		if (is_object($Error)) {
 			$Info = False;
-			foreach($Error->GetTrace() as $Info) break;
+			foreach ($Error->GetTrace() as $Info) break;
 			$Method = ArrayValue('function', $Info, $Method);
 			$Object = ArrayValue('class', $Info, $Object);
 			$Message = $Error->GetMessage();
@@ -28,7 +28,7 @@ class Console extends Gdn_Pluggable {
 		
 		$File = str_replace(PATH_ROOT.DS, '', $File);
 		
-		switch($Error){
+		switch ($Error) {
 			case E_NOTICE: $Code = 'NOTICE'; break;
 			case E_WARNING: $Code = 'WARNING'; break;
 			case -1: $Code = 'UNCAUGHT EXCEPTION'; break;
@@ -42,9 +42,9 @@ class Console extends Gdn_Pluggable {
 		
 		// send error to email
 		$To = Gdn::Config('Plugins.PluginUtils.Console.Errors.EmailToAddress');
-		if(self::Check() && $To != False){
+		if (self::Check() && $To != False) {
 			$Text = sprintf(Gdn::Translate('Error in console script %1$s %2$s %3$s %4$s'), $Code, $Message, $File, $Line);
-			if(!class_exists('Gdn_Email')) return error_log("Error ($Code)", 1, $To, $Text);
+			if (!class_exists('Gdn_Email')) return error_log("Error ($Code)", 1, $To, $Text);
 			$Email = new Gdn_Email();
 			$Email
 				->To($To)
@@ -56,8 +56,77 @@ class Console extends Gdn_Pluggable {
 		exit();
 	}
 	
-	public static function Message(){
-		if(!defined('STDOUT')) return;
+	public static function CheckColorSupport() {
+		static $Result;
+		if ($Result === Null) {
+			$bWindows = (substr(PHP_OS, 0, 3) == 'WIN');
+			if ($bWindows) $Result = (getenv('ANSICON') !== False);
+			else $Result = (function_exists('posix_isatty') && posix_isatty(STDOUT));
+		}
+		return $Result;
+	}
+	
+	static protected $ForegroundColor = array(
+		'Black' => 30,
+		'Blue' => 34,
+		'Green' => 32,
+		'Cyan' => 36,
+		'Red' => 31,
+		'Purple' => 35,
+		'Brown' => 33,
+		'Yellow' => 33,
+		'White' => 37
+	);
+
+	public static function GetColorCode($Color = Null) {
+		if ($Color === Null || !array_key_exists($Color, self::$ForegroundColor)) return "\033[0m";
+		return "\033[" . self::$ForegroundColor[$Color] . 'm';
+	}
+	
+	public static function ColorizeForeground($ColorToken = '') { // ColorToken = ^1
+		$N = substr($ColorToken, 1, 1);
+		if ($N === '') return self::GetColorCode();
+		switch ($N) {
+			case 0: return self::GetColorCode('White');
+			case 1: return self::GetColorCode('Red');
+			case 2: return self::GetColorCode('Green');
+			case 3: return self::GetColorCode('Yellow');
+			case 4: return self::GetColorCode('Blue');
+			case 5: return self::GetColorCode('Turq');
+			case 6: return self::GetColorCode('Pink');
+			case 7: return self::GetColorCode('LightRed');
+			case 8: return self::GetColorCode('Grey');
+			case 9: return self::GetColorCode('GreyWhite');
+			default: break;
+		}
+		return self::GetColorCode(); // reset
+	}
+	
+	public static function ColorizeMessage($PaintString) { // ex- Paint
+		$bColorSupport = self::CheckColorSupport();
+		if (!$bColorSupport) return preg_replace('/\^\d/', '', $PaintString);
+		$OutString = '';
+		$Pos = strpos($PaintString, '^');
+		while ($Pos > -1) {
+			if ($Pos > 0) {
+				$OutString .= substr($PaintString, 0, $Pos);
+				$PaintString = substr($PaintString, $Pos);
+				$Pos = 0;
+			}
+			$ColorToken = substr($PaintString, $Pos, 2);
+			$N = strlen($PaintString) - 2;
+			if ($N > 0) $PaintString = substr($PaintString, -$N);
+			else $PaintString = '';
+			$OutString .= self::ColorizeForeground($ColorToken);
+			$Pos = strpos($PaintString, '^');
+		}
+		if ($PaintString != '') $OutString .= $PaintString;
+		$OutString .= self::GetColorCode();
+		return $OutString;
+	}
+	
+	public static function Message() {
+		if (!defined('STDOUT')) return;
 		static $Encoding;
 		if (is_null($Encoding)) $Encoding = strtolower(C('Plugins.PluginUtils.Console.MessageEnconding', 'utf-8'));
 		$Args = func_get_args();
@@ -66,8 +135,8 @@ class Console extends Gdn_Pluggable {
 		if($Count != Count($Args) - 1) $Message = str_replace('%', '%%', $Message);
 		$Message = call_user_func_array('sprintf', $Args);
 		if($Encoding && $Encoding != 'utf-8') $Message = mb_convert_encoding($Message, $Encoding, 'utf-8');
-		$S = self::TimeSeconds() . ' -!- ' . $Message;
-		if(substr($S, -1, 1) != "\n") $S .= "\n";
+		$S = self::TimeSeconds() . ' -!- ' . self::ColorizeMessage($Message);
+		if (substr($S, -1, 1) != "\n") $S .= "\n";
 		fwrite(STDOUT, $S);
 	}
 	
@@ -76,7 +145,7 @@ class Console extends Gdn_Pluggable {
 		fwrite(STDOUT, $S);
 	}*/
 	
-	public static function Argument($Name, $Default = False){
+	public static function Argument($Name, $Default = False) {
 		$argv = ArrayValue('argv', $GLOBALS);
 		if (!is_array($argv)) return $Default;
 		if (is_int($Name)) return ArrayValue($Name, $argv);
@@ -88,7 +157,7 @@ class Console extends Gdn_Pluggable {
 		return $Result;
 	}
 	
-	public static function TimeSeconds(){
+	public static function TimeSeconds() {
 		static $Started;
 		if(is_null($Started)) $Started = Now();
 		return Gdn_Format::Timespan(Now() - $Started);
@@ -101,9 +170,9 @@ class Console extends Gdn_Pluggable {
 	public static function Wait($Seconds = 1, $bDrawDots = True) {
 		fwrite(STDOUT, self::TimeSeconds() . ' -!- Waiting.');
 		$Seconds = Clamp((int)$Seconds, 1, 3600); // 1 hour max
-		for($i = 0; $i < $Seconds; $i++){
+		for ($i = 0; $i < $Seconds; $i++) {
 			sleep(1);
-			if($bDrawDots) fwrite(STDOUT, '.');
+			if ($bDrawDots) fwrite(STDOUT, '.');
 		}
 		fwrite(STDOUT, "\n");
 	}
