@@ -4,7 +4,7 @@ $PluginInfo['PluginUtils'] = array(
 	'Name' => 'Plugin utils',
 	'Description' => 'Useful functions for plugin and application developers.',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.13'),
-	'Version' => '2.1.0.b45',
+	'Version' => '2.1.1.b46',
 	'Author' => 'Vanilla Fan'
 );
 
@@ -44,7 +44,8 @@ DESCRIPTION
 ===========
 What this plugin do?
 Nothing! As standalone.
-This plugin is used by other plugins and applications, using specific functions which doesn't exists in Garden core.
+This plugin is used by other plugins and applications, 
+using specific functions which doesn't exists in Garden core.
 
 CONFIG
 ======

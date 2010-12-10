@@ -1,5 +1,9 @@
 <?php
 
+/**
+* Validate email using getmxrr() function
+*/
+
 if(!function_exists('ValidateDnsEmail')) {
 	function ValidateDnsEmail($Value, $Field = ''){
 		if($Value === '') return True; // + required

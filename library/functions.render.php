@@ -68,7 +68,7 @@ if(!function_exists('SmallImage')) {
 		$Extension = pathinfo($Source, 4);
 		$SmallImage = GenerateCleanTargetName($TargetFolder, $Filename.'-'.$Hash, $Extension, False, True);
 		if(!file_exists($SmallImage)) Gdn_UploadImage::SaveImageAs($Source, $SmallImage, $Height, $Width, $Crop);
-		
+
 		if(GetValue('MakeOnly', $Attributes, False, True)) {
 			if (GetValue('OutOriginalImageSize', $Attributes, False, True)) { // TEMP, TODO: FIX ME
 				$Return = array();
@@ -76,6 +76,7 @@ if(!function_exists('SmallImage')) {
 				$Return['Result'] = Url($SmallImage);
 				return $Return;
 			}
+
 			return Url($SmallImage);
 		}
 		
@@ -195,8 +196,10 @@ if(!function_exists('FlashHtml')){
 			$Params['flashvars'] = implode('&', $Vars);
 		}
 		$MSIE = (strpos(ArrayValue('HTTP_USER_AGENT', $_SERVER), 'MSIE') > 0);
+
 		if ($MSIE != False) {
 			$Mode = GetValue('wmode', $Attributes, False, True);
+			
 			if ($Mode !== False) $Params['wmode'] = $Mode;
 			$Params['movie'] = $Movie;
 			$ObjectParams = '';

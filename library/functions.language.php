@@ -1,9 +1,16 @@
 <?php
 
-function LocaleLanguageCode(){
+/**
+* Gets currect locale language;
+* Example: Locale: en-CA, returns "en".
+*/
+
+function LocaleLanguageCode() {
 	$T = SplitString(Gdn::Locale()->Current(), '/[_-]/');
 	return ArrayValue(0, $T, 'en');
 }
+
+
 
 function GoogleTranslate($Text, $Options = False) {
 	static $LanguageCode;
@@ -27,7 +34,7 @@ function GoogleTranslate($Text, $Options = False) {
 	return $TranslatedText;
 }
 
-function LingvoTranslate($Word, $Options = array()){
+function LingvoTranslate($Word, $Options = array()) {
 	LoadPhpQuery();
 	static $Result, $LanguageCode;
 	if(is_null($LanguageCode)) $LanguageCode = LocaleLanguageCode();
@@ -35,7 +42,7 @@ function LingvoTranslate($Word, $Options = array()){
 	$From = ArrayValue('From', $Options, $LanguageCode);
 	$To = ArrayValue('To', $Options, $LanguageCode);
 
-	if(!isset($Result[$Word]) || $ResetCache){
+	if (!isset($Result[$Word]) || $ResetCache) {
 		$Direction = $From.'-'.$To;
 		$Url = 'http://lingvo.abbyyonline.com/en/'.$Direction.'/'.rawurlencode($Word);
 		$Doc = PhpQuery::NewDocumentFile($Url);
@@ -54,13 +61,25 @@ function LingvoTranslate($Word, $Options = array()){
 	return $Result[$Word];
 }
 
-function LocalizedOptions($Options){
-	if(is_string($Options)) $Options = func_get_args();
-	if(is_array($Options)) $Options = array_combine($Options, array_map('T', $Options));
+/**
+* Translate arguments passed to function;
+* Returns associative array: T(Value) => Value;
+* Usefull for dropdown form menu / enum fields.
+*/
+
+function LocalizedOptions($Options) {
+	if (is_string($Options)) $Options = func_get_args();
+	if (is_array($Options)) $Options = array_combine($Options, array_map('T', $Options));
 	return $Options;
 }
 
-function LocalizedMessage(){
+/**
+* Shortening for translate message with parameters.
+* Example: sprintf(T('Hello %1$s, today is %2$s!'), 'John', 'Tuesday');
+* Same as: LocalizedMessage('Hello %1$s, today is %2$s', 'John', 'Tuesday');
+*/
+
+function LocalizedMessage() {
 	$Args = func_get_args();
 	$Args[0] = Gdn::Translate($Args[0]);
 	return call_user_func_array('sprintf', $Args);
