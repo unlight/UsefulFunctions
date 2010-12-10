@@ -1,10 +1,13 @@
 <?php
 
-if(!function_exists('d')) {
-	function d(){
+/**
+* Dumps information about arguments passed to functions
+*/
+if (!function_exists('d')) {
+	function d() {
 		static $bSetStyle = True;
 		static $bExit = True;
-		if(!defined('DPHP_USE_ACCESSIBLE')) require PLUGINUTILS_VENDORS.DS.'class.dumphper.php';
+		if (!defined('DPHP_USE_ACCESSIBLE')) require PLUGINUTILS_VENDORS.DS.'class.dumphper.php';
 		$Args = func_get_args();
 		if(count($Args) == 0 && $bExit) $bExit = False;
 		if (PHP_SAPI != 'cli') {
@@ -16,7 +19,7 @@ if(!function_exists('d')) {
 		} else {
 			$i = 1;
 			ob_start();
-			foreach($Args as $A){
+			foreach ($Args as $A) {
 				echo str_repeat('*', $i++) . ' ';
 				var_dump($A);
 			}
@@ -24,15 +27,15 @@ if(!function_exists('d')) {
 			@ob_end_clean();
 			$Encoding = Gdn::Config('Plugins.PluginUtils.Console.MessageEnconding');
 			$String = preg_replace("/\=\>\n +/s", '=> ', $String);
-			if($Encoding && $Encoding != 'utf-8') $String = mb_convert_encoding($String, $Encoding, 'utf-8');
+			if ($Encoding && $Encoding != 'utf-8') $String = mb_convert_encoding($String, $Encoding, 'utf-8');
 			echo $String;
 		}
 		// TODO: neeed close database connection
-		if($bExit) exit();
+		if ($bExit) exit();
 	}
 }
 
-function dplg($PluginFunction){
+function dplg($PluginFunction) {
 	if (!isset($_GET['d'])) return;
 	if (in_array($PluginFunction, array('gdn_locale_beforetranslate_handler', 'base_beforetranslate_handler'))) return;
 	
@@ -46,7 +49,7 @@ function dplg($PluginFunction){
 	$CamelizedFunction = str_replace($Search, $Replace, $CamelizedFunction);
 
 	$Args = func_get_args();
-	if(!defined('DPLG_STYLE')){
+	if (!defined('DPLG_STYLE')) {
 		define('DPLG_STYLE', 1);
 		echo "<style type='text/css'>span.d{border:1px dashed black;font-size:13px;font-family:Tahoma;display:inline-block;padding:0 2;margin:1;}</style>";
 	}

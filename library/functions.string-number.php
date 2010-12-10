@@ -49,13 +49,16 @@ function FormatTextAsTable($Headers, $DataArray, $Options = False) { // very slo
 	return $Result;
 }
 
-function NCrypt($String, $Password, $Decrypt) {
+/**
+* Crypt/Decrypt string using password.
+*/
+function NCrypt($String, $Password, $bDecrypt) {
 	if (!defined('ALPHABET')) {
 		define('RALPHABET', pack('H*', '4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a31323334353637383930205c212c2e3a3b3f7e402324255e262a28295f2b2d3d5d5b7d7b2f3e3c2227607c4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a31323334353637383930205c212c2e3a3b3f7e402324255e262a28295f2b2d3d5d5b7d7b2f3e3c2227607c'));
 		define('ALPHABET', strrev(RALPHABET));
 	}
-	//if (!$Password) $Password = Gdn::Config()
-	$String = (!$Decrypt) ? array_pop(unpack('H*', $String)) : pack('H*', $String);
+
+	$String = (!$bDecrypt) ? array_pop(unpack('H*', $String)) : pack('H*', $String);
 	$RevAlphabetLength = strlen(RALPHABET);
 	$PasswordLength = strlen($Password);
 	for ($i = 0; $i < $PasswordLength; $i++) {
@@ -69,7 +72,7 @@ function NCrypt($String, $Password, $Decrypt) {
    		$Result .= substr($PosAlphaArray[$n], $Pos, 1);
    		if (++$n == $PasswordLength) $n = 0;
   	}
-	$Result = (!$Decrypt) ? array_pop(unpack('H*', $Result)) : pack('H*', $Result);
+	$Result = (!$bDecrypt) ? array_pop(unpack('H*', $Result)) : pack('H*', $Result);
 	return $Result;
 }
 
@@ -81,7 +84,7 @@ function Decrypt($String, $Password) {
 	return NCrypt($String, $Password, True);
 }
 
-if(!function_exists('ArraySum')) {
+if (!function_exists('ArraySum')) {
 	function ArraySum($Array){
 		$N = 0;
 		$Array = array_values($Array);
@@ -93,7 +96,7 @@ if(!function_exists('ArraySum')) {
 /**
 * Calculate the sum of integer values (values can be any length)
 */ 
-if(!function_exists('Summation')) {
+if (!function_exists('Summation')) {
 	function Summation($A) {
 		$Arguments = func_get_args();
 		if (is_array($A)) $Arguments = Flatten($Arguments);
@@ -125,7 +128,7 @@ if(!function_exists('Summation')) {
 * Calculates small hash for any data based on crc32()
 * Length of string 6-7 chars of [a-z0-9]
 */ 
-if(!function_exists('Crc32Value')) {
+if (!function_exists('Crc32Value')) {
 	function Crc32Value() {
 		$Value = func_get_args();
 		$Crc = crc32(serialize($Value));
@@ -135,7 +138,10 @@ if(!function_exists('Crc32Value')) {
 	}
 }
 
-if(!function_exists('Clamp')) {
+/**
+* Returns the first number clamped to the interval from A to B.
+*/
+if (!function_exists('Clamp')) {
 	function Clamp($V, $A, $B) {
 		if ($V > $B) return $B;
 		else if ($V < $A) return $A;
@@ -143,14 +149,16 @@ if(!function_exists('Clamp')) {
 	}
 }
 
-// Fixed CleanupString function from Vanilla I
-if(!function_exists('CleanupString')) {
+/**
+* CleanupString function from Vanilla I
+*/
+if (!function_exists('CleanupString')) {
 	function CleanupString($String) {
 		return Gdn_Format::Clean($String);
 	}
 }
 
-if(!function_exists('ConvertEncoding')) {
+if (!function_exists('ConvertEncoding')) {
 	function ConvertEncoding($Value){ // TODO: make windows-1251 as param or config
 		if(!mb_check_encoding($Value, 'utf-8')){
 			if(mb_check_encoding($Value, 'windows-1251')) $Value = mb_convert_encoding($Value, 'utf-8', 'windows-1251');
@@ -160,10 +168,14 @@ if(!function_exists('ConvertEncoding')) {
 	}
 }
 
-if(!function_exists('SplitString')) {
+/**
+* Split string to array by a regular expression, calls callback or filter for this array.
+* Useful for tags or something like.
+*/
+if (!function_exists('SplitString')) {
 	function SplitString($String, $RegExpr = False, $FilterFunction = Null) {
-		if($RegExpr == False) $RegExpr = '/\s*,\s*/';
-		if($RegExpr{0} != '/') $RegExpr = '/'.$RegExpr.'/';
+		if ($RegExpr == False) $RegExpr = '/\s*,\s*/';
+		if ($RegExpr{0} != '/') $RegExpr = '/'.$RegExpr.'/';
 		$Array = preg_split($RegExpr, $String);
 		$Array = array_map('trim', $Array);
 		$Type = gettype($FilterFunction);
@@ -179,7 +191,15 @@ if(!function_exists('SplitString')) {
 	}
 }
 
-if(!function_exists('GetSimilarity')) {
+/**
+* Compares the string $String with all elements of the array $DataArray using the similar_text();
+* Returns object holding properties:
+* Percent: Similarity in percent 
+* Value: Value of more similarity of subarray (or object) with key/property = $ValueKey
+* Id: Value of more similarity of subarray (or object) with key/property = $IdKey
+* String: Compared $String
+*/
+if (!function_exists('GetSimilarity')) {
 	function GetSimilarity($String, $DataArray, $IdKey = '', $ValueKey = ''){
 		$Percents = array();
 		$String = strip_tags($String);
@@ -209,7 +229,12 @@ if(!function_exists('GetSimilarity')) {
 
 }
 
-if(!function_exists('Camelize')) {
+/*
+* Camelize string.
+* Example: Camelize('my_var_name');
+* Returns: MyVarName
+*/
+if (!function_exists('Camelize')) {
 	function Camelize($String){
 		$String = str_replace('_', ' ', $String);
 		$String = ucwords($String);

@@ -1,12 +1,12 @@
 <?php
 
-if(!function_exists('IsOnline')){
+if (!function_exists('IsOnline')) {
 	function IsOnline() {
 		return is_int(ip2long(gethostbyname('google.com')));
 	}
 }
 
-if(!function_exists('CheckIpMask')){
+if (!function_exists('CheckIpMask')) {
 	function CheckIpMask($MaskIp, $RemoteAddr = False) {
 		if($RemoteAddr === False) $RemoteAddr = $_SERVER['REMOTE_ADDR'];
 		list($Ip, $MaskBit) = explode('/', $MaskIp);
@@ -16,22 +16,28 @@ if(!function_exists('CheckIpMask')){
 	}
 }
 
-if(!function_exists('GetRealIpAddress')){
+if (!function_exists('GetRealIpAddress')) {
 	function GetRealIpAddress($bIPv4Format = False) {
 		if (!empty($_SERVER['HTTP_CLIENT_IP'])) $Ip = $_SERVER['HTTP_CLIENT_IP'];
 		elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) $Ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
 		else $Ip = $_SERVER['REMOTE_ADDR'];
-		if($bIPv4Format){
-			$Ip = ip2long($Ip); // 2130706433 = 127.0.0.1
-			if($Ip < 0) $Ip += Pow(2, 32);
+		if ($bIPv4Format) {
+			// 2130706433 = 127.0.0.1
+			// -1 = Invalid IP
+			$Ip = sprintf('%u', ip2long($Ip));
 		}
 		return $Ip;
 	}
 }
 
-if(!function_exists ('getmxrr')){
+/**
+* Get MX records corresponding to a given Internet host name;
+* For Windows.
+*/ 
+
+if (!function_exists ('getmxrr')) {
 	// This script was writed by Setec Astronomy - setec@freemail.it
-	function getmxrr($hostname = '', &$mxhosts, &$weight = array()){
+	function getmxrr($hostname = '', &$mxhosts, &$weight = array()) {
 		$weight = array();
 		$mxhosts = array();
 		$result = false;
@@ -48,7 +54,7 @@ if(!function_exists ('getmxrr')){
 		}
 
 		$mx = array();
-		while(list($key, $value) = each($nslookup)){
+		while (list($key, $value) = each($nslookup)) {
 			$temp = explode(' ', $value);
 			$mx[$key][0] = substr($temp[3], 0, -1);
 			$mx[$key][1] = $temp[7];

@@ -1,9 +1,18 @@
 <?php
 
-function LoadPhpQuery(){
+function LoadPhpQuery() {
 	//if(!class_exists('PhpQuery')) require_once dirname(__FILE__).DS.'vendors' . DS . 'phpQuery.php';
 	if (!function_exists('Pq')) require_once PLUGINUTILS_VENDORS . DS . 'phpQuery.php';
 }
+
+/**
+* Creates phpQuery document from string or file.
+* Options: 
+* FixHtml (True|False): Clean content by HtmlFormatter
+* phpQuery is a server-side, chainable, CSS3 selector driven Document Object Model (DOM),
+* API based on jQuery JavaScript Library. 
+* More information: http://code.google.com/p/phpquery/
+*/ 
 
 function PqDocument($Document, $Options = False) {
 	if (!function_exists('Pq')) require_once PLUGINUTILS_VENDORS . DS . 'phpQuery.php';

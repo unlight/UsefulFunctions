@@ -3,15 +3,15 @@
 /**
 * Writes an HTML5 video tag.
 */
-if(!function_exists('Video')) {
-	function Video($Source, $Attributes = array()){
+if (!function_exists('Video')) {
+	function Video($Source, $Attributes = array()) {
 		static $DefaultAttributes = array('width' => 640, 'height' => 360, 'poster' => '', 'autoplay' => False, 'controls' => 'controls');
 		static $VideoType = array('3gp' => '3gpp', 'ogv' => 'ogg', 'mkv' => 'x-matroska', 'm4v' => 'mp4');
 		//static $Codecs = array('mp4' => 'avc1.42E01E, mp4a.40.2', 'webm' => 'vp8, vorbis', 'ogg' => 'theora, vorbis');
 		static $Codecs;
 		$Source = SplitString($Source);
 		$StoreDirectory = trim(GetValue('StoreDirectory', $Attributes, '', True), '/');
-		foreach($Source as $Src){
+		foreach($Source as $Src) {
 			if($StoreDirectory != '') $Src = $StoreDirectory . '/'. $Src;
 			$Extension = strtolower(pathinfo($Src, 4));
 			$Type = ArrayValue($Extension, $VideoType, $Extension);
@@ -25,7 +25,7 @@ if(!function_exists('Video')) {
 		$Sources = implode("\n", $Sources);
 		$Poster = ArrayValue('poster', $Attributes);
 		// TODO: make poster from video
-		if($Poster && (GetValue('SizeOfPoster', $Attributes, False, True) || !array_key_exists('width', $Attributes))){
+		if($Poster && (GetValue('SizeOfPoster', $Attributes, False, True) || !array_key_exists('width', $Attributes))) {
 			// TODO: FIX ME (WITHOUT URL)
 			$ImagePoster = Asset($Poster, True);
 			List($width, $height) = GetImageSize($ImagePoster);
@@ -53,7 +53,7 @@ if(!function_exists('Video')) {
 	}
 }
 
-if(!function_exists('SmallImage')) {
+if (!function_exists('SmallImage')) {
 	function SmallImage($Source, $Attributes = array()) {
 		
 		$Width = ArrayValue('width', $Attributes, '');
@@ -67,7 +67,7 @@ if(!function_exists('SmallImage')) {
 		$Filename = pathinfo($Source, 8);
 		$Extension = pathinfo($Source, 4);
 		$SmallImage = GenerateCleanTargetName($TargetFolder, $Filename.'-'.$Hash, $Extension, False, True);
-		if(!file_exists($SmallImage)) Gdn_UploadImage::SaveImageAs($Source, $SmallImage, $Height, $Width, $Crop);
+		if (!file_exists($SmallImage)) Gdn_UploadImage::SaveImageAs($Source, $SmallImage, $Height, $Width, $Crop);
 
 		if(GetValue('MakeOnly', $Attributes, False, True)) {
 			if (GetValue('OutOriginalImageSize', $Attributes, False, True)) { // TEMP, TODO: FIX ME
@@ -83,30 +83,30 @@ if(!function_exists('SmallImage')) {
 		
 		TouchValue('alt', $Attributes, $Filename);
 		// Fail. ImageSY expects parameter 1 to be resource
-		//if(!array_key_exists('height', $Attributes)) TouchValue('height', $Attributes, ImageSY($SmallImage));
-		//if(!array_key_exists('width', $Attributes)) TouchValue('width', $Attributes, ImageSX($SmallImage));
+		//if (!array_key_exists('height', $Attributes)) TouchValue('height', $Attributes, ImageSY($SmallImage));
+		//if (!array_key_exists('width', $Attributes)) TouchValue('width', $Attributes, ImageSX($SmallImage));
 		return Img($SmallImage, $Attributes);
 	}
 }
 
 
-if(!function_exists('FancyZoomImage')) {
-	function FancyZoomImage($Source, $Attributes = array()){
+if (!function_exists('FancyZoomImage')) {
+	function FancyZoomImage($Source, $Attributes = array()) {
 		// defaults
-		if(!is_array($Attributes)) $Attributes = array();
+		if (!is_array($Attributes)) $Attributes = array();
 		$NoHiding = GetValue('NoHiding', $Attributes, '', True);
 		$bSaveImage = False;
 		$Hash = Crc32Value($Source, $Attributes);
 		$Filename = pathinfo($Source, PATHINFO_FILENAME);
 		$Extension = pathinfo($Source, PATHINFO_EXTENSION);
 
-		if(!array_key_exists('SmallImage', $Attributes)){
+		if (!array_key_exists('SmallImage', $Attributes)) {
 			// make directory
 			$TargetFolder = 'uploads/cached'; // cache directory
-			if(!is_dir($TargetFolder)) mkdir($TargetFolder, 0777, True);
+			if (!is_dir($TargetFolder)) mkdir($TargetFolder, 0777, True);
 			$SmallImage = GenerateCleanTargetName($TargetFolder, $Filename.'-'.$Hash, $Extension, False, True);
 			$Attributes['SmallImage'] = $SmallImage;
-			if(!file_exists($SmallImage)) $bSaveImage = True;
+			if (!file_exists($SmallImage)) $bSaveImage = True;
 		}
 
 		// get attributes
@@ -115,9 +115,9 @@ if(!function_exists('FancyZoomImage')) {
 		$Crop = GetValue('Crop', $Attributes, False, True);
 		$SmallImage = GetValue('SmallImage', $Attributes, '', True);
 		$ZoomAttributes = array('id' => 'p'.$Hash);
-		if(!$NoHiding) $ZoomAttributes['style'] = 'display:none';
+		if (!$NoHiding) $ZoomAttributes['style'] = 'display:none';
 
-		//if(!array_key_exists('alt', $Attributes)) $Attributes['alt'] = $Filename;
+		//if (!array_key_exists('alt', $Attributes)) $Attributes['alt'] = $Filename;
 		TouchValue('alt', $Attributes, $Filename);
 
 		if($bSaveImage) Gdn_UploadImage::SaveImageAs($Source, $SmallImage, $Height, $Width, $Crop);
@@ -128,7 +128,7 @@ if(!function_exists('FancyZoomImage')) {
 	}
 }
 
-if(!function_exists('AltClass')) {
+if (!function_exists('AltClass')) {
 	function AltClass() {
 		static $i = 0;
 		$AltClass = $i++ % 2 ? 'Alt' : '';
@@ -137,7 +137,7 @@ if(!function_exists('AltClass')) {
 }
 
 // echo '<tr'.Attribute('class', Alt('Alt', '')).'>';
-if(!function_exists('Alt')){
+if (!function_exists('Alt')) {
 	function Alt() {
 		static $i;
 		$Arguments = func_get_args();
@@ -149,13 +149,13 @@ if(!function_exists('Alt')){
 }
 
 // echo '<tr'.AltAttribute('class', 'Alt', '').'>';
-if(!function_exists('AltAttribute')){
+if (!function_exists('AltAttribute')) {
 	function AltAttribute($Name) {
 		static $i;
 		$Arguments = func_get_args();
 		$Name = array_shift($Arguments);
 		$NumArguments = count($Arguments);
-		if ($NumArguments > 0){
+		if ($NumArguments > 0) {
 			$Value = $Arguments[($i++ % $NumArguments)];
 			return Attribute($Name, $Value);
 		}
@@ -164,7 +164,10 @@ if(!function_exists('AltAttribute')){
 	}
 }
 
-if(!function_exists('FlashHtml')){
+/**
+* Writes code for flash movie <object>..</object> for IE, <embed>...</embed> for others.
+*/
+if (!function_exists('FlashHtml')) {
 	function FlashHtml($Movie, $Attributes = array(), $Params = array(), $FlashVars = False) {
 		// TODO: We can get width/height by GetImageSize()
 		static $DefaultAttributes = array('width' => 400, 'height' => 300, 'type' => 'application/x-shockwave-flash');
@@ -173,7 +176,7 @@ if(!function_exists('FlashHtml')){
 		
 		$ScriptRender = GetValue('ScriptRender', $Attributes, False, True);
 
-		if(!is_array($Params)) $Params = array();
+		if (!is_array($Params)) $Params = array();
 		$Params = array_merge($DefaultParams, $Params);
 		$Movie = Asset($Movie, True);
 		
@@ -181,15 +184,15 @@ if(!function_exists('FlashHtml')){
 		if (!array_key_exists('width', $Attributes) || !array_key_exists('height', $Attributes)) {
 			$ImageInfo = GetImageSize($Movie);
 			if ($ImageInfo != False) {
-				TouchValue('width', $Attributes, $ImageInfo[0]);
-				TouchValue('height', $Attributes, $ImageInfo[1]);
+				$Attributes['width'] = $ImageInfo[0];
+				$Attributes['height'] = $ImageInfo[1];
 			}
 		}
 		
 		$Attributes = array_merge($DefaultAttributes, $Attributes);
 		
 		$FlashVars = GetValue('FlashVars', $Attributes, $FlashVars, True);
-		if($FlashVars != False){
+		if ($FlashVars != False) {
 			$FlashVars = Gdn_Format::ObjectAsArray($FlashVars);
 			$Vars = array();
 			foreach($FlashVars as $Name => $Value) $Vars[] = $Name.'='.$Value; // encodeuricomponent
@@ -204,23 +207,24 @@ if(!function_exists('FlashHtml')){
 			$Params['movie'] = $Movie;
 			$ObjectParams = '';
 			foreach($Params as $Name => $Value) $ObjectParams .= '<param name="'.$Name.'" value="'.$Value.'" />';
+			// TODO: ADD CLASSID FOR IE
 			$Result = '<object'.Attribute($Attributes).'>'.$ObjectParams.'</object>';
-		}else{
+		} else {
 			$Attributes['src'] = $Movie;
 			$Attributes = array_merge($Attributes, $Params);
 			$Result = '<embed'.Attribute($Attributes).' />';
 		}
 
-		if($ScriptRender) $Result = JavaScript($Result, True);
+		if ($ScriptRender) $Result = JavaScript($Result, True);
 
 		// detect flash version you should manually
 		return $Result;
 	}
 }
 
-if(!function_exists('JavaScript')){
-	function JavaScript($Mixed, $bWrite = True){
-		if(is_string($Mixed)){
+if (!function_exists('JavaScript')) {
+	function JavaScript($Mixed, $bWrite = True) {
+		if (is_string($Mixed)) {
 			//"\n" => '',
 			$Replace = array("\r" => '', '=' => '\=', '</' => '<\/', "'" => "\'");
 			$Mixed = str_replace(array_keys($Replace), array_values($Replace), $Mixed);
@@ -228,15 +232,15 @@ if(!function_exists('JavaScript')){
 			$Mixed = array_filter($Mixed);
 		}
 		$Return[] = '<script type="text/javascript">//<![CDATA[';
-		if($bWrite) foreach($Mixed as $S) $Return[] = sprintf("document.writeln('%s');", $S);
-		else foreach($Mixed as $S) $Return[] = $S.';';
+		if ($bWrite) foreach($Mixed as $S) $Return[] = sprintf("document.writeln('%s');", $S);
+		else foreach ($Mixed as $S) $Return[] = $S.';';
 		$Return[] = '//]]></script>';
 		return implode("\n", $Return);
 	}
 }
 
-if(!function_exists('NoIndex')){
-	function NoIndex($String){
+if (!function_exists('NoIndex')) {
+	function NoIndex($String) {
 		$String = JavaScript($String, True);
 		$String = "<!-- This text shouldn't be indexed //-->\n" . $String;
 		return $String;
@@ -244,28 +248,28 @@ if(!function_exists('NoIndex')){
 }
 
 // returns <a href="[img]"><img src="[thumb]"/></a>
-if(!function_exists('ThumbnailImage')){
-	function ThumbnailImage($Data, $Attributes = False){
+if (!function_exists('ThumbnailImage')) {
+	function ThumbnailImage($Data, $Attributes = False) {
 
 		$Width = ArrayValue('width', $Attributes, '');
 		$Height = ArrayValue('height', $Attributes, '');
 
-		if(Is_Array($Data)){
+		if(Is_Array($Data)) {
 			// group, todo
 			// <ul><li><a></a></li>
 		}
 
 		$Prefix = substr($Data, 0, 7);
-		//if(In_Array($Prefix, array('http://', 'https:/'))){}
+		//if(In_Array($Prefix, array('http://', 'https:/'))) {}
 		//$bLocalImage = False;
 
-		if($Prefix != 'http://'){
+		if($Prefix != 'http://') {
 			//$bLocalImage = True;
 			$IncomingImage = $Data;
 			$ImageFindPaths[] = 'uploads'.DS.$Data;
 			$ImageFindPaths[] = $Data;
-			foreach($ImageFindPaths as $File){
-				if(file_exists($File) && is_file($File)){
+			foreach($ImageFindPaths as $File) {
+				if(file_exists($File) && is_file($File)) {
 					$IncomingImage = $File;
 					break;
 				}
@@ -275,9 +279,9 @@ if(!function_exists('ThumbnailImage')){
 		}
 
 		$CacheDirectory = 'uploads/cached';
-		if(!Is_Writable($CacheDirectory)){
+		if (!is_writable($CacheDirectory)) {
 			mkdir($CacheDirectory, 0777, True);
-			if(!Is_Writable($CacheDirectory)){
+			if (!is_writable($CacheDirectory)) {
 				$ErrorMessage = ErrorMessage(sprintf(T('Directory (%s) is not writable.'), $CacheDirectory), 'PHP', __FUNCTION__);
 				trigger_error($ErrorMessage, E_USER_ERROR);
 				return '';
@@ -288,12 +292,12 @@ if(!function_exists('ThumbnailImage')){
 		$Extension = FileExtension($IncomingImage);
 		$Target = $CacheDirectory. DS . $Name . '.' . $Extension;
 
-		if(!file_exists($Target)){
+		if (!file_exists($Target)) {
 			Gdn_UploadImage::SaveImageAs($IncomingImage, $Target, $Height, $Width);
 		}
 
 		$Target = str_replace(DS, '/', $Target);
-		if(!array_key_exists('alt', $Attributes)) $Attributes['alt'] = pathinfo($Name, PATHINFO_FILENAME);
+		if (!array_key_exists('alt', $Attributes)) $Attributes['alt'] = pathinfo($Name, PATHINFO_FILENAME);
 
 		List($Width, $Height, $Type) = GetImageSize($IncomingImage);
 		$Attributes['alt'] .= sprintf(' (%d×%d)', $Width, $Height);
@@ -304,7 +308,7 @@ if(!function_exists('ThumbnailImage')){
 }
 
 // Gdn_Format::To($FileSize, 'Size')
-if(!function_exists('Size')) {
+if (!function_exists('Size')) {
 	function Size($Bytes, $Precision = 2) {
 		return Gdn_Format::Bytes($Bytes, $Precision);
 	}

@@ -30,7 +30,6 @@ if(!function_exists('IsEmpty')){
 /**
 * Promote key for associative array/dataset
 */
-
 if(!function_exists('PromoteKey')) {
 	function PromoteKey($Collection, $PromotedKey) {
 		$Result = array();
@@ -66,13 +65,13 @@ if (!function_exists('CombineArrays')) {
 	}
 }
 
-if(!function_exists('ObjectValue')){
+if (!function_exists('ObjectValue')) {
 	function ObjectValue($Key, $Object, $Default = False) {
 		return GetValue($Key, $Object, $Default);
 	}
 }
 
-if(!function_exists('array_flat')) {
+if (!function_exists('array_flat')) {
 	function array_flat($arr){
 		$result = array();
 		foreach($arr as $value){
@@ -86,7 +85,7 @@ if(!function_exists('array_flat')) {
 }
 
 // http://phunction.sf.net/
-if(!function_exists('Flatten')) {
+if (!function_exists('Flatten')) {
 	function Flatten($Array){
 		$Result = array();
 		foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($Array)) as $Value)
@@ -95,7 +94,7 @@ if(!function_exists('Flatten')) {
 	}
 }
 
-if(!function_exists('RandomValue')) {
+if (!function_exists('RandomValue')) {
 	function RandomValue(&$Collection, $Default = False, $Remove = False) {
 		if (is_array($Collection)) {
 			$Index = array_rand($Collection);
@@ -136,7 +135,7 @@ if(!function_exists('CamelizeResult')){
 		$Keys = array_combine($Keys, $CamelizedKeys);
 		foreach($Keys as $Key => $CamelizedKey){
 			$Data[$CamelizedKey] = $Data[$Key];
-			if($bRemoveUnderscoreKeys) unset($Data[$Key]);
+			if ($bRemoveUnderscoreKeys) unset($Data[$Key]);
 		}
 		$Data = Gdn_Format::ArrayAsObject($Data);
 		return $Data;

@@ -38,12 +38,8 @@ if (!function_exists('TableDataValues')) {
 /**
 * Count something in many-to-many relationship tables
 * SQL statement:
-update News n set n.TagCount = (
-	select count(*) from NewsTags nt
-		where nt.NewsID = n.NewsID
-)
+update News n set n.TagCount = (select count(*) from NewsTags nt where nt.NewsID = n.NewsID)
 */ 
-
 if (!function_exists('CountManyToManyData')) {
 	// TODO: FIX ME: No escape values here
 	function CountManyToManyData($OuterTableName, $OuterField, $InnerTableName, $Where) {
@@ -79,10 +75,9 @@ if (!function_exists('SaveManyToManyData')) {
 /**
 * Function saves new tags. Return existing.
 */
-
 if (!function_exists('SaveTags')) {
 	function SaveTags($TagString) {
-		if(!is_string($TagString)) $TagString = GetValue('Tags', $TagString);
+		if (!is_string($TagString)) $TagString = GetValue('Tags', $TagString);
 		$TagString = mb_strtolower($TagString, 'utf-8');
 		$TagString = preg_replace('/[^ \-0-9a-zа-я]/iu', ' ', $TagString);
 		$TagsNames = SplitString($TagString, ' ', array('array_filter', 'array_unique'));
@@ -150,6 +145,7 @@ if (!function_exists('K')) {
 						if (is_null($Value) || $Value === '' || is_array($Value)) {
 							$Value = $Cache[$Data->Name] = Gdn_Format::Unserialize($Data->Value);
 						} else {
+							// TODO: FIX ME
 							// Lost value. What should we do? Delete? Throw Exception?
 						}
 					}

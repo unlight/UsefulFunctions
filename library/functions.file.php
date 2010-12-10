@@ -1,13 +1,16 @@
 <?php
 
+/**
+* 
+*/
 function CompileFile($File = Null, $bSave = False) {
 	static $RequiredFiles = array();
-	if(is_null($File)){
+	if (is_null($File)){
 		$Return = $RequiredFiles;
 		$RequiredFiles = array();
 		return $Return;
 	}
-	if($bSave != False) {
+	if ($bSave != False) {
 		$NewFileContent = '';
 		$Files = array_values(CompileFile());
 
@@ -16,7 +19,7 @@ function CompileFile($File = Null, $bSave = False) {
 			$Count = count($FileData);
 			for ($i = 0; $i < $Count; $i++) {
 				$String = $FileData[$i];
-				if(strpos($String, 'require') === 0
+				if (strpos($String, 'require') === 0
 					|| in_array($String, array('<?php', '?>'))) unset($FileData[$i]);
 			}
 			$BaseName = pathinfo($FilePath, PATHINFO_BASENAME);
@@ -28,7 +31,7 @@ function CompileFile($File = Null, $bSave = False) {
 	}
 
 	$RealPath = realpath($File);
-	if(!$RealPath) throw new Exception('No such file '.$File);
+	if (!$RealPath) throw new Exception('No such file '.$File);
 
 	//if (count($RequiredFiles) == 0) $RequiredFiles[] = $RealPath;
 	$Hash = Crc32File($RealPath);
@@ -39,11 +42,11 @@ function CompileFile($File = Null, $bSave = False) {
 	foreach ($AllTokens as $N => $TokenArray) {
 		list($TokenID) = $TokenArray;
 		$String = ArrayValue(1, $TokenArray);
-		if(!is_int($TokenID) || !in_array(token_name($TokenID), array('T_REQUIRE', 'T_REQUIRE_ONCE'))) continue;
+		if (!is_int($TokenID) || !in_array(token_name($TokenID), array('T_REQUIRE', 'T_REQUIRE_ONCE'))) continue;
 
 		$PrevTokenString = ArrayValue(1, $AllTokens[$N-1]);
 		$PrevTokenString = str_replace("\r", '', $PrevTokenString);
-		if($PrevTokenString !== "\n") continue;
+		if ($PrevTokenString !== "\n") continue;
 
 		$OtherTokens = array_slice($AllTokens, $N);
 		$FileTokens = array();
@@ -56,13 +59,13 @@ function CompileFile($File = Null, $bSave = False) {
 		if (count($FileTokens) == 0) throw new Exception('FileTokens not found.');
 		$TheFile = False;
 		foreach(array_reverse($FileTokens) as $Tk){
-			if(is_int($Tk[0]) && token_name($Tk[0]) == 'T_CONSTANT_ENCAPSED_STRING') {
+			if (is_int($Tk[0]) && token_name($Tk[0]) == 'T_CONSTANT_ENCAPSED_STRING') {
 				$TheFile = $Tk[1];
 				$TheFile = trim($TheFile, '"\'/\\');
 				break;
 			}
 		}
-		if(!$TheFile) throw Exception('No string file found.');
+		if (!$TheFile) throw Exception('No string file found.');
 		$DirnameFileConstruct = dirname($RealPath);
 		$TheFile = $DirnameFileConstruct . DS . $TheFile;
 		$RealFile = realpath($TheFile);
@@ -80,14 +83,16 @@ function CompileFile($File = Null, $bSave = False) {
 /**
 * Calculates the crc32 checksum of a file
 */ 
-if(!function_exists('Crc32File')) {
+if (!function_exists('Crc32File')) {
 	function Crc32File($File) {
 		return crc32( sha1_file($File) );
 	}
 }
 
-
-if(!function_exists('GenerateCleanTargetName')) {
+/**
+* 
+*/
+if (!function_exists('GenerateCleanTargetName')) {
 	function GenerateCleanTargetName($TargetFolder, $Name, $Extension = '', $TempFile = False, $bForceOverwriteExisting = False) {
 		if ($Extension == '') {
 			$Extension = pathinfo($Name, 4);
@@ -99,22 +104,25 @@ if(!function_exists('GenerateCleanTargetName')) {
 		// check for file with same name
 		$TestName = $BaseName;
 		$TargetFile = $TargetFolder . DS . $TestName . '.' . $Extension;
-		if(!file_exists($TargetFile)) return $TargetFile;
+		if (!file_exists($TargetFile)) return $TargetFile;
 		$IsSameFile = ($TempFile != False && file_exists($TempFile) && Crc32File($TempFile) == Crc32File($TargetFile));
-		if($IsSameFile || $bForceOverwriteExisting) return $TargetFile;
+		if ($IsSameFile || $bForceOverwriteExisting) return $TargetFile;
 		$Count = 0;
 		do {
 			$TestName = $BaseName.'-'.strtolower(RandomString(rand(1, 5)));
 			$TargetFile = $TargetFolder . DS . $TestName . '.' . $Extension;
 			// make sure that iteration will end
-			if(++$Count > 250) throw new Exception('Cannot generate unique name for file.');
+			if (++$Count > 250) throw new Exception('Cannot generate unique name for file.');
 		} while (file_exists($TargetFile));
 
 		return $TargetFile;
 	}
 }
 
-if(!function_exists('UploadFile')) {
+/**
+* 
+*/
+if (!function_exists('UploadFile')) {
 	function UploadFile($TargetFolder, $InputName, $Options = False) {
 /*		if (is_array($InputName)) {
 			$Options = $InputName;
@@ -122,7 +130,7 @@ if(!function_exists('UploadFile')) {
 		}*/
 
 		$FileName = ArrayValue('name', ArrayValue($InputName, $_FILES));
-		if($FileName == '') return; // no upload, return null
+		if ($FileName == '') return; // no upload, return null
 
 		// options
 		$AllowFileExtension = ArrayValue('AllowFileExtension', $Options);
@@ -157,8 +165,8 @@ if(!function_exists('UploadFile')) {
 			$TempFile = $Upload->ValidateUpload($InputName);
 			$TargetFile = GenerateCleanTargetName($TargetFolder, $FileName[$i], '', $TempFile, $CanOverwrite);
 			$Upload->SaveAs($TempFile, $TargetFile);
-			if($WebTarget != False) $File = str_replace(DS, '/', $TargetFile);
-			elseif(array_key_exists('WithTargetFolder', $Options)) $File = $TargetFile;
+			if ($WebTarget != False) $File = str_replace(DS, '/', $TargetFile);
+			elseif (array_key_exists('WithTargetFolder', $Options)) $File = $TargetFile;
 			else $File = pathinfo($TargetFile, PATHINFO_BASENAME);
 			$Result[] = $File;
 		}
@@ -177,7 +185,10 @@ if(!function_exists('UploadFile')) {
 
 
 # http://php.net/manual/en/function.readdir.php
-if(!function_exists('ProcessDirectory')) {
+/**
+* 
+*/
+if (!function_exists('ProcessDirectory')) {
 	function ProcessDirectory($Directory, $Options = False){
 
 		$bRecursive = $Options;
@@ -189,7 +200,7 @@ if(!function_exists('ProcessDirectory')) {
 			$bRecursive = ArrayValue('Recursive', $Options, False);
 		}*/
 
-		if(!is_dir($Directory)) return False;
+		if (!is_dir($Directory)) return False;
 		$List = array();
 		$Handle = opendir($Directory);
 		while(False !== ($File = ReadDir($Handle))){
@@ -197,7 +208,7 @@ if(!function_exists('ProcessDirectory')) {
 			if ($File == '.' || $File == '..' || !file_exists($Path)) continue;
 			if (is_dir($Path) && $bRecursive) {
 				$NextDirectory = ProcessDirectory($Path, True);
-				if(is_array($NextDirectory)) $List = array_merge($List, $NextDirectory);
+				if (is_array($NextDirectory)) $List = array_merge($List, $NextDirectory);
 			} else {
 				$Entry = new StdClass();
 				$Entry->Filename = $File;
@@ -217,7 +228,12 @@ if(!function_exists('ProcessDirectory')) {
 	}
 }
 
-if(!function_exists('RecursiveRemoveDirectory')) {
+/**
+Recursive remove directory that remove non empty dirs recursively.
+It enters every directory, removes every file starting from the given path.
+Note: Gdn_FileSystem::RemoveFolder()
+*/
+if (!function_exists('RecursiveRemoveDirectory')) {
 	function RecursiveRemoveDirectory($Path){
 		// Gdn_FileSysytem::RemoveFolder($Path)
 		$Directory = new RecursiveDirectoryIterator($Path);
@@ -227,7 +243,7 @@ if(!function_exists('RecursiveRemoveDirectory')) {
 		foreach($Directory as $SubDirectory){
 		// If a subdirectory can't be removed, it's because it has subdirectories, so recursiveRemoveDirectory is called again passing the subdirectory as path
 		// @ suppress the warning message
-			if(!@rmdir($SubDirectory)) RecursiveRemoveDirectory($SubDirectory);
+			if (!@rmdir($SubDirectory)) RecursiveRemoveDirectory($SubDirectory);
 		}
 		// Remove main directory
 		return rmdir($Path);
@@ -235,7 +251,10 @@ if(!function_exists('RecursiveRemoveDirectory')) {
 }
 
 
-if(!function_exists('FileExtension')) {
+/**
+* Returns file extension
+*/
+if (!function_exists('FileExtension')) {
 	function FileExtension($Basename) {
 		return strtolower(pathinfo($Basename, 4));
 	}
