@@ -1,13 +1,18 @@
 <?php
 
 /**
-* ConvertImage by ImageMagick
+* Makes thumbnail image by ImageMagick
 */
 if (!function_exists('Thumbnail')) {
-	function Thumbnail($Source, $Attributes) {
+	function Thumbnail($Source, $Attributes, &$OutData = Null) {
 		static $ImPath;
-		if ($ImPath === Null) $ImPath = C('Plugins.CssSprites.ImPath', '/usr/local/bin/');
+		if ($ImPath === Null) {
+			$ImPath = C('Plugins.CssSprites.ImPath', '/usr/local/bin');
+			$ImPath = realpath($ImPath);
+			if ($ImPath == False) throw new Exception('ImageMagick not found.');
+		}
 		
+		$OutData = Null;
 		$Width = ArrayValue('width', $Attributes);
 		$Height = ArrayValue('height', $Attributes);
 		$Crop = GetValue('Crop', $Attributes, False, True);
@@ -37,9 +42,16 @@ if (!function_exists('Thumbnail')) {
 		$ResultImage = GenerateCleanTargetName($TargetFolder, $Filename.'-'.$Hash, $Extension, False, True);
 		
 		if (!file_exists($ResultImage)) {
+			
+			// If source is URL, putting image to temp directory and then converting it
+			if (!is_file($Source)) {
+				if (!filter_var($Source, FILTER_VALIDATE_URL)) throw new Exception("`$Source` not found or incorrect.");
+				$Filename  = tempnam(realpath(sys_get_temp_dir()), '');
+				file_put_contents($Filename, file_get_contents($Source));
+			}
+			
 			$Out = $ReturnValue = Null;
-			$Cmd = "{$ImPath}convert $Source -thumbnail {$Geometry} $ResultImage";
-			//d($Cmd);
+			$Cmd = "{$ImPath}/convert $Source -thumbnail {$Geometry} $ResultImage";
 			$ExecuteResult = exec($Cmd, $Out, $ReturnValue);
 			if ($ReturnValue !== 0) 
 				trigger_error(ErrorMessage('Cannot create thumbnail image.', 'PHP', __FUNCTION__, $Cmd), E_USER_ERROR);
@@ -47,52 +59,11 @@ if (!function_exists('Thumbnail')) {
 		
 		if (GetValue('OutOriginalImageSize', $Attributes, False, True)) {
 			$Return = array();
-			$Return['ImageSize'] = getimagesize($Source);
-			$Return['Result'] = $ResultImage;
-			return $Return;
+			$OutData['ImageSize'] = GetImageSize($Source);
 		}
-		// return Img($ResultImage, $Attributes); // TODO: ?
 		return $ResultImage;
 	}
 }
-
-
-if (!function_exists('SmallImage')) {
-	function SmallImage($Source, $Attributes = array()) {
-		
-		$Width = ArrayValue('width', $Attributes, '');
-		$Height = ArrayValue('height', $Attributes, '');
-		$ImageQuality = GetValue('ImageQuality', $Attributes, 100, True);
-		$Crop = GetValue('Crop', $Attributes, False, True);
-		
-		$Hash = Crc32Value($Source, array($Width, $Height, $ImageQuality, $Crop));
-		$TargetFolder = 'uploads/cached'; // cache directory
-		if (!is_dir($TargetFolder)) mkdir($TargetFolder, 0777, True);
-		$Filename = pathinfo($Source, 8);
-		$Extension = pathinfo($Source, 4);
-		$SmallImage = GenerateCleanTargetName($TargetFolder, $Filename.'-'.$Hash, $Extension, False, True);
-		if (!file_exists($SmallImage)) Gdn_UploadImage::SaveImageAs($Source, $SmallImage, $Height, $Width, $Crop);
-
-		if (GetValue('MakeOnly', $Attributes, False, True)) {
-			if (GetValue('OutOriginalImageSize', $Attributes, False, True)) { // TEMP, TODO: FIX ME
-				$Return = array();
-				$Return['ImageSize'] = getimagesize($Source);
-				$Return['Result'] = Url($SmallImage);
-				return $Return;
-			}
-
-			return Url($SmallImage);
-		}
-		
-		
-		TouchValue('alt', $Attributes, $Filename);
-		// Fail. ImageSY expects parameter 1 to be resource
-		//if (!array_key_exists('height', $Attributes)) TouchValue('height', $Attributes, ImageSY($SmallImage));
-		//if (!array_key_exists('width', $Attributes)) TouchValue('width', $Attributes, ImageSX($SmallImage));
-		return Img($SmallImage, $Attributes);
-	}
-}
-
 
 if (!function_exists('FancyZoomImage')) {
 	function FancyZoomImage($Source, $Attributes = array()) {

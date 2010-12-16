@@ -1,5 +1,44 @@
 <?php
 
+if (!function_exists('SmallImage')) {
+	function SmallImage($Source, $Attributes = array()) {
+		
+		if (defined('DEBUG')) 
+			trigger_error('SmallImage() is deprecated. Use Thumbnail().', E_USER_DEPRECATED);
+		
+		$Width = ArrayValue('width', $Attributes, '');
+		$Height = ArrayValue('height', $Attributes, '');
+		$ImageQuality = GetValue('ImageQuality', $Attributes, 100, True);
+		$Crop = GetValue('Crop', $Attributes, False, True);
+		
+		$Hash = Crc32Value($Source, array($Width, $Height, $ImageQuality, $Crop));
+		$TargetFolder = 'uploads/cached'; // cache directory
+		if (!is_dir($TargetFolder)) mkdir($TargetFolder, 0777, True);
+		$Filename = pathinfo($Source, 8);
+		$Extension = pathinfo($Source, 4);
+		$SmallImage = GenerateCleanTargetName($TargetFolder, $Filename.'-'.$Hash, $Extension, False, True);
+		if (!file_exists($SmallImage)) Gdn_UploadImage::SaveImageAs($Source, $SmallImage, $Height, $Width, $Crop);
+
+		if (GetValue('MakeOnly', $Attributes, False, True)) {
+			if (GetValue('OutOriginalImageSize', $Attributes, False, True)) { // TEMP, TODO: FIX ME
+				$Return = array();
+				$Return['ImageSize'] = getimagesize($Source);
+				$Return['Result'] = Url($SmallImage);
+				return $Return;
+			}
+
+			return Url($SmallImage);
+		}
+		
+		
+		TouchValue('alt', $Attributes, $Filename);
+		// Fail. ImageSY expects parameter 1 to be resource
+		//if (!array_key_exists('height', $Attributes)) TouchValue('height', $Attributes, ImageSY($SmallImage));
+		//if (!array_key_exists('width', $Attributes)) TouchValue('width', $Attributes, ImageSX($SmallImage));
+		return Img($SmallImage, $Attributes);
+	}
+}
+
 if (!function_exists('BunchCollection')) {
 	function BunchCollection($Collection, $Key) {
 		if (defined('DEBUG')) 
