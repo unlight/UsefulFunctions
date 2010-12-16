@@ -1,5 +1,58 @@
 <?php
 
+if (!function_exists('MarkdownHtml')) {
+	function MarkdownHtml($S) {
+		$S = str_replace("\r", '', $S);
+		preg_match_all('~\^\^(.+?)(\n\n|$)~s', $S, $Matches);
+		if (isset($Matches[1][0])) {
+			foreach($Matches[0] as $N => $Garbage){
+				$Images = SplitString($Matches[1][$N], "\n");
+				$Height = GetValue(0, $Images);
+				if (!is_numeric($Height)) {
+					$bDefaultSet = False;
+					switch($Height) {
+						case 'tiny': $Height = 240; break;
+						case 'small': $Height = 320; break;
+						case 'normal': $Height = 400; break;
+						case 'big': $Height = 500; break;
+						case 'huge': $Height = 600; break;
+						default: 
+							$Height = 350;
+							$bDefaultSet = True;
+					}
+					if (!$bDefaultSet) unset($Images[0]);
+				} else unset($Images[0]);
+				
+				$Html = '';
+				foreach ($Images as $Image) {
+					$Attributes = array('height' => $Height, 'OutOriginalImageSize' => True);
+					$SmallImage = Thumbnail($Image, $Attributes, $OutData);
+					
+					list($OriginalWidth, $OriginalHeight) = GetValue('ImageSize', $OutData);
+					
+					$AnchorAttributes = array('class' => $OriginalWidth.'x'.$OriginalHeight);
+					$Html .= Anchor(Img($SmallImage), $Image, '', $AnchorAttributes, True);
+				}
+				$Html = Wrap($Html, 'div', array('class' => 'PopupImages'));
+				$S = str_replace($Garbage, $Html, $S);
+			}
+		}
+		
+		if (!function_exists('Markdown')) require_once(PATH_LIBRARY.DS.'vendors'.DS.'markdown'.DS.'markdown.php');
+		$S = Markdown($S);
+		$HtmlFormatter = Gdn::Factory('HtmlFormatter');
+		$S = $HtmlFormatter->Format($S);
+		return $S;
+	}
+}
+
+// Gdn_Format::To($FileSize, 'Size')
+if (!function_exists('Size')) {
+	function Size($Bytes, $Precision = 2) {
+		return Gdn_Format::Bytes($Bytes, $Precision);
+	}
+}
+
 /**
 * Writes an HTML5 video tag.
 */
@@ -173,9 +226,3 @@ if (!function_exists('NoIndex')) {
 }
 
 
-// Gdn_Format::To($FileSize, 'Size')
-if (!function_exists('Size')) {
-	function Size($Bytes, $Precision = 2) {
-		return Gdn_Format::Bytes($Bytes, $Precision);
-	}
-}
