@@ -3,8 +3,8 @@
 /**
 * ConvertImage by ImageMagick
 */
-if (!function_exists('ImgThumbnail')) {
-	function ImgThumbnail($Source, $Attributes) {
+if (!function_exists('Thumbnail')) {
+	function Thumbnail($Source, $Attributes) {
 		static $ImPath;
 		if ($ImPath === Null) $ImPath = C('Plugins.CssSprites.ImPath', '/usr/local/bin/');
 		
@@ -12,33 +12,37 @@ if (!function_exists('ImgThumbnail')) {
 		$Height = ArrayValue('height', $Attributes);
 		$Crop = GetValue('Crop', $Attributes, False, True);
 		$Geometry = GetValue('Geometry', $Attributes, False, True);
-		$TargetFolder = GetValue('TargetFolder', $Attributes, 'uploads/cached');
+		$TargetFolder = GetValue('TargetFolder', $Attributes, 'uploads/cached', True);
 		
-		if ($Geometry == False) {
-			// scale% 			Height and width both scaled by specified percentage.
-			// scale-x%xscale-y% 	Height and width individually scaled by specified percentages. (Only one % symbol needed.)
-			// width 			Width given, height automagically selected to preserve aspect ratio.
-			// xheight 			Height given, width automagically selected to preserve aspect ratio.
-			// widthxheight 	Maximum values of height and width given, aspect ratio preserved.
-			// widthxheight^ 	Minimum values of width and height given, aspect ratio preserved.
-			// widthxheight! 	Width and height emphatically given, original aspect ratio ignored.
-			// widthxheight> 	Change as per widthxheight but only if an image dimension exceeds a specified dimension.
-			// widthxheight< 	Change dimensions only if both image dimensions exceed specified dimensions.
-			// area@ 			Resize image to have specified area in pixels. Aspect ratio is preserved.
-			$Geometry = $Width.'x'.$Height;
-		}
+		// $Height && $Width required
+		if ($Crop === True) $Geometry = "\"{$Width}x{$Height}^\" -crop {$Width}x{$Height}+0+0 +repage";
+		if (!$Geometry) $Geometry = $Width.'x'.$Height;
+		// scale% 			Height and width both scaled by specified percentage.
+		// scale-x%xscale-y% 	Height and width individually scaled by specified percentages. (Only one % symbol needed.)
+		// width 			Width given, height automagically selected to preserve aspect ratio.
+		// xheight 			Height given, width automagically selected to preserve aspect ratio.
+		// widthxheight 	Maximum values of height and width given, aspect ratio preserved.
+		// widthxheight^ 	Minimum values of width and height given, aspect ratio preserved.
+		// widthxheight! 	Width and height emphatically given, original aspect ratio ignored.
+		// widthxheight> 	Change as per widthxheight but only if an image dimension exceeds a specified dimension.
+		// widthxheight< 	Change dimensions only if both image dimensions exceed specified dimensions.
+		// area@ 			Resize image to have specified area in pixels. Aspect ratio is preserved.
+
 		
 		if (!is_dir($TargetFolder)) mkdir($TargetFolder, 0777, True);
-		$Hash = Crc32Value($Source, array($Width, $Height, $Crop, $Geometry));
+		$Hash = Crc32Value($Source, $Width, $Height, $Crop, $Geometry);
 		$Filename = pathinfo($Source, 8);
 		$Extension = pathinfo($Source, 4);
 		
 		$ResultImage = GenerateCleanTargetName($TargetFolder, $Filename.'-'.$Hash, $Extension, False, True);
 		
 		if (!file_exists($ResultImage)) {
+			$Out = $ReturnValue = Null;
 			$Cmd = "{$ImPath}convert $Source -thumbnail {$Geometry} $ResultImage";
-			exec($Cmd, $Out, $Rar);
-			//if (count($Rar) > 0) errro
+			//d($Cmd);
+			$ExecuteResult = exec($Cmd, $Out, $ReturnValue);
+			if ($ReturnValue !== 0) 
+				trigger_error(ErrorMessage('Cannot create thumbnail image.', 'PHP', __FUNCTION__, $Cmd), E_USER_ERROR);
 		}
 		
 		if (GetValue('OutOriginalImageSize', $Attributes, False, True)) {
@@ -47,7 +51,7 @@ if (!function_exists('ImgThumbnail')) {
 			$Return['Result'] = $ResultImage;
 			return $Return;
 		}
-		
+		// return Img($ResultImage, $Attributes); // TODO: ?
 		return $ResultImage;
 	}
 }
