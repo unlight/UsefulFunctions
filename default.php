@@ -4,7 +4,7 @@ $PluginInfo['PluginUtils'] = array(
 	'Name' => 'Plugin utils',
 	'Description' => 'Useful functions for plugin and application developers.',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.13'),
-	'Version' => '2.2.1.b51',
+	'Version' => '2.2.3.b53',
 	'Author' => 'Vanilla Fan'
 );
 
@@ -14,6 +14,12 @@ define('PLUGINUTILS_VENDORS', dirname(__FILE__).DS.'vendors');
 Gdn::FactoryInstall('Zip', 'PclZip', PATH_LIBRARY.'/vendors/pclzip/pclzip.lib.php', Gdn::FactoryInstance);
 Gdn::FactoryInstall('Snoopy', 'Snoopy', PLUGINUTILS_VENDORS.DS.'Snoopy.class.php', Gdn::FactorySingleton);
 Gdn::FactoryInstall('Mailbox', 'ImapMailbox', PLUGINUTILS_LIBRARY.DS.'class.imapmailbox.php', Gdn::FactorySingleton);
+Gdn::FactoryInstall(
+	'CssSpriteMap', 
+	'CssSpriteMap', 
+	PLUGINUTILS_VENDORS.DS.'CssSprite.php',
+	Gdn::FactorySingleton
+);
 
 require PLUGINUTILS_LIBRARY.DS.'functions.render.php';
 require PLUGINUTILS_LIBRARY.DS.'functions.image.php';
@@ -53,7 +59,16 @@ CONFIG
 $Configuration['Plugins']['Console']['MessageEnconding'] = 'your code page here';
 $Configuration['Plugins']['Console']['Check'] = True; // True/False
 
+$Configuration['Plugins']['CssSprites']['ImPath'] = PATH_APPLICATIONS.DS.'salesoutlet/bin/ImageMagick/'; // WIN
+$Configuration['Plugins']['CssSprites']['OutOutExt'] = '.jpg';
+//$Configuration['Plugins']['CssSprites']['ImPath'] = '/usr/local/bin/'; // *NIX (default)
+
 TODO
 ====
 
 */
+
+
+
+
+
