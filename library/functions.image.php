@@ -46,8 +46,8 @@ if (!function_exists('Thumbnail')) {
 			// If source is URL, putting image to temp directory and then converting it
 			if (!is_file($Source)) {
 				if (!filter_var($Source, FILTER_VALIDATE_URL)) throw new Exception("`$Source` not found or incorrect.");
-				$Filename  = tempnam(realpath(sys_get_temp_dir()), '');
-				file_put_contents($Filename, file_get_contents($Source));
+				$T = tempnam(realpath(sys_get_temp_dir()), '');
+				file_put_contents($T, file_get_contents($Source));
 			}
 			
 			$Out = $ReturnValue = Null;
@@ -61,6 +61,11 @@ if (!function_exists('Thumbnail')) {
 			$Return = array();
 			$OutData['ImageSize'] = GetImageSize($Source);
 		}
+		if (GetValue('Img', $Attributes, False, True)) {
+			TouchValue('alt', $Attributes, $Filename);
+			$ResultImage = Img($ResultImage, $Attributes);
+		}
+		
 		return $ResultImage;
 	}
 }
