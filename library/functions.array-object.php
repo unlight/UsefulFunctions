@@ -1,25 +1,26 @@
 <?php
 
 // http://code-snippets.co.cc/PHP/PHP-array-rotation
-function RotateArray($Steps, $Array) {
-	if ($Steps >= 0) {
-		for ($i = 0; $i < $Steps; $i++) {
-			$Element = array_shift($Array);
-			array_push($Array, $Element);
+if (!function_exists('RotateArray')) {
+	function RotateArray($Steps, $Array) {
+		if ($Steps >= 0) {
+			for ($i = 0; $i < $Steps; $i++) {
+				$Element = array_shift($Array);
+				array_push($Array, $Element);
+			}
+		} else {
+			for($i = 0; $i > $Steps; $i--) {
+				$Element = array_pop($Array);
+				array_unshift($Array, $Element);
+			}
 		}
-	} else {
-		for($i = 0; $i > $Steps; $i--) {
-			$Element = array_pop($Array);
-			array_unshift($Array, $Element);
-		}
+		return $Array;
 	}
-	return $Array;
 }
 
 
-
 // loota-php_util
-if(!function_exists('IsEmpty')){
+if (!function_exists('IsEmpty')) {
 	function IsEmpty($Array) {
 		if (!is_array($Array)) $Array = (array)$Array;
 		return (count(array_filter($Array)) == 0);
@@ -30,7 +31,7 @@ if(!function_exists('IsEmpty')){
 /**
 * Promote key for associative array/dataset
 */
-if(!function_exists('PromoteKey')) {
+if (!function_exists('PromoteKey')) {
 	function PromoteKey($Collection, $PromotedKey) {
 		$Result = array();
 		foreach($Collection as $Data) {
