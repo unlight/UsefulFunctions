@@ -1,5 +1,13 @@
 <?php
 
+// string
+/*	
+function checkUtf($string) {
+		return (bool) preg_match('~~u', $string);
+	}
+	
+	*/
+
 
 /**
 * 
