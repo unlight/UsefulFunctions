@@ -13,11 +13,13 @@ if (!function_exists('Thumbnail')) {
 		}
 		
 		$OutData = Null;
+		
 		$Width = ArrayValue('width', $Attributes);
 		$Height = ArrayValue('height', $Attributes);
 		$Crop = GetValue('Crop', $Attributes, False, True);
 		$Geometry = GetValue('Geometry', $Attributes, False, True);
 		$TargetFolder = GetValue('TargetFolder', $Attributes, 'uploads/cached', True);
+		$ImageQuality = GetValue('ImageQuality', $Attributes, False, True);
 		
 		// $Height && $Width required
 		if ($Crop === True) $Geometry = "\"{$Width}x{$Height}^\" -crop {$Width}x{$Height}+0+0 +repage";
@@ -32,10 +34,10 @@ if (!function_exists('Thumbnail')) {
 		// widthxheight> 	Change as per widthxheight but only if an image dimension exceeds a specified dimension.
 		// widthxheight< 	Change dimensions only if both image dimensions exceed specified dimensions.
 		// area@ 			Resize image to have specified area in pixels. Aspect ratio is preserved.
-
+		if (is_numeric($ImageQuality)) $ImageQuality = '-quality ' . Clamp($ImageQuality, 1, 100);
 		
 		if (!is_dir($TargetFolder)) mkdir($TargetFolder, 0777, True);
-		$Hash = Crc32Value($Source, $Width, $Height, $Crop, $Geometry);
+		$Hash = Crc32Value($Source, $Width, $Height, $Crop, $Geometry, $ImageQuality);
 		$Filename = pathinfo($Source, 8);
 		$Extension = pathinfo($Source, 4);
 		
@@ -51,7 +53,7 @@ if (!function_exists('Thumbnail')) {
 			}
 			
 			$Out = $ReturnValue = Null;
-			$Cmd = "{$ImPath}/convert $Source -thumbnail {$Geometry} $ResultImage";
+			$Cmd = "{$ImPath}/convert $Source -thumbnail {$Geometry} {$ImageQuality} $ResultImage";
 			$ExecuteResult = exec($Cmd, $Out, $ReturnValue);
 			if ($ReturnValue !== 0) 
 				trigger_error(ErrorMessage('Cannot create thumbnail image.', 'PHP', __FUNCTION__, $Cmd), E_USER_ERROR);
