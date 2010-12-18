@@ -7,7 +7,7 @@
 */
 
 if (!function_exists('SelectorAttribute')) {
-	function SelectorAttribute($Selector, &$Attributes = False) {
+	function SelectorAttribute($Selector, $Attributes = False) {
 		$Return = array();
 		preg_match('/^(#([\w-]+))?((\.[\w-]+)*)$/', $Selector, $Matches);
         if (!empty($Matches[2])) $Return['id'] = $Matches[2];
