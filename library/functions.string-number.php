@@ -1,5 +1,15 @@
 <?php
 
+
+/**
+* Check given $String for UTF
+*/
+if (!function_exists('CheckUtf')) {
+	function CheckUtf($String) {
+		return (bool) preg_match('~~u', $String);
+	}
+}
+
 /**
 * UTF-8 string padding. str_pad() for multibyte string.
 */
