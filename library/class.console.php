@@ -4,10 +4,6 @@
 
 class Console extends Gdn_Pluggable {
 	
-	/*public function __construct(){
-		parent::__construct();
-	}*/
-	
 	public static function ErrorHandler($Error, $Message = '', $File = '', $Line = '') {
 		
 		if(error_reporting() == 0) return False;
@@ -140,11 +136,6 @@ class Console extends Gdn_Pluggable {
 		fwrite(STDOUT, $S);
 	}
 	
-	/*protected static function StdOut($S, $bNewLine = True){
-		if($bNewLine && substr($S, -1, 1) != "\n") $S .= "\n";
-		fwrite(STDOUT, $S);
-	}*/
-	
 	public static function Argument($Name, $Default = False) {
 		$argv = ArrayValue('argv', $GLOBALS);
 		if (!is_array($argv)) return $Default;
@@ -159,7 +150,7 @@ class Console extends Gdn_Pluggable {
 	
 	public static function TimeSeconds() {
 		static $Started;
-		if(is_null($Started)) $Started = Now();
+		if (is_null($Started)) $Started = Now();
 		return Gdn_Format::Timespan(Now() - $Started);
 	}
 	

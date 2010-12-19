@@ -1,6 +1,6 @@
 <?php
 
-if(!function_exists('NewArray')) {
+if (!function_exists('NewArray')) {
 	function NewArray() {
 		$Arguments = func_get_args();
 		while(is_array($Arguments[0])) $Arguments = $Arguments[0];
@@ -15,7 +15,7 @@ if(!function_exists('NewArray')) {
 	}
 }
 
-if(!function_exists('LoadExtension')) {
+if (!function_exists('LoadExtension')) {
 	function LoadExtension($Ext, $bThrowException = False) {
 		$Ext = strtolower($Ext);
 		if (extension_loaded($Ext)) return True;
@@ -28,19 +28,19 @@ if(!function_exists('LoadExtension')) {
 	}
 }
 
-if(!function_exists('Pick')) {
+if (!function_exists('Pick')) {
 	function Pick($Default = False) {
 		$Arguments = func_get_args();
 		$Default = array_pop($Arguments);
 		foreach ($Arguments as $A) {
-			if(!empty($A)) return $A;
+			if (!empty($A)) return $A;
 		}
 		return $Default;
 	}
 }
 
 // TODO: Try to extend method for controllers
-if(!function_exists('GetBodyIdentifier')){
+if (!function_exists('GetBodyIdentifier')){
 	function GetBodyIdentifier(&$Controller){
 		$ControllerName = GetShortControllerName($Controller);
 		$BodyIdentifier = $Controller->ApplicationFolder.'_'.$ControllerName.'_'.Gdn_Format::AlphaNumeric(strtolower($Controller->RequestMethod));
@@ -48,7 +48,7 @@ if(!function_exists('GetBodyIdentifier')){
 	}
 }
 
-if(!function_exists('GetShortControllerName')){
+if (!function_exists('GetShortControllerName')){
 	function GetShortControllerName(&$C){
 		if(strtolower(substr($C->ControllerName, -10, 10)) == 'controller')
 			return substr($C->ControllerName, 0, -10);
@@ -57,7 +57,7 @@ if(!function_exists('GetShortControllerName')){
 }
 
 
-if(!function_exists('Kick')){
+if (!function_exists('Kick')){
 	function Kick($Password = '', $KickMessage = 'Unauthorized'){
 		if($Password == '') return;
 		if(array_key_exists('HTTP_AUTHORIZATION', $_SERVER)){ // iis
