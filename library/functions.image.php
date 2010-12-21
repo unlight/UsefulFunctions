@@ -44,7 +44,7 @@ if (!function_exists('Thumbnail')) {
 		$ResultImage = GenerateCleanTargetName($TargetFolder, $Filename.'-'.$Hash, $Extension, False, True);
 		
 		if (!file_exists($ResultImage)) {
-			
+			$Source = ltrim($Source, '/');
 			// If source is URL, putting image to temp directory and then converting it
 			if (!is_file($Source)) {
 				if (!filter_var($Source, FILTER_VALIDATE_URL)) throw new Exception("`$Source` not found or incorrect.");
