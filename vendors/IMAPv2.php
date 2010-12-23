@@ -2052,4 +2052,4 @@ class Mail_IMAPv2 {
         }
     }
 }
-?>
+
