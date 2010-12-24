@@ -69,7 +69,7 @@ if (!function_exists('CombineArrays')) {
 if (!function_exists('ObjectValue')) {
 	function ObjectValue($Key, $Object, $Default = False) {
 		$Result = $Default;
-		if (is_object($Object) && property_exists($Object, $Key) 
+		if (is_object($Object) && property_exists($Object, $Key))
 			$Result = $Object->$Key;
 		return $Result;
 	}

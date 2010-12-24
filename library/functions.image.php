@@ -3,6 +3,9 @@
 /**
 * Convert image by ImageMagick
 * http://www.imagemagick.org/script/command-line-processing.php?#geometry
+* http://www.imagemagick.org/script/command-line-options.php#unsharp
+* http://www.imagemagick.org/script/command-line-options.php#crop
+* "{$Width}x{$Height}^" -crop {$Width}x{$Height}+0+0 +repage
 */
 if (!function_exists('СonvertImage')) {
 	function СonvertImage($Source, $Options = Null) {
@@ -51,10 +54,10 @@ if (!function_exists('Thumbnail')) {
 		$OutData = Null;
 		$Width = ArrayValue('width', $Attributes);
 		$Height = ArrayValue('height', $Attributes);
-		$Crop = GetValue('Crop', $Attributes, False, True);
-		$Geometry = GetValue('Geometry', $Attributes, False, True);
-		$TargetFolder = GetValue('TargetFolder', $Attributes, 'uploads/cached', True);
-		$ImageQuality = GetValue('ImageQuality', $Attributes, False, True);
+		$Crop = ArrayValue('Crop', $Attributes, False, True);
+		$Geometry = ArrayValue('Geometry', $Attributes, False, True);
+		$TargetFolder = ArrayValue('TargetFolder', $Attributes, 'uploads/cached', True);
+		$ImageQuality = ArrayValue('ImageQuality', $Attributes, False, True);
 		if (is_numeric($ImageQuality)) $ImageQuality = '-quality ' . Clamp($ImageQuality, 1, 100);
 		
 		$Options['Options'] = "-thumbnail {$Geometry} {$Options} {$ImageQuality}";
@@ -62,12 +65,12 @@ if (!function_exists('Thumbnail')) {
 		
 		$ResultImage = СonvertImage($Source, $Options);
 		
-		if (GetValue('OutOriginalImageSize', $Attributes, False, True)) {
+		if (ArrayValue('OutOriginalImageSize', $Attributes, False, True)) {
 			$Return = array();
 			$OutData['ImageSize'] = GetImageSize($Source);
 		}
 		
-		if (GetValue('Img', $Attributes, False, True)) {
+		if (ArrayValue('Img', $Attributes, False, True)) {
 			TouchValue('alt', $Attributes, $Filename);
 			$ResultImage = Img($ResultImage, $Attributes);
 		}
