@@ -3,9 +3,13 @@
 /**
 * Convert image by ImageMagick
 * http://www.imagemagick.org/script/command-line-processing.php?#geometry
-* http://www.imagemagick.org/script/command-line-options.php#unsharp
 * http://www.imagemagick.org/script/command-line-options.php#crop
 * "{$Width}x{$Height}^" -crop {$Width}x{$Height}+0+0 +repage
+* -thumbnail {geometry}
+* -thumbnail "{Width}x{Height}^" -crop {Width}x{Height}+0+0 +repage
+* http://www.imagemagick.org/script/command-line-options.php#unsharp
+* -unsharp radiusxsigma{+threshold}
+* -thumbnail {geometry} -unsharp 0x0.75
 */
 if (!function_exists('СonvertImage')) {
 	function СonvertImage($Source, $Options = Null) {
@@ -47,6 +51,7 @@ if (!function_exists('СonvertImage')) {
 
 /**
 * Makes thumbnail image by ImageMagick
+* Use СonvertImage()
 */
 
 if (!function_exists('Thumbnail')) {
@@ -73,8 +78,8 @@ if (!function_exists('Thumbnail')) {
 			$OutData['ImageSize'] = GetImageSize($Source);
 		}
 		
-		if (ArrayValue('Img', $Attributes, False, True)) {
-			//TouchValue('alt', $Attributes, $Filename);
+		if (array_key_exists('alt', $Attributes) || ArrayValue('Img', $Attributes, False, True)) {
+			TouchValue('alt', $Attributes, pathinfo($ResultImage, PATHINFO_FILENAME));
 			$ResultImage = Img($ResultImage, $Attributes);
 		}
 		return $ResultImage;
