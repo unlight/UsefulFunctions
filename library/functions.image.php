@@ -2,6 +2,7 @@
 
 /**
 * Convert image by ImageMagick
+* http://www.imagemagick.org/script/command-line-processing.php?#geometry
 */
 if (!function_exists('СonvertImage')) {
 	function СonvertImage($Source, $Options = Null) {

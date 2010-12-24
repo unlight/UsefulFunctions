@@ -68,9 +68,22 @@ if (!function_exists('CombineArrays')) {
 
 if (!function_exists('ObjectValue')) {
 	function ObjectValue($Key, $Object, $Default = False) {
-		return GetValue($Key, $Object, $Default);
+		$Result = $Default;
+		if (is_object($Object) && property_exists($Object, $Key) 
+			$Result = $Object->$Key;
+		return $Result;
 	}
 }
+
+if (!function_exists('ArrayValue')) {
+	function ArrayValue($Key, $Array, $Default = False) {
+		$Result = $Default;
+		if (is_array($Array) && array_key_exists($Key, $Array))
+			$Result = $Array[$Key];
+		return $Result;
+	}
+}
+
 
 if (!function_exists('array_flat')) {
 	function array_flat($arr){
