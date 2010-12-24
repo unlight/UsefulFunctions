@@ -1,6 +1,48 @@
 <?php
 
 /**
+* Convert image by ImageMagick
+*/
+if (!function_exists('СonvertImage')) {
+	function СonvertImage($Source, $Options = Null) {
+		static $ImPath;
+		if ($ImPath === Null) {
+			$ImPath = C('Plugins.CssSprites.ImPath', '/usr/local/bin');
+			$ImPath = realpath($ImPath);
+			if ($ImPath == False) throw new Exception('ImageMagick not found.');
+		}
+		
+		if (is_array($Options)) {
+			$TargetFolder = GetValue('TargetFolder', $Options, 'uploads/cached', True);
+			$Options = GetValue('Options', $Options);
+		} else $TargetFolder = 'uploads/cached';
+		
+		$Hash = Crc32Value($Source, $Options);
+		$Filename = pathinfo($Source, 8);
+		$Extension = pathinfo($Source, 4);
+		$ResultImage = GenerateCleanTargetName($TargetFolder, $Filename.'-'.$Hash, $Extension, False, True);
+		
+		if (!file_exists($ResultImage)) {
+			$Source = ltrim($Source, '/');
+			if (!is_file($Source)) {
+				if (!filter_var($Source, FILTER_VALIDATE_URL)) trigger_error("'$Source' not found or incorrect.", E_USER_ERROR);
+				$TempFile = tempnam(realpath(sys_get_temp_dir()), '');
+				file_put_contents($TempFile, file_get_contents($Source));
+				$Source = $TempFile;
+			}
+			
+			$Out = $ReturnValue = Null;
+			$Cmd = "{$ImPath}/convert $Source $Options $ResultImage";
+			$ExecuteResult = exec($Cmd, $Out, $ReturnValue);
+			if ($ReturnValue !== 0) trigger_error(ErrorMessage('Cannot convert image.', 'PHP', __FUNCTION__, $Cmd), E_USER_ERROR);
+		}
+		
+		return $ResultImage;		
+	}
+}
+
+
+/**
 * Makes thumbnail image by ImageMagick
 */
 if (!function_exists('Thumbnail')) {
@@ -14,12 +56,15 @@ if (!function_exists('Thumbnail')) {
 		
 		$OutData = Null;
 		
+		$Options = '';
 		$Width = ArrayValue('width', $Attributes);
 		$Height = ArrayValue('height', $Attributes);
 		$Crop = GetValue('Crop', $Attributes, False, True);
 		$Geometry = GetValue('Geometry', $Attributes, False, True);
 		$TargetFolder = GetValue('TargetFolder', $Attributes, 'uploads/cached', True);
 		$ImageQuality = GetValue('ImageQuality', $Attributes, False, True);
+		//$Unsharp = GetValue('Unsharp', $Attributes, False, True);
+		//if ($Unsharp) $Options .= ' -unsharp ' . $Unsharp;
 		
 		// $Height && $Width required
 		if ($Crop === True) $Geometry = "\"{$Width}x{$Height}^\" -crop {$Width}x{$Height}+0+0 +repage";
@@ -50,10 +95,11 @@ if (!function_exists('Thumbnail')) {
 				if (!filter_var($Source, FILTER_VALIDATE_URL)) throw new Exception("`$Source` not found or incorrect.");
 				$T = tempnam(realpath(sys_get_temp_dir()), '');
 				file_put_contents($T, file_get_contents($Source));
+				$Source = $T;
 			}
 			
 			$Out = $ReturnValue = Null;
-			$Cmd = "{$ImPath}/convert $Source -thumbnail {$Geometry} {$ImageQuality} $ResultImage";
+			$Cmd = "{$ImPath}/convert $Source -thumbnail {$Geometry} {$Options} {$ImageQuality} $ResultImage";
 			$ExecuteResult = exec($Cmd, $Out, $ReturnValue);
 			if ($ReturnValue !== 0) 
 				trigger_error(ErrorMessage('Cannot create thumbnail image.', 'PHP', __FUNCTION__, $Cmd), E_USER_ERROR);
