@@ -58,9 +58,12 @@ if (!function_exists('Thumbnail')) {
 		$Geometry = ArrayValue('Geometry', $Attributes, False, True);
 		$TargetFolder = ArrayValue('TargetFolder', $Attributes, 'uploads/cached', True);
 		$ImageQuality = ArrayValue('ImageQuality', $Attributes, False, True);
+		
+		if ($Crop === True) $Geometry = "\"{$Width}x{$Height}^\" -crop {$Width}x{$Height}+0+0 +repage";
+		if (!$Geometry) $Geometry = $Width.'x'.$Height;
 		if (is_numeric($ImageQuality)) $ImageQuality = '-quality ' . Clamp($ImageQuality, 1, 100);
 		
-		$Options['Options'] = "-thumbnail {$Geometry} {$Options} {$ImageQuality}";
+		$Options['Options'] = "-thumbnail {$Geometry} {$ImageQuality}";
 		$Options['TargetFolder'] = $TargetFolder;
 		
 		$ResultImage = СonvertImage($Source, $Options);
@@ -71,7 +74,7 @@ if (!function_exists('Thumbnail')) {
 		}
 		
 		if (ArrayValue('Img', $Attributes, False, True)) {
-			TouchValue('alt', $Attributes, $Filename);
+			//TouchValue('alt', $Attributes, $Filename);
 			$ResultImage = Img($ResultImage, $Attributes);
 		}
 		return $ResultImage;
