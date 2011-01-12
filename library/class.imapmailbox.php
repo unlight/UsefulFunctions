@@ -167,8 +167,8 @@ class ImapMessage{
 		return $this;
 	}
 	
-	public static function DecodeMimeString($String){
-		if(!$String) return '';
+	public static function DecodeMimeString($String) {
+		if (!$String) return '';
 		$Headers = imap_mime_header_decode($String);
 		$Count = Count($Headers);
 		$Return = '';

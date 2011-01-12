@@ -1,5 +1,66 @@
 <?php
 
+/**
+* Next three functions are used for drawing text as table like in MySQL client console.
+* Example.
+$Row1 = array('Yvan', 'kras@mail.com', '1');
+$Row2 = array('John', 'dsffffkrok@mail.ag', '0');
+echo TextDataGrid(array('FirstName', 'Email', 'OnlineWork'), array($Row1, $Row2, ...));
+Result:
++-----------+-------------------------+------------+
+| FirstName | Email                   | OnlineWork |
++-----------+-------------------------+------------+
+| Yvan      | kras@mail.com           |          1 |
+| John      | dsffffkrok@mail.ag      |          0 |
+| Dummy     | krokuswww@mail.com      |          1 |
+| Andy      | lande@reg.maosss.cow    |          0 |
++-----------+-------------------------+------------+
+*/
+
+function TextDataGrid($Headers, $DataArray, $Options = False) {
+	$bHeaderLength = '';
+	$Length = count($Headers);
+	$MaxLengthArray = array_fill(0, $Length, 0);
+	array_unshift($DataArray, $Headers);
+	// 1. Detect max length
+	foreach($DataArray as $Data) {
+		$Data = array_values($Data);
+		for ($i = 0; $i < $Length; $i++) {
+			$LocalLength = mb_strlen($Data[$i], 'utf-8');
+			if ($LocalLength > $MaxLengthArray[$i]) $MaxLengthArray[$i] = $LocalLength;
+		}
+	}
+	$Result = '';
+	// 2. Draw headers
+	$Result .= _TextGridSeparator($MaxLengthArray) . "\n";
+	$Result .= _TextGridRow(array_shift($DataArray), $MaxLengthArray) . "\n";	
+	$Result .= _TextGridSeparator($MaxLengthArray) . "\n";
+	// 3. Draw table rows
+	foreach($DataArray as $N => $Data)
+		$Result .= _TextGridRow($Data, $MaxLengthArray) . "\n";
+	$Result .= _TextGridSeparator($MaxLengthArray);
+	return $Result;
+}
+
+function _TextGridSeparator($MaxLengthArray) {
+	$Result = '';
+	foreach ($MaxLengthArray as $Length) $Result .= '+-' . str_repeat('-', $Length) . '-';
+	return $Result.'+';
+}
+
+function _TextGridRow($Array, $MaxLengthArray) {
+	$Result = '';
+	foreach(array_values($Array) as $N => $Value) {
+		$MaxLengthOfRow = $MaxLengthArray[$N];
+		// TODO: How are we going to display null values?
+		if (is_numeric($Value))
+			$Result .= '| ' . mb_str_pad($Value, $MaxLengthOfRow, ' ', STR_PAD_LEFT) . ' ';
+		else 
+			$Result .= '| ' . mb_str_pad($Value, $MaxLengthOfRow, ' ', STR_PAD_RIGHT) . ' ';
+	}
+	return $Result.'|';
+}
+
 
 /**
 * Check given $String for UTF
@@ -18,46 +79,6 @@ function mb_str_pad($String, $PadLength, $PadString = ' ', $PadType = STR_PAD_RI
     return str_pad($String, $PadLength + $Diff, $PadString, $PadType);
 }
 
-function FormatTextAsRow($Array, $MaxLengthArray) {
-	$Result = '';
-	$Array = array_values($Array);
-	$LastNum = count($Array) - 1;
-	foreach($Array as $N => $Value) {
-		$MaxLengthOfRow = $MaxLengthArray[$N];
-		$LocalLength = mb_strlen($Value, 'utf-8');
-		$NumOfSpace = $MaxLengthOfRow - $LocalLength + 4;
-		$Value = mb_str_pad($Value, $MaxLengthOfRow + 4, ' ');
-		$NumOfTabs = floor($NumOfSpace/4);
-		if ($NumOfTabs >= 1) {
-			$Value = mb_substr($Value, 0, -($NumOfTabs * 4), 'utf-8');
-			$Value .= str_repeat("\t", $NumOfTabs);
-		}
-		if ($LastNum == $N) $Value = trim($Value);
-		$Result .= $Value;
-	}
-	return $Result;
-	
-}
-
-function FormatTextAsTable($Headers, $DataArray, $Options = False) { // very slooooow
-	$bHeaderLength = '';
-	$Length = count($Headers);
-	$MaxLengthArray = array_fill(0, $Length, 0);
-	array_unshift($DataArray, $Headers);
-	// 1. Detect max length
-	foreach($DataArray as $Data) {
-		$Data = array_values($Data);
-		for ($i = 0; $i < $Length; $i++) {
-			$LocalLength = mb_strlen($Data[$i], 'utf-8');
-			if ($LocalLength > $MaxLengthArray[$i]) $MaxLengthArray[$i] = $LocalLength;
-		}
-	}
-	$Result = '';
-	// 2. Draw headers / data lines
-	foreach($DataArray as $Data)
-		$Result .= FormatTextAsRow($Data, $MaxLengthArray) . "\n";
-	return $Result;
-}
 
 /**
 * Crypt/Decrypt string using password.
