@@ -1,8 +1,8 @@
 <?php
 
 /**
-* Next three functions are used for drawing text as table like in MySQL client console.
-* Example.
+* Function for drawing text as table like in MySQL client console.
+* Example:
 $Row1 = array('Yvan', 'kras@mail.com', '1');
 $Row2 = array('John', 'dsffffkrok@mail.ag', '0');
 echo TextDataGrid(array('FirstName', 'Email', 'OnlineWork'), array($Row1, $Row2, ...));
@@ -18,6 +18,28 @@ Result:
 */
 
 function TextDataGrid($Headers, $DataArray, $Options = False) {
+	
+	if (!function_exists('_TextDataRow')) {
+		function _TextDataSeparator($MaxLengthArray) {
+			$Result = '';
+			foreach ($MaxLengthArray as $Length) $Result .= '+-' . str_repeat('-', $Length) . '-';
+			return $Result.'+';
+		}
+
+		function _TextDataRow($Array, $MaxLengthArray) {
+			$Result = '';
+			foreach(array_values($Array) as $N => $Value) {
+				$MaxLengthOfRow = $MaxLengthArray[$N];
+				// TODO: How are we going to display null values?
+				if (is_numeric($Value))
+					$Result .= '| ' . mb_str_pad($Value, $MaxLengthOfRow, ' ', STR_PAD_LEFT) . ' ';
+				else 
+					$Result .= '| ' . mb_str_pad($Value, $MaxLengthOfRow, ' ', STR_PAD_RIGHT) . ' ';
+			}
+			return $Result.'|';
+		}
+	}
+	
 	$bHeaderLength = '';
 	$Length = count($Headers);
 	$MaxLengthArray = array_fill(0, $Length, 0);
@@ -32,35 +54,16 @@ function TextDataGrid($Headers, $DataArray, $Options = False) {
 	}
 	$Result = '';
 	// 2. Draw headers
-	$Result .= _TextGridSeparator($MaxLengthArray) . "\n";
-	$Result .= _TextGridRow(array_shift($DataArray), $MaxLengthArray) . "\n";	
-	$Result .= _TextGridSeparator($MaxLengthArray) . "\n";
+	$Result .= _TextDataSeparator($MaxLengthArray) . "\n";
+	$Result .= _TextDataRow(array_shift($DataArray), $MaxLengthArray) . "\n";	
+	$Result .= _TextDataSeparator($MaxLengthArray) . "\n";
 	// 3. Draw table rows
 	foreach($DataArray as $N => $Data)
-		$Result .= _TextGridRow($Data, $MaxLengthArray) . "\n";
-	$Result .= _TextGridSeparator($MaxLengthArray);
+		$Result .= _TextDataRow($Data, $MaxLengthArray) . "\n";
+	$Result .= _TextDataSeparator($MaxLengthArray);
+	
 	return $Result;
 }
-
-function _TextGridSeparator($MaxLengthArray) {
-	$Result = '';
-	foreach ($MaxLengthArray as $Length) $Result .= '+-' . str_repeat('-', $Length) . '-';
-	return $Result.'+';
-}
-
-function _TextGridRow($Array, $MaxLengthArray) {
-	$Result = '';
-	foreach(array_values($Array) as $N => $Value) {
-		$MaxLengthOfRow = $MaxLengthArray[$N];
-		// TODO: How are we going to display null values?
-		if (is_numeric($Value))
-			$Result .= '| ' . mb_str_pad($Value, $MaxLengthOfRow, ' ', STR_PAD_LEFT) . ' ';
-		else 
-			$Result .= '| ' . mb_str_pad($Value, $MaxLengthOfRow, ' ', STR_PAD_RIGHT) . ' ';
-	}
-	return $Result.'|';
-}
-
 
 /**
 * Check given $String for UTF
@@ -74,9 +77,11 @@ if (!function_exists('CheckUtf')) {
 /**
 * UTF-8 string padding. str_pad() for multibyte string.
 */
-function mb_str_pad($String, $PadLength, $PadString = ' ', $PadType = STR_PAD_RIGHT) {
-    $Diff = strlen($String) - mb_strlen($String, 'utf-8');
-    return str_pad($String, $PadLength + $Diff, $PadString, $PadType);
+if (!function_exists('mb_str_pad')) {
+	function mb_str_pad($String, $PadLength, $PadString = ' ', $PadType = STR_PAD_RIGHT) {
+		$Diff = strlen($String) - mb_strlen($String, 'utf-8');
+		return str_pad($String, $PadLength + $Diff, $PadString, $PadType);
+	}
 }
 
 
