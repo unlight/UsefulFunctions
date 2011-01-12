@@ -11,8 +11,9 @@
 * -unsharp radiusxsigma{+threshold}
 * -thumbnail {geometry} -unsharp 0x0.75
 */
-if (!function_exists('СonvertImage')) {
-	function СonvertImage($Source, $Options = Null) {
+
+if (!function_exists('ConvertImage')) {
+	function ConvertImage($Source, $Options = Null) {
 		static $ImPath;
 		if ($ImPath === Null) {
 			$ImPath = C('Plugins.CssSprites.ImPath', '/usr/local/bin');
