@@ -52,7 +52,7 @@ if (!function_exists('ConvertImage')) {
 
 /**
 * Makes thumbnail image by ImageMagick
-* Use СonvertImage()
+* Use ConvertImage()
 */
 
 if (!function_exists('Thumbnail')) {
@@ -65,6 +65,7 @@ if (!function_exists('Thumbnail')) {
 		$TargetFolder = ArrayValue('TargetFolder', $Attributes, 'uploads/cached', True);
 		$ImageQuality = ArrayValue('ImageQuality', $Attributes, False, True);
 		
+		// ^ option since 6.3.8-2
 		if ($Crop === True) $Geometry = "\"{$Width}x{$Height}^\" -crop {$Width}x{$Height}+0+0 +repage";
 		if (!$Geometry) $Geometry = $Width.'x'.$Height;
 		if (is_numeric($ImageQuality)) $ImageQuality = '-quality ' . Clamp($ImageQuality, 1, 100);
@@ -72,7 +73,7 @@ if (!function_exists('Thumbnail')) {
 		$Options['Options'] = "-thumbnail {$Geometry} {$ImageQuality}";
 		$Options['TargetFolder'] = $TargetFolder;
 		
-		$ResultImage = СonvertImage($Source, $Options);
+		$ResultImage = ConvertImage($Source, $Options);
 		
 		if (ArrayValue('OutOriginalImageSize', $Attributes, False, True)) {
 			$Return = array();
