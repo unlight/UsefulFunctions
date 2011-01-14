@@ -52,9 +52,9 @@ if (!function_exists('PqDocument')) {
 				$Document = file_get_contents($Document);
 			}
 		}
-		if (GetValue('ConvertEncoding', $Options)) $Document = ConvertEncoding($Document);
+		if (ArrayValue('ConvertEncoding', $Options)) $Document = ConvertEncoding($Document);
 		
-		if (GetValue('FixHtml', $Options, True)) {
+		if (ArrayValue('FixHtml', $Options, True)) {
 			$HtmlFormatter = Gdn::Factory('HtmlFormatter');
 			if ($HtmlFormatter) $Document = $HtmlFormatter->Format($Document);
 		}

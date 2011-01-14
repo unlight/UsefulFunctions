@@ -210,8 +210,10 @@ class CssSpriteMap {
 		}
 
 		if ($this->getForceRefresh() || (!file_exists($this->getOutPath().$this->getOutName()) && $useableImages)){
-		 	$cmd = $this->getImPath() . 'montage ' . $useableImages . ' -mode Concatenate -tile 1x -geometry +0+' . $this->getSpacing() . ' ' . $this->getOutPath().$this->getOutName();
+		 	$cmd = realpath($this->getImPath()) . '/montage ' . $useableImages . ' -mode Concatenate -tile 1x -geometry +0+' . $this->getSpacing() . ' ' . $this->getOutPath().$this->getOutName();
+			$out = $rar = Null;
 			exec($cmd,$out,$rar);
+			if ($rar !== 0) trigger_error('Montage failed.', E_USER_ERROR);
 			@chmod($this->getOutPath().$this->getOutName(), $this->getPermissions());
 		}
 

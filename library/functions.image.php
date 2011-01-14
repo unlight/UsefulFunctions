@@ -49,7 +49,6 @@ if (!function_exists('ConvertImage')) {
 	}
 }
 
-
 /**
 * Makes thumbnail image by ImageMagick
 * Use ConvertImage()
