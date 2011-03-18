@@ -5,7 +5,7 @@
 */
 
 if(!function_exists('ValidateDnsEmail')) {
-	function ValidateDnsEmail($Value, $Field = ''){
+	function ValidateDnsEmail($Value, $Field = '') {
 		if($Value === '') return True; // + required
 		$Result = ValidateEmail($Value, $Field);
 		if($Result !== True) return 'ValidateEmail';

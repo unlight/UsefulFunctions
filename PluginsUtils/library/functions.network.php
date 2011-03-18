@@ -16,8 +16,27 @@ if (!function_exists('CheckIpMask')) {
 	}
 }
 
+/**
+* Get your IP-address
+* Credit: http://projects.westhost.com/contest/php/function/getipaddress/213
+*/
+if (!function_exists('GetIpAddress')) {
+	function GetIpAddress($bNumericFormat = True) {
+		$Ip = False;
+		foreach(array('HTTP_CLIENT_IP','HTTP_X_FORWARDED_FOR','HTTP_X_FORWARDED','HTTP_X_CLUSTER_CLIENT_IP','HTTP_FORWARDED_FOR','HTTP_FORWARDED','REMOTE_ADDR') as $Key) {
+			if (isset($_SERVER[$Key])) {
+				list ($Ip) = explode(',', $_SERVER[$Key]);
+				break;
+			}
+		}
+		if ($bNumericFormat) $Ip = sprintf('%u', ip2long($Ip));
+		return $Ip;
+	}
+}
+
 if (!function_exists('GetRealIpAddress')) {
 	function GetRealIpAddress($bIPv4Format = False) {
+		// Use GetIpAddress() instead
 		if (!empty($_SERVER['HTTP_CLIENT_IP'])) $Ip = $_SERVER['HTTP_CLIENT_IP'];
 		elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) $Ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
 		else $Ip = $_SERVER['REMOTE_ADDR'];

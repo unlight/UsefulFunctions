@@ -1,19 +1,36 @@
 <?php
 
-if (!function_exists('NewArray')) {
-	function NewArray() {
-		$Arguments = func_get_args();
-		while(is_array($Arguments[0])) $Arguments = $Arguments[0];
-		$Return = array();
-		$Count = count($Arguments);
-		if($Count % 2 == 1){
-			array_splice($Arguments, -1);
-			$Count--;
-		}
-		for($i = 0; $i < $Count; $i += 2) $Return[$Arguments[$i]] = $Arguments[$i+1];
-		return $Return;
+/** http://en.wikipedia.org/wiki/Bit_field
+* A bit field is a common idiom used in computer programming to compactly store a value as a short series of bits.
+*/
+
+if (!function_exists('SetBit')) {
+	function SetBit(&$BitMask, $Flag) {
+		$BitMask |= $Flag;
+		return $BitMask;
 	}
 }
+
+if (!function_exists('ResetBit')) {
+	function ResetBit(&$BitMask, $Flag) {
+		$BitMask &= ~$Flag;
+		return $BitMask;
+	}
+}
+
+if (!function_exists('IsSetBit')) {
+	function IsSetBit($BitMask, $Flag) {
+		return ($BitMask & $Flag) != 0;
+	}
+}
+
+if (!function_exists('ToggleBit')) {
+	function ToggleBit(&$BitMask, $Flag) {
+		$BitMask ^= $Flag;
+		return $BitMask;
+	}
+}
+
 
 if (!function_exists('LoadExtension')) {
 	function LoadExtension($Ext, $bThrowException = False) {
@@ -28,6 +45,9 @@ if (!function_exists('LoadExtension')) {
 	}
 }
 
+/**
+* Returns first non-empty argument.
+*/ 
 if (!function_exists('Pick')) {
 	function Pick($Default = False) {
 		$Arguments = func_get_args();

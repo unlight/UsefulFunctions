@@ -4,8 +4,8 @@ $PluginInfo['PluginUtils'] = array(
 	'Name' => 'Plugin utils',
 	'Description' => 'Useful functions for plugin and application developers.',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.13'),
-	'Version' => '2.3.74',
-	'Date' => '13 Jan 2011',
+	'Version' => '2.4.84',
+	'Date' => '28 Feb 2011',
 	'Author' => 'Vanilla Fan'
 );
 
@@ -59,7 +59,10 @@ $Configuration['Plugins']['Console']['Check'] = True; // True/False
 
 $Configuration['Plugins']['CssSprites']['ImPath'] = PATH_APPLICATIONS.DS.'salesoutlet/bin/ImageMagick/'; // WIN
 $Configuration['Plugins']['CssSprites']['OutOutExt'] = '.jpg';
-//$Configuration['Plugins']['CssSprites']['ImPath'] = '/usr/local/bin/'; // *NIX (default)
+// OLD (REMOVED)
+$Configuration['Plugins']['CssSprites']['ImPath'] = '/usr/local/bin/'; // *NIX (default)
+// NEW:
+$Configuration['Plugins']['PluginUtils']['ImPath'] = '/usr/local/bin/';
 
 TODO
 ====

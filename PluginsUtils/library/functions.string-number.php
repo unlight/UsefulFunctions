@@ -40,12 +40,11 @@ function TextDataGrid($Headers, $DataArray, $Options = False) {
 		}
 	}
 	
-	$bHeaderLength = '';
 	$Length = count($Headers);
 	$MaxLengthArray = array_fill(0, $Length, 0);
 	array_unshift($DataArray, $Headers);
 	// 1. Detect max length
-	foreach($DataArray as $Data) {
+	foreach ($DataArray as $Data) {
 		$Data = array_values($Data);
 		for ($i = 0; $i < $Length; $i++) {
 			$LocalLength = mb_strlen($Data[$i], 'utf-8');
@@ -211,7 +210,7 @@ if (!function_exists('ConvertEncoding')) {
 if (!function_exists('SplitString')) {
 	function SplitString($String, $RegExpr = False, $FilterFunction = Null) {
 		if ($RegExpr == False) $RegExpr = '/\s*,\s*/';
-		if ($RegExpr{0} != '/') $RegExpr = '/'.$RegExpr.'/';
+		elseif ($RegExpr{0} != '/') $RegExpr = '/'.$RegExpr.'/';
 		$Array = preg_split($RegExpr, $String);
 		$Array = array_map('trim', $Array);
 		$Type = gettype($FilterFunction);
@@ -236,14 +235,14 @@ if (!function_exists('SplitString')) {
 * String: Compared $String
 */
 if (!function_exists('GetSimilarity')) {
-	function GetSimilarity($String, $DataArray, $IdKey = '', $ValueKey = ''){
+	function GetSimilarity($String, $DataArray, $IdKey = '', $ValueKey = '') {
 		$Percents = array();
 		$String = strip_tags($String);
 		foreach($DataArray as $Key => $Array){
-			if(is_array($Array)){
+			if (is_array($Array)) {
 				$TestValue = strip_tags($Array[$ValueKey]);
 				$MatcheId = $Array[$IdKey];
-			}else {
+			} else {
 				$TestValue = $Array;
 				$MatcheId = $Key;
 			}
@@ -271,7 +270,7 @@ if (!function_exists('GetSimilarity')) {
 * Returns: MyVarName
 */
 if (!function_exists('Camelize')) {
-	function Camelize($String){
+	function Camelize($String) {
 		$String = str_replace('_', ' ', $String);
 		$String = ucwords($String);
 		$String = str_replace(' ', '', $String);

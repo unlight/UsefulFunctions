@@ -1,7 +1,11 @@
 #!/usr/local/bin/php
 <?php
-// Add this line to cron task file, 'crontab -e'
-// */5 * * * * /home/www/htdocs/plugins/PluginUtils/bin/tick.php
+# Add this line to cron task file, 'crontab -e'
+# 5 * * * * /home/www/htdocs/plugins/PluginUtils/bin/tick.php
+# ATTENTION! MAKE SURE THAT NEW LINE IS [LF] only
+# Better: */5 * * * *  /usr/local/bin/php -q /home/www/htdocs/plugins/PluginUtils/bin/tick.php
+# Then no matter what is new line symbol [LF] or [CRLF]
+#
 ini_set('memory_limit', '256M');
 
 require dirname(__FILE__) . '/../bootstrap.console.php';
@@ -59,15 +63,17 @@ do {
 } while ($bLoop);
 
 
-$Database = Gdn::Database();
-if($Database != Null) $Database->CloseConnection();
+//$Database = Gdn::Database();
+//if($Database != Null) $Database->CloseConnection();
+
+
 
 
 /* Example:
 
 
-class ExamplePlugin implements Gdn_IPlugin{
-	
+class ExamplePlugin implements Gdn_IPlugin {
+
 	public function Tick_Every_5_Minutes_Handler(){
 		// 
 	}
@@ -99,8 +105,18 @@ class ExamplePlugin implements Gdn_IPlugin{
 	
 	public function Tick_Match_57_Minutes_10_Hours_1_Day_7_Month_Handler(){
 	}
+	
+	public static function Tick_Match_50_Minutes_07_Hours_Handler() {
+		if(date('D') != 'Mon') return;
+		// weekly
+	}
+	
+	public static Match_17_Minutes_11_Hours_Thursday() {
+		// Every Thursday on 11:17 am
+	}
 
 
 }
+
 
 */

@@ -5,7 +5,7 @@
 */
 if (!function_exists('Now')) {
 	// TODO: remove it, exists in core (functions.general.php)
-	function Now(){
+	function Now() {
 		return microtime(True);
 	}
 }
@@ -14,7 +14,7 @@ if (!function_exists('Now')) {
 * Get the number of seconds since the current year
 */
 if (!function_exists('YearSeconds')) {
-	function YearSeconds(){
+	function YearSeconds() {
 		return (time() - strtotime('1 Jan'));
 	}
 }
