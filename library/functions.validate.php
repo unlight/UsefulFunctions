@@ -1,5 +1,6 @@
 <?php
 
+
 /**
 * Validate email using getmxrr() function
 */

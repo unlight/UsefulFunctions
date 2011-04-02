@@ -1,6 +1,16 @@
 <?php
 
 /**
+* Removes everything except digits, + and -
+*/
+if (!function_exists('CleanUpPhone')) {
+	function CleanUpPhone(&$String) {
+		$String = preg_replace('/[^0-9\+\-]/', '', $String);
+		return $String;
+	}
+}
+
+/**
 * Function for drawing text as table like in MySQL client console.
 * Example:
 $Row1 = array('Yvan', 'kras@mail.com', '1');

@@ -1,16 +1,20 @@
 <?php if (!defined('APPLICATION')) die(); # …
 
-$PluginInfo['PluginUtils'] = array(
-	'Name' => 'Plugin utils',
-	'Description' => 'Useful functions for plugin and application developers.',
+$PluginInfo['UsefulFunctions'] = array(
+	'Name' => 'Useful Functions',
+	'Description' => 'Useful functions for plugin and application developers (ex- PluginUtils).',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.13'),
-	'Version' => '2.4.84',
-	'Date' => '28 Feb 2011',
+	'Version' => '3.0.85',
+	'Date' => '2 Apr 2011',
 	'Author' => 'Vanilla Fan'
 );
 
-define('PLUGINUTILS_LIBRARY', dirname(__FILE__).DS.'library');
-define('PLUGINUTILS_VENDORS', dirname(__FILE__).DS.'vendors');
+define('USEFULFUNCTIONS_LIBRARY', dirname(__FILE__).DS.'library');
+define('USEFULFUNCTIONS_VENDORS', dirname(__FILE__).DS.'vendors');
+
+define('PLUGINUTILS_VENDORS', USEFULFUNCTIONS_VENDORS);
+define('PLUGINUTILS_LIBRARY', USEFULFUNCTIONS_LIBRARY); // compatibility
+
 
 if (class_exists('Gdn')) {
 	Gdn::FactoryInstall('Zip', 'PclZip', PATH_LIBRARY.'/vendors/pclzip/pclzip.lib.php', Gdn::FactoryInstance);

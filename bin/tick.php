@@ -18,7 +18,8 @@ $InTick = C('Plugins.PluginUtils.InTick');
 
 if ($InTick === TRUE) {
 	$Message = "InTick ".Gdn_Format::ToDateTime();
-
+	$InTickMessage = C('Plugins.PluginUtils.InTickMessage');
+	if ($InTickMessage) mail($InTickMessage, $Message, $Message);
 	exit();
 }
 SaveToConfig('Plugins.PluginUtils.InTick', TRUE);
