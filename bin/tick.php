@@ -6,12 +6,26 @@
 # Better: */5 * * * *  /usr/local/bin/php -q /home/www/htdocs/plugins/PluginUtils/bin/tick.php
 # Then no matter what is new line symbol [LF] or [CRLF]
 #
-ini_set('memory_limit', '256M');
 
 require dirname(__FILE__) . '/../bootstrap.console.php';
+$bLoop = Console::Argument('loop', False) !== False;
+$Reset = Console::Argument('reset', False) !== False;
+if ($Reset) {
+	RemoveFromConfig('Plugins.PluginUtils.InTick');
+	Console::Message('^3Tick mark removed!');
+}
+$InTick = C('Plugins.PluginUtils.InTick');
+
+if ($InTick === TRUE) {
+	$Message = "InTick ".Gdn_Format::ToDateTime();
+
+	exit();
+}
+SaveToConfig('Plugins.PluginUtils.InTick', TRUE);
+
+ini_set('memory_limit', '256M');
 require PLUGINUTILS_LIBRARY . DS .  'class.tick.php';
 
-$bLoop = Console::Argument('loop', False) !== False;
 $Handler = new Tick();
 
 $Ticks = array(60 => 'Minute', 3600 => 'Hour', 86400 => 'Day');
@@ -19,6 +33,7 @@ $Matches = array('Minutes' => 'i', 'Hours' => 'H', 'Day' => 'j', 'Month' => 'n')
 
 $Events = array();
 $LastYearSeconds = 0;
+
 do {
 	$YearSeconds = (int)(YearSeconds()/60) * 60; // rewind to begining of the minute
 	$Event = '';
@@ -63,8 +78,10 @@ do {
 } while ($bLoop);
 
 
-//$Database = Gdn::Database();
-//if($Database != Null) $Database->CloseConnection();
+$Database = Gdn::Database();
+if($Database != Null) $Database->CloseConnection();
+RemoveFromConfig('Plugins.PluginUtils.InTick');
+exit();
 
 
 
@@ -90,11 +107,11 @@ class ExamplePlugin implements Gdn_IPlugin {
 		//
 	}
 
-	public function Tick_Every_1_Hour_Handler(){
+	public function Tick_Every_1_Hour_Handler() {
 		//
 	}
 
-	public function Tick_Match_57_Minutes_Handler(){
+	public function Tick_Match_57_Minutes_Handler() {
 	}
 	
 	public function Tick_Match_57_Minutes_10_Hours_Handler(){
