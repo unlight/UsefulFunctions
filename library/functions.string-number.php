@@ -1,6 +1,15 @@
 <?php
 
 /**
+* Convert full name. First letters uppercased.
+*/
+if (!function_exists('ToTitleCase')) {
+	function ToTitleCase($S) {
+		return mb_convert_case($S, MB_CASE_TITLE, 'utf-8');
+	}
+}
+
+/**
 * Removes everything except digits, + and -
 */
 if (!function_exists('CleanUpPhone')) {
