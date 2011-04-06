@@ -1,9 +1,9 @@
 #!/usr/local/bin/php
 <?php
 # Add this line to cron task file, 'crontab -e'
-# 5 * * * * /home/www/htdocs/plugins/PluginUtils/bin/tick.php
+# 5 * * * * /home/www/htdocs/plugins/UsefulFunctions/bin/tick.php
 # ATTENTION! MAKE SURE THAT NEW LINE IS [LF] only
-# Better: */5 * * * *  /usr/local/bin/php -q /home/www/htdocs/plugins/PluginUtils/bin/tick.php
+# Better: */5 * * * *  /usr/local/bin/php -q /home/www/htdocs/plugins/UsefulFunctions/bin/tick.php
 # Then no matter what is new line symbol [LF] or [CRLF]
 #
 
@@ -11,21 +11,21 @@ require dirname(__FILE__) . '/../bootstrap.console.php';
 $bLoop = Console::Argument('loop', False) !== False;
 $Reset = Console::Argument('reset', False) !== False;
 if ($Reset) {
-	RemoveFromConfig('Plugins.PluginUtils.InTick');
+	RemoveFromConfig('Plugins.UsefulFunctions.InTick');
 	Console::Message('^3Tick mark removed!');
 }
-$InTick = C('Plugins.PluginUtils.InTick');
+$InTick = C('Plugins.UsefulFunctions.InTick');
 
 if ($InTick === TRUE) {
 	$Message = "InTick ".Gdn_Format::ToDateTime();
-	$InTickMessage = C('Plugins.PluginUtils.InTickMessage');
+	$InTickMessage = C('Plugins.UsefulFunctions.InTickMessage');
 	if ($InTickMessage) mail($InTickMessage, $Message, $Message);
 	exit();
 }
-SaveToConfig('Plugins.PluginUtils.InTick', TRUE);
+SaveToConfig('Plugins.UsefulFunctions.InTick', TRUE);
 
 ini_set('memory_limit', '256M');
-require PLUGINUTILS_LIBRARY . DS .  'class.tick.php';
+require UsefulFunctions_LIBRARY . DS .  'class.tick.php';
 
 $Handler = new Tick();
 
@@ -81,7 +81,7 @@ do {
 
 $Database = Gdn::Database();
 if($Database != Null) $Database->CloseConnection();
-RemoveFromConfig('Plugins.PluginUtils.InTick');
+RemoveFromConfig('Plugins.UsefulFunctions.InTick');
 exit();
 
 

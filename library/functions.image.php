@@ -86,7 +86,7 @@ if (!function_exists('ImageMagick')) {
 	function ImageMagick($Command, $Source, $Options, $ResultImage) {
 		static $ImPath;
 		if ($ImPath === Null) {
-			$ImPath = C('Plugins.PluginUtils.ImPath', '/usr/local/bin');
+			$ImPath = C('Plugins.UsefulFunctions.ImPath', '/usr/local/bin');
 			$ImPath = realpath($ImPath);
 			if ($ImPath == False) throw new Exception('ImageMagick not found.');
 		}
