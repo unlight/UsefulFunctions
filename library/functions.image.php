@@ -195,7 +195,7 @@ if (!function_exists('ThumbnailImage')) {
 		//if(In_Array($Prefix, array('http://', 'https:/'))) {}
 		//$bLocalImage = False;
 
-		if($Prefix != 'http://') {
+		if ($Prefix != 'http://') {
 			//$bLocalImage = True;
 			$IncomingImage = $Data;
 			$ImageFindPaths[] = 'uploads'.DS.$Data;
@@ -206,7 +206,7 @@ if (!function_exists('ThumbnailImage')) {
 					break;
 				}
 			}
-		}else{
+		} else {
 			$IncomingImage = $Data;
 		}
 

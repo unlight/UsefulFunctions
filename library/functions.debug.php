@@ -7,7 +7,7 @@ if (!function_exists('d')) {
 	function d() {
 		static $bSetStyle = True;
 		static $bExit = True;
-		if (!defined('DPHP_USE_ACCESSIBLE')) require PLUGINUTILS_VENDORS.DS.'class.dumphper.php';
+		if (!defined('DPHP_USE_ACCESSIBLE')) require USEFULFUNCTIONS_VENDORS.DS.'class.dumphper.php';
 		$Args = func_get_args();
 		if(count($Args) == 0 && $bExit) $bExit = False;
 		if (PHP_SAPI != 'cli') {
