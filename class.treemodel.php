@@ -11,23 +11,22 @@ class TreeModel extends Gdn_Model {
 	protected $RightKey = 'TreeRight';
 	protected $DepthKey = 'Depth';
 	protected $ParentKey = 'ParentID';
-
+	
 	// TODO: 
-	
-/*    private function _getNodeWidth($elementId)
-    {
-        $db = $this->_db;
+	// CELKO:
+	// $FieldOrder => Field name for table nasted set order field
+	// $FieldIgnore => Field name for tablr nested set ignore field
 
-        $stmt = $db->query("
-            SELECT {$this->_structure['right']} - {$this->_structure['left']} + 1
-              FROM {$this->_tableName}
-             WHERE {$this->_structure['id']} = $elementId;
-        ");
-        $width = $stmt->fetchColumn();
-
-        return $width;
-    }
+	protected function GetNodeWidth($NodeID) {
+		return $this->SQL
+			->Select($this->RightKey.'-'.$this->RightKey.'+1', '', 'Width')
+			->From($this->Name)
+			->Where($this->PrimaryKey, $NodeID)
+			->Get()
+			->Value('Width');
+	}
 	
+/*    
     /**
      * Get all nodes without children
      *
@@ -49,12 +48,6 @@ class TreeModel extends Gdn_Model {
     }
 	
 	*/
-	
-/*	celko
-	    $FieldDiffer => Field name used to manage more than one type of nasted set in the same table
-	$FieldOrder => Field name for table nasted set order field   
-	$FieldIgnore => Field name for tablr nested set ignore field */
-	
 	
 /*	public function __construct($Name = '', $PrimaryKey = NULL) {
 		parent::__construct($Name, $PrimaryKey);
@@ -86,14 +79,17 @@ class TreeModel extends Gdn_Model {
 		return $SideID;
 	}
 	
+	/** 
+	* Set Depth for all nodes. Use after AjacencyListToNestedSets()
+	*/
 	public function UpdateTreeDepth() {
 		$Px = $this->SQL->Database->DatabasePrefix;
 		$Sql = $this->SQL
 			->Select("n.{$this->PrimaryKey}")
-			->Select("*", 'count', 'RowCount')
+			->Select('*', 'count', 'RowCount')
 			->From(array($this->Name.' n', $this->Name.' p'))
-			->Where("n.{$this->LeftKey} >= p.{$this->LeftKey}", Null, False, False)
-			->Where("n.{$this->LeftKey} <= p.{$this->RightKey}", Null, False, False)
+			->Where("n.{$this->LeftKey} >=", 'p.'.$this->LeftKey, False, False)
+			->Where("n.{$this->LeftKey} <= ", 'p.'.$this->RightKey, False, False)
 			->GroupBy("n.{$this->PrimaryKey}")
 			->GetSelect();
 		$this->SQL->Reset();
@@ -134,10 +130,11 @@ class TreeModel extends Gdn_Model {
 	
 	protected $_CachedResult;
 	
+	
 	/**
 	* Receives left, right and level for unit with number id.
 	*/
-	public function GetNodeInfo($ID, $ResetCache = FALSE) {
+	public function GetNode($ID, $ResetCache = FALSE) {
 		$Result =& $this->_CachedResult[$ID];
 		if (!isset($this->_CachedResult[$ID]) || $ResetCache) {
 			$Result = $this
@@ -147,10 +144,18 @@ class TreeModel extends Gdn_Model {
 				->Get()
 				->FirstRow();
 		}
-		//if ($Result === FALSE) ErrorMessage();
 		return $Result;
 	}
 	
+	/**
+	* Receives left, right and level for unit with number id.
+	*/
+	public function GetNodeInfo($ID, $ResetCache = FALSE) {
+		return $this->GetNode($ID, $ResetCache);
+	}
+	
+	
+
 	
 	/**
 	* Receives parent left, right and level for unit with number $id.
@@ -182,6 +187,63 @@ class TreeModel extends Gdn_Model {
 	
 	
 	/**
+	* Adds a new child element to the end of the list of child elements
+	*/
+	public function AppendTo($Parent, $Data) {
+		if (is_numeric($Parent)) $Parent = $this->GetNode($Parent);
+		list($ParentLeftID, $ParentRightID, $ParentDepth) = $this->_NodeValues($Parent);
+		$this->Database->BeginTransaction();
+
+		$this->SQL
+			->Update($this->Name)
+			->Set($this->LeftKey, $this->LeftKey.'+2', False)
+			->Where($this->LeftKey . '>', $ParentRightID)
+			->Put();
+		$this->SQL
+			->Update($this->Name)
+			->Set($this->RightKey, $this->RightKey.'+2', False)
+			->Where($this->RightKey . '>=', $ParentRightID)
+			->Put();
+		
+		SetValue($this->LeftKey, $Data, $ParentRightID);
+		SetValue($this->RightKey, $Data, $ParentLeftID + 1);
+		SetValue($this->DepthKey, $Data, $ParentDepth + 1);
+		
+		$ResultID = $this->SQL->Insert($this->Name, $Data);
+		$this->Database->CommitTransaction();
+		return $ResultID;
+
+	}
+	
+	/**
+	* Adds a new child element to the top of the list of child elements
+	*/
+	public function PrependTo($Parent, $Data) {
+		if (is_numeric($Parent)) $Parent = $this->GetNode($Parent);
+		list($ParentLeftID, $ParentRightID, $ParentDepth) = $this->_NodeValues($Parent);
+		$this->Database->BeginTransaction();
+
+		$this->SQL
+			->Update($this->Name)
+			->Set($this->LeftKey, $this->LeftKey.'+2', False)
+			->Where($this->LeftKey . '>', $ParentLeftID)
+			->Put();
+		$this->SQL
+			->Update($this->Name)
+			->Set($this->RightKey, $this->RightKey.'+2', False)
+			->Where($this->RightKey . '>', $ParentLeftID)
+			->Put();
+		
+		SetValue($this->LeftKey, $Data, $ParentLeftID + 1);
+		SetValue($this->RightKey, $Data, $ParentLeftID + 2);
+		SetValue($this->DepthKey, $Data, $ParentDepth + 1);
+		
+		$ResultID = $this->SQL->Insert($this->Name, $Data);
+		$this->Database->CommitTransaction();
+		return $ResultID;
+	}
+	
+	/**
 	* Add a new element in the tree to element with number $id.
 	*
 	* @return integer Inserted element id
@@ -191,27 +253,13 @@ class TreeModel extends Gdn_Model {
 		if (!$Node) return $Node;
 		
 		$Data = (array)$Data;
-        list($LeftID, $RightID, $Depth) = $this->TreeIDs($Node);
+        list($LeftID, $RightID, $Depth) = $this->_NodeValues($Node);
 		$Data[$this->LeftKey] = $RightID;
 		$Data[$this->RightKey] = $RightID + 1;
 		$Data[$this->DepthKey] = $Depth + 1;
 		
 		$this->Database->BeginTransaction();
 
-		/*
-		у
-		UPDATE `tree` SET `left` = `left` + 2 WHERE `left` > {$parent_left};
-		UPDATE `tree` SET `right` = `right` + 2 WHERE `right` > {$parent_left};
-		INSERT INTO `tree` SET `left` = {$parent_left} + 1, `right` = {$parent_left} + 2;*/
-		
-		/*
-		В конец списка:
-		UPDATE `tree` SET `left` = `left` + 2 WHERE `left` > {$parent_right};
-		-- update LeftKey = LeftKey + 2 where {$this->LeftKey} > $RightID
-		
-		UPDATE `tree` SET `right` = `right` + 2 WHERE `right` >= {$parent_right};
-		INSERT INTO `tree` SET `left` = {$parent_right}, `right` = {$parent_right} + 1;
-		*/
 		$this->SQL
 			->Update($this->Name)
 			->Set($this->LeftKey, "case when {$this->LeftKey} > $RightID then {$this->LeftKey}+2 else {$this->LeftKey} end", FALSE, FALSE)
@@ -242,7 +290,7 @@ class TreeModel extends Gdn_Model {
 		$Node = $this->GetNodeInfo($ID);
 		if (!$Node) return $Node;
 		
-		list($LeftID, $RightID, $Depth) = $this->TreeIDs($Node);
+		list($LeftID, $RightID, $Depth) = $this->_NodeValues($Node);
 		
 		$Data[$this->LeftKey] = $Node->{$this->RightKey} + 1;
 		$Data[$this->RightKey] = $Node->{$this->RightKey} + 2;
@@ -266,7 +314,7 @@ class TreeModel extends Gdn_Model {
 		return $ResultID;
 	}
 	
-	protected function TreeIDs($Node) {
+	protected function _NodeValues($Node) {
 		$Return = array($Node->{$this->LeftKey}, $Node->{$this->RightKey}, $Node->{$this->DepthKey});
 		$Return = array_map('intval', $Return);
 		return $Return;
@@ -281,13 +329,13 @@ class TreeModel extends Gdn_Model {
 		$Node = $this->GetNodeInfo($ID);
 		if (!$Node) return $Node;
 		
-		list($LeftID, $RightID, $Depth) = $this->TreeIDs($Node);
+		list($LeftID, $RightID, $Depth) = $this->_NodeValues($Node);
 		//list($LeftID, $RightID, $level) = $node_info;
 		
 		$ParentNode = $this->GetNodeInfo($NewParentID);
 		if (!$ParentNode) return $ParentNode;
 		
-		list($ParentLeftID, $ParentRightID, $ParentDepth) = $this->TreeIDs($ParentNode);
+		list($ParentLeftID, $ParentRightID, $ParentDepth) = $this->_NodeValues($ParentNode);
 		//list($leftIdP, $rightIdP, $levelP) = $node_info;
 		
 		if ($ID == $NewParentID || $LeftID == $ParentLeftID 
@@ -413,11 +461,11 @@ class TreeModel extends Gdn_Model {
 	function ChangePositionAll($ID1, $ID2, $Position = 'after', $Where = '') {
 		$Node1 = $this->GetNodeInfo($ID1);
 		if (!$Node1) return $Node1;
-		list($LeftID1, $RightID1, $Depth1) = $this->TreeIDs($Node1);
+		list($LeftID1, $RightID1, $Depth1) = $this->_NodeValues($Node1);
 		
 		$Node2 = $this->GetNodeInfo($ID2);
 		if (!$Node2) return $Node2;
-		list($LeftID2, $RightID2, $Depth2) = $this->TreeIDs($Node2);
+		list($LeftID2, $RightID2, $Depth2) = $this->_NodeValues($Node2);
 
 		if ($Depth1 != $Depth2) {
 			trigger_error('Cannot change position.', E_USER_ERROR);
@@ -485,7 +533,7 @@ class TreeModel extends Gdn_Model {
 	function Delete($ID, $Where = '') {
 		$Node = $this->GetNodeInfo($ID);
 		if (!$Node) return $Node;
-		list($LeftID, $RightID) = $this->TreeIDs($Node);
+		list($LeftID, $RightID) = $this->_NodeValues($Node);
 		
 		$this->Database->BeginTransaction();
 		$this->Delete(array($this->PrimaryKey => $ID));
@@ -518,7 +566,7 @@ class TreeModel extends Gdn_Model {
         // TODO:
 		$Node = $this->GetNodeInfo($ID);
 		if (!$Node) return $Node;
-        list($LeftID, $RightID) = $this->TreeIDs($Node);
+        list($LeftID, $RightID) = $this->_NodeValues($Node);
         $this->Database->BeginTransaction();
         $this->SQL
             ->Where($this->LeftKey, "between $LeftID and $RightID", FALSE, FALSE)
