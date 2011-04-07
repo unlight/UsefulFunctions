@@ -3,8 +3,6 @@
 # Credit http://php.russofile.ru/ru/authors/sql/nestedsets01/
 # 2005 Kuzma Feskov <kuzma[at]russofile[dot]ru>
 
-// TODO: Remove 'Node' pre/suffix in function names
-
 class TreeModel extends Gdn_Model {
 	
 	protected $LeftKey = 'TreeLeft';
@@ -16,42 +14,30 @@ class TreeModel extends Gdn_Model {
 	// CELKO:
 	// $FieldOrder => Field name for table nasted set order field
 	// $FieldIgnore => Field name for tablr nested set ignore field
-
+	
 	protected function GetNodeWidth($NodeID) {
-		return $this->SQL
+		$Width = $this->SQL
 			->Select($this->RightKey.'-'.$this->RightKey.'+1', '', 'Width')
 			->From($this->Name)
 			->Where($this->PrimaryKey, $NodeID)
 			->Get()
 			->Value('Width');
+		return $Width;
 	}
 	
-/*    
     /**
-     * Get all nodes without children
-     *
-     * @return array
+	* Get all nodes without children
+    *
+    */
+	public function GetLeafs($Fields = '*') {
+		$Result = $this->SQL
+			->Select($Fields)
+			->From($this->Name)
+            ->Where($this->RightKey, $this->LeftKey .'+1', FALSE)
+			->Get();
+		return $Result;
+	}
 
-    public function getLeafs()
-    {
-        $db = $this->_db;
-
-        $select = $db
-            ->select()
-            ->from($this->_tableName, array($this->_structure['id'], $this->_structure['name']))
-            ->where("{$this->_structure['right']} = {$this->_structure['left']} + 1");
-
-        $stmt   = $db->query($select);
-        $result = $stmt->fetchAll();
-
-        return $result;
-    }
-	
-	*/
-	
-/*	public function __construct($Name = '', $PrimaryKey = NULL) {
-		parent::__construct($Name, $PrimaryKey);
-	}*/
 	
 	/** Converts from the lists of the adjacency to nested sets
 	* @param id
@@ -124,7 +110,8 @@ class TreeModel extends Gdn_Model {
 		$this->SQL
 			->Select($this->LeftKey)
 			->Select($this->RightKey)
-			->Select($this->DepthKey);
+			->Select($this->DepthKey)
+			->Select($this->ParentKey);
 		return $this->SQL;
 	}
 	
@@ -148,20 +135,10 @@ class TreeModel extends Gdn_Model {
 	}
 	
 	/**
-	* Receives left, right and level for unit with number id.
-	*/
-	public function GetNodeInfo($ID, $ResetCache = FALSE) {
-		return $this->GetNode($ID, $ResetCache);
-	}
-	
-	
-
-	
-	/**
 	* Receives parent left, right and level for unit with number $id.
 	*/
-	function GetParentInfo($ID, $Condition = '', $ResetCache = FALSE) {
-		$Node = $this->GetNodeInfo($ID);
+	function GetParent($ID, $Condition = '', $ResetCache = FALSE) {
+		$Node = $this->GetNode($ID);
 		if (!$Node) return $Node;
 		
 		$NodeID = $Node->{$this->PrimaryKey};
@@ -248,8 +225,8 @@ class TreeModel extends Gdn_Model {
 	*
 	* @return integer Inserted element id
 	*/
-	public function InsertNode($ID, $Data, $Where = '') { // INSERT BEFORE
-		$Node = $this->GetNodeInfo($ID);
+	public function InsertNode($ID, $Data, $Where = '') {
+		$Node = $this->GetNode($ID);
 		if (!$Node) return $Node;
 		
 		$Data = (array)$Data;
@@ -266,13 +243,7 @@ class TreeModel extends Gdn_Model {
 			->Set($this->RightKey, "case when {$this->RightKey} >= $RightID then {$this->RightKey}+2 else {$this->RightKey} end", FALSE, FALSE)
 			->Where($this->RightKey . '>=', $this->RightKey, FALSE, FALSE)
 			->Put();
-		
-		//$Result = $this->GetID(-1);
-		//$this->GetRoot()
-		
-		//?
-		//$data[$this->table_id] = $this->db->GenID($this->table . '_seq', 2);
-		
+	
 		$ResultID = $this->SQL->Insert($this->Name, $Data);
 		$this->Database->CommitTransaction();
 		return $ResultID;
@@ -287,7 +258,7 @@ class TreeModel extends Gdn_Model {
 	* @return integer Inserted element id
 	*/
 	function InsertNear($ID, $Data = array(), $Where = '') {
-		$Node = $this->GetNodeInfo($ID);
+		$Node = $this->GetNode($ID);
 		if (!$Node) return $Node;
 		
 		list($LeftID, $RightID, $Depth) = $this->_NodeValues($Node);
@@ -304,19 +275,18 @@ class TreeModel extends Gdn_Model {
 			->Set($this->RightKey, "case when {$this->RightKey} > {$Node->{$this->RightKey}} then {$this->RightKey}+2 else {$this->RightKey} end", False, False)
 			->Where($this->RightKey . '>', $this->RightKey);
 
-		//$Root = $this->GetRoot();
-
-		//$data[$this->table_id] = $this->db->GenID($this->table . '_seq', 2);
 		$ResultID = $this->SQL->Insert($this->Name, $Data);
-		
 		$this->Database->CommitTransaction();
-
 		return $ResultID;
 	}
 	
 	protected function _NodeValues($Node) {
-		$Return = array($Node->{$this->LeftKey}, $Node->{$this->RightKey}, $Node->{$this->DepthKey});
-		$Return = array_map('intval', $Return);
+		$Return = array_map('intval', array(
+			$Node->{$this->LeftKey}, 
+			$Node->{$this->RightKey}, 
+			$Node->{$this->DepthKey}, 
+			$Node->{$this->ParentKey}
+		));
 		return $Return;
 	}
 	
@@ -326,17 +296,13 @@ class TreeModel extends Gdn_Model {
 	* @param integer $ID node ID
 	*/
 	function MoveAll($ID, $NewParentID, $Where = '') {
-		$Node = $this->GetNodeInfo($ID);
+		$Node = $this->GetNode($ID);
 		if (!$Node) return $Node;
-		
 		list($LeftID, $RightID, $Depth) = $this->_NodeValues($Node);
-		//list($LeftID, $RightID, $level) = $node_info;
 		
-		$ParentNode = $this->GetNodeInfo($NewParentID);
+		$ParentNode = $this->GetNode($NewParentID);
 		if (!$ParentNode) return $ParentNode;
-		
 		list($ParentLeftID, $ParentRightID, $ParentDepth) = $this->_NodeValues($ParentNode);
-		//list($leftIdP, $rightIdP, $levelP) = $node_info;
 		
 		if ($ID == $NewParentID || $LeftID == $ParentLeftID 
 			|| ($ParentLeftID >= $LeftID && $ParentLeftID <= $RightID)
@@ -408,12 +374,8 @@ class TreeModel extends Gdn_Model {
 				->EndWhereGroup();
 		}
 		
-		$this->SQL
-			->Update($this->Name)
-			->Put();
-		
+		$this->SQL->Update($this->Name)->Put();
 		return TRUE;
-		
 	}
 	
 	
@@ -424,12 +386,13 @@ class TreeModel extends Gdn_Model {
 	* @param integer $id2 second item ID
 	*/
 	function ChangePosition($ID1, $ID2) {
-		$Node1 = $this->GetNodeInfo($ID1);
+		
+		$Node1 = $this->GetNode($ID1);
 		if (!$Node1) return $Node;
-		//list($leftId1, $rightId1, $level1) = $node_info;
-		$Node2 = $this->GetNodeInfo($ID2);
+		
+		$Node2 = $this->GetNode($ID2);
 		if (!$Node2) return $Node2;
-		//list($leftId2, $rightId2, $level2) = $node_info;
+		
 		$this->Database->BeginTransaction();
 		
 		$this->SQL
@@ -449,7 +412,6 @@ class TreeModel extends Gdn_Model {
 			->Put();
 		
 		$this->Database->CommitTransaction();
-
 		return TRUE;
 	}
 	
@@ -459,11 +421,11 @@ class TreeModel extends Gdn_Model {
 	*
 	*/
 	function ChangePositionAll($ID1, $ID2, $Position = 'after', $Where = '') {
-		$Node1 = $this->GetNodeInfo($ID1);
+		$Node1 = $this->GetNode($ID1);
 		if (!$Node1) return $Node1;
 		list($LeftID1, $RightID1, $Depth1) = $this->_NodeValues($Node1);
 		
-		$Node2 = $this->GetNodeInfo($ID2);
+		$Node2 = $this->GetNode($ID2);
 		if (!$Node2) return $Node2;
 		list($LeftID2, $RightID2, $Depth2) = $this->_NodeValues($Node2);
 
@@ -505,25 +467,32 @@ class TreeModel extends Gdn_Model {
 					->Where($this->LeftKey, "BETWEEN $LeftID1 AND $LeftID2M1", FALSE, FALSE);
 			}
 		} elseif ($Position = 'after') {
-/*            if ($leftId1 > $leftId2) {
-				$sql = 'UPDATE ' . $this->table . ' SET '
-				. {$this->LeftKey} . ' = CASE WHEN ' . {$this->LeftKey} . ' BETWEEN ' . $leftId1 . ' AND ' . $rightId1 . ' THEN ' . {$this->LeftKey} . ' - ' . ($leftId1 - $leftId2 - ($rightId2 - $leftId2 + 1)) . ' '
-				. 'WHEN ' . {$this->LeftKey} . ' BETWEEN ' . ($rightId2 + 1) . ' AND ' . ($leftId1 - 1) . ' THEN ' . {$this->LeftKey} . ' +  ' . ($rightId1 - $leftId1 + 1) . ' ELSE ' . {$this->LeftKey} . ' END, '
-				. {$this->LeftKey} . ' = CASE WHEN ' . {$this->LeftKey} . ' BETWEEN ' . $leftId1 . ' AND ' . $rightId1 . ' THEN ' . {$this->LeftKey} . ' - ' . ($leftId1 - $leftId2 - ($rightId2 - $leftId2 + 1)) . ' '
-				. 'WHEN ' . {$this->LeftKey} . ' BETWEEN ' . ($rightId2 + 1) . ' AND ' . ($leftId1 - 1) . ' THEN ' . {$this->LeftKey} . ' + ' . ($rightId1 - $leftId1 + 1) . ' ELSE ' . {$this->LeftKey} . ' END '
-				. 'WHERE ' . {$this->LeftKey} . ' BETWEEN ' . ($rightId2 + 1) . ' AND ' . $rightId1;
+            if ($LeftID1 > $LeftID2) {
+				$Value1 = $LeftID1 - $LeftID2 - ($RightID2 - $LeftID2 + 1); // $RightID1
+				$this->SQL->Set($this->LeftKey, "case 
+					when {$this->LeftKey} between $LeftID1 and $RightID1 then {$this->LeftKey} - $Value1
+					when {$this->LeftKey} between ($RightID2 + 1) and ($LeftID1 - 1) then {$this->LeftKey} + ($RightID1 - $LeftID1 + 1)
+					else {$this->LeftKey} end", False, False)
+				$this->SQL->Set($this->LeftKey, "case 
+					when {$this->LeftKey} between $LeftID1 and $RightID1 then {$this->LeftKey} - $Value1
+					when {$this->LeftKey} BETWEEN ($RightID2 + 1) and ($LeftID1 - 1) then {$this->LeftKey} + ($RightID1 - $LeftID1 + 1) 
+					else {$this->LeftKey} end", False, False);
+				$this->SQL->Where("{$this->LeftKey} between ($RightID2 + 1) and $RightID1", Null, False, False)
 			} else {
-				$sql = 'UPDATE ' . $this->table . ' SET '
-				. {$this->LeftKey} . ' = CASE WHEN ' . {$this->LeftKey} . ' BETWEEN ' . $leftId1 . ' AND ' . $rightId1 . ' THEN ' . {$this->LeftKey} . ' + ' . ($rightId2 - $rightId1) . ' '
-				. 'WHEN ' . {$this->LeftKey} . ' BETWEEN ' . ($rightId1 + 1) . ' AND ' . $rightId2 . ' THEN ' . {$this->LeftKey} . ' - ' . (($rightId1 - $leftId1 + 1)) . ' ELSE ' . {$this->LeftKey} . ' END, '
-				. {$this->LeftKey} . ' = CASE WHEN ' . {$this->LeftKey} . ' BETWEEN ' . $leftId1 . ' AND ' . $rightId1 . ' THEN ' . {$this->LeftKey} . ' + ' . ($rightId2 - $rightId1) . ' '
-				. 'WHEN ' . {$this->LeftKey} . ' BETWEEN ' . ($rightId1 + 1) . ' AND ' . $rightId2 . ' THEN ' . {$this->LeftKey} . ' - ' . ($rightId1 - $leftId1 + 1) . ' ELSE ' . {$this->LeftKey} . ' END '
-				. 'WHERE ' . {$this->LeftKey} . ' BETWEEN ' . $leftId1 . ' AND ' . $rightId2;
-			}*/
+				$this->SQL->Set($this->RightKey, "case 
+					when {$this->LeftKey} between $LeftID1 and $RightID1 then {$this->RightKey} + ($RightID2 - $RightID1)
+					when {$this->LeftKey} between ($RightID1 + 1) and $RightID2 then {$this->RightKey} - ($RightID1 - $LeftID1 + 1)
+					else {$this->LeftKey} end", False, False);
+                $this->SQL->Set($this->LeftKey, "case 
+					WHEN {$this->LeftKey} BETWEEN $LeftID1 AND $RightID1 THEN {$this->LeftKey} + ($RightID2 - $RightID1)
+					WHEN {$this->LeftKey} BETWEEN ($RightID1 + 1) AND $RightID2 THEN {$this->LeftKey} - ($RightID1 - $LeftID1 + 1) 
+					ELSE {$this->LeftKey} end", False, False);
+				$this->SQL->Where("{$this->LeftKey} between $LeftID1 and $RightID2", Null, False, False)
+			}
 		}
-		
 		// $this->SQL->Where($Where)
-		return $this->SQL->Update($this->Name)->Put();
+		$this->SQL->Update($this->Name)->Put();
+		return TRUE;
 	}
 	
 	/**
@@ -531,7 +500,7 @@ class TreeModel extends Gdn_Model {
     *
 	*/
 	function Delete($ID, $Where = '') {
-		$Node = $this->GetNodeInfo($ID);
+		$Node = $this->GetNode($ID);
 		if (!$Node) return $Node;
 		list($LeftID, $RightID) = $this->_NodeValues($Node);
 		
@@ -564,7 +533,7 @@ class TreeModel extends Gdn_Model {
 	*/
 	function DeleteAll($ID, $Where = '') {
         // TODO:
-		$Node = $this->GetNodeInfo($ID);
+		$Node = $this->GetNode($ID);
 		if (!$Node) return $Node;
         list($LeftID, $RightID) = $this->_NodeValues($Node);
         $this->Database->BeginTransaction();
@@ -607,7 +576,7 @@ class TreeModel extends Gdn_Model {
             ->Select('a.*')
             ->From($this->Name . ' a')
             ->From($this->Name . ' b')
-            // What is N? 
+            // N? 
             ->SelectCase("a.{$this->LeftKey}", array("a.{$this->LeftKey} + 1 < a.{$this->RightKey}" => 1, '' => 0), 'N')
             ->Where('b.'.$this->PrimaryKey, (int)$ID, FALSE, FALSE)
             ->Where("a.{$this->LeftKey} >=", 'b.'.$this->LeftKey, FALSE, FALSE)
