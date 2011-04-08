@@ -108,7 +108,7 @@ if (!function_exists('K')) {
 		static $SQL, $Cache, $DataTableCreated;
 		
 		if (is_null($DataTableCreated)) {
-			$DataTableCreated = C('Plugins.PluginUtils.DataTableCreated');
+			$DataTableCreated = C('Plugins.UsefulFunctions.DataTableCreated');
 			if ($DataTableCreated === False) {
 				Gdn::Structure()
 					->Table('Data')
@@ -116,7 +116,7 @@ if (!function_exists('K')) {
 					->Column('Value', 'text')
 					->Set(False, False);
 				$DataTableCreated = True;
-				SaveToConfig('Plugins.PluginUtils.DataTableCreated', $DataTableCreated);
+				SaveToConfig('Plugins.UsefulFunctions.DataTableCreated', $DataTableCreated);
 			}
 		}
 		

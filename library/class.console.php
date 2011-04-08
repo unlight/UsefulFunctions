@@ -124,7 +124,7 @@ class Console extends Gdn_Pluggable {
 	public static function Message() {
 		if (!defined('STDOUT')) return;
 		static $Encoding;
-		if (is_null($Encoding)) $Encoding = strtolower(C('Plugins.PluginUtils.Console.MessageEnconding', 'utf-8'));
+		if (is_null($Encoding)) $Encoding = strtolower(C('Plugins.UsefulFunctions.Console.MessageEnconding', 'utf-8'));
 		$Args = func_get_args();
 		$Message =& $Args[0];
 		$Count = substr_count($Message, '%');

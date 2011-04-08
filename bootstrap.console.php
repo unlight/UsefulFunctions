@@ -16,7 +16,7 @@ require_once PATH_ROOT.DS.'bootstrap.php';
 if (defined('USEFULFUNCTIONS_LIBRARY')) require_once USEFULFUNCTIONS_LIBRARY.DS.'class.console.php';
 else require_once dirname(__FILE__).'/library/class.console.php';
 
-if(!Console::Check() && C('Plugins.PluginUtils.Console.Check')) die('Please, run script from command line!');
+if(!Console::Check() && C('Plugins.UsefulFunctions.Console.Check')) die('Please, run script from command line!');
 
 if (PHP_SAPI == 'cli') $_GET['DeliveryType'] = 'VIEW';
 

@@ -29,7 +29,7 @@ if (!function_exists('d')) {
 			}
 			$String = ob_get_contents();
 			@ob_end_clean();
-			$Encoding = Gdn::Config('Plugins.PluginUtils.Console.MessageEnconding');
+			$Encoding = Gdn::Config('Plugins.UsefulFunctions.Console.MessageEnconding');
 			$String = preg_replace("/\=\>\n +/s", '=> ', $String);
 			if ($Encoding && $Encoding != 'utf-8') $String = mb_convert_encoding($String, $Encoding, 'utf-8');
 			echo $String;
