@@ -37,7 +37,7 @@ class Console extends Gdn_Pluggable {
 		LogMessage($File, $Line, $Object, $Method, $Message, $Code);
 		
 		// send error to email
-		$To = Gdn::Config('Plugins.PluginUtils.Console.Errors.EmailToAddress');
+		$To = Gdn::Config('Plugins.UsefulFunctions.Console.ErrorsEmailToAddress');
 		if (self::Check() && $To != False) {
 			$Text = sprintf(Gdn::Translate('Error in console script %1$s %2$s %3$s %4$s'), $Code, $Message, $File, $Line);
 			if (!class_exists('Gdn_Email')) return error_log("Error ($Code)", 1, $To, $Text);
