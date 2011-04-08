@@ -12,9 +12,8 @@ chdir(dirname(__FILE__).DS.'..'.DS.'..');
 if (!defined('PATH_ROOT')) define('PATH_ROOT', realpath('.'));
 
 require_once PATH_ROOT.DS.'bootstrap.php';
-
-if (defined('USEFULFUNCTIONS_LIBRARY')) require_once USEFULFUNCTIONS_LIBRARY.DS.'class.console.php';
-else require_once dirname(__FILE__).'/library/class.console.php';
+if (!defined('USEFULFUNCTIONS_LIBRARY')) define('USEFULFUNCTIONS_LIBRARY', dirname(__FILE__).DS.'library');
+require_once USEFULFUNCTIONS_LIBRARY.'/class.console.php';
 
 if(!Console::Check() && C('Plugins.UsefulFunctions.Console.Check')) die('Please, run script from command line!');
 
