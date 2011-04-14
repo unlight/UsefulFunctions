@@ -113,7 +113,7 @@ class TreeModel extends Gdn_Model {
 	/**
 	* Receives parent left, right and level for unit with number $id.
 	*/
-	function GetParent($ID, $Condition = '', $ResetCache = FALSE) {
+	public function GetParent($ID, $Condition = '', $ResetCache = FALSE) {
 		$Node = $this->GetNode($ID);
 		if (!$Node) return $Node;
 		
@@ -248,7 +248,7 @@ class TreeModel extends Gdn_Model {
 	* @param integer $ID Number of a parental element
 	* @return integer Inserted element id
 	*/
-	function InsertNear($ID, $Data = array(), $Where = '') {
+	public function InsertNear($ID, $Data = array(), $Where = '') {
 		$Node = $this->GetNode($ID);
 		if (!$Node) return $Node;
 		
@@ -286,7 +286,7 @@ class TreeModel extends Gdn_Model {
 	*
 	* @param integer $ID node ID
 	*/
-	function MoveAll($ID, $NewParentID, $Where = '') {
+	public function MoveAll($ID, $NewParentID, $Where = '') {
 		$Node = $this->GetNode($ID);
 		if (!$Node) return $Node;
 		list($LeftID, $RightID, $Depth) = $this->_NodeValues($Node);
@@ -376,7 +376,7 @@ class TreeModel extends Gdn_Model {
 	* @param integer $id1 first item ID
 	* @param integer $id2 second item ID
 	*/
-	function ChangePosition($ID1, $ID2) {
+	public function ChangePosition($ID1, $ID2) {
 		
 		$Node1 = $this->GetNode($ID1);
 		if (!$Node1) return $Node;
@@ -411,7 +411,7 @@ class TreeModel extends Gdn_Model {
 	* Swapping nodes within the same level and limits of one parent with all its children: $id1 placed before or after $id2.
 	*
 	*/
-	function ChangePositionAll($ID1, $ID2, $Position = 'after', $Where = '') {
+	public function ChangePositionAll($ID1, $ID2, $Position = 'after', $Where = '') {
 		$Node1 = $this->GetNode($ID1);
 		if (!$Node1) return $Node1;
 		list($LeftID1, $RightID1, $Depth1) = $this->_NodeValues($Node1);
@@ -492,7 +492,7 @@ class TreeModel extends Gdn_Model {
 	* Delete element with number $id from the tree wihtout deleting it's children.
     *
 	*/
-	function Delete($ID, $Where = '') {
+	public function Delete($ID, $Where = '') {
 		$Node = $this->GetNode($ID);
 		if (!$Node) return $Node;
 		list($LeftID, $RightID) = $this->_NodeValues($Node);
@@ -524,7 +524,7 @@ class TreeModel extends Gdn_Model {
 	* Delete element with number $ID from the tree and all it children.
 	*
 	*/
-	function DeleteAll($ID, $Where = '') {
+	public function DeleteAll($ID, $Where = '') {
         // TODO:
 		$Node = $this->GetNode($ID);
 		if (!$Node) return $Node;
@@ -583,7 +583,7 @@ class TreeModel extends Gdn_Model {
 	* Returns all parents of element with number $ID.
 	*
 	*/
-	function Parents($ID) {
+	public function Parents($ID) {
         $Result = $this->SQL
             ->From($this->Name . ' a')
             ->From($this->Name . ' b')
