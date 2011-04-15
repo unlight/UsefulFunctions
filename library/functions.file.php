@@ -3,81 +3,83 @@
 /**
 * 
 */
-function CompileFile($File = Null, $bSave = False) {
-	static $RequiredFiles = array();
-	if (is_null($File)){
-		$Return = $RequiredFiles;
-		$RequiredFiles = array();
-		return $Return;
-	}
-	if ($bSave != False) {
-		$NewFileContent = '';
-		$Files = array_values(CompileFile());
+if (!function_exists('CompileFile')) {
+	function CompileFile($File = Null, $bSave = False) {
+		static $RequiredFiles = array();
+		if (is_null($File)){
+			$Return = $RequiredFiles;
+			$RequiredFiles = array();
+			return $Return;
+		}
+		if ($bSave != False) {
+			$NewFileContent = '';
+			$Files = array_values(CompileFile());
 
-		foreach ($Files as $N => $FilePath) {
-			$FileData = array_map('rtrim', file($FilePath));
-			$Count = count($FileData);
-			for ($i = 0; $i < $Count; $i++) {
-				$String = $FileData[$i];
-				if (strpos($String, 'require') === 0
-					|| in_array($String, array('<?php', '?>'))) unset($FileData[$i]);
+			foreach ($Files as $N => $FilePath) {
+				$FileData = array_map('rtrim', file($FilePath));
+				$Count = count($FileData);
+				for ($i = 0; $i < $Count; $i++) {
+					$String = $FileData[$i];
+					if (strpos($String, 'require') === 0
+						|| in_array($String, array('<?php', '?>'))) unset($FileData[$i]);
+				}
+				$BaseName = pathinfo($FilePath, PATHINFO_BASENAME);
+				$FirstLine = "\n/* " . str_pad(" $BaseName ", 72, '=', STR_PAD_LEFT) . "*/\n";
+				$NewFileContent .= $FirstLine;
+				$NewFileContent .= implode("\n", $FileData);
 			}
-			$BaseName = pathinfo($FilePath, PATHINFO_BASENAME);
-			$FirstLine = "\n/* " . str_pad(" $BaseName ", 72, '=', STR_PAD_LEFT) . "*/\n";
-			$NewFileContent .= $FirstLine;
-			$NewFileContent .= implode("\n", $FileData);
+			return file_put_contents($File, "<?php\n".$NewFileContent);
 		}
-		return file_put_contents($File, "<?php\n".$NewFileContent);
-	}
 
-	$RealPath = realpath($File);
-	if (!$RealPath) throw new Exception('No such file '.$File);
+		$RealPath = realpath($File);
+		if (!$RealPath) throw new Exception('No such file '.$File);
 
-	//if (count($RequiredFiles) == 0) $RequiredFiles[] = $RealPath;
-	$Hash = Crc32File($RealPath);
-	$RequiredFiles[$Hash] = $RealPath;
+		//if (count($RequiredFiles) == 0) $RequiredFiles[] = $RealPath;
+		$Hash = Crc32File($RealPath);
+		$RequiredFiles[$Hash] = $RealPath;
 
-	$Content = file_get_contents($RealPath);
-	$AllTokens = token_get_all($Content);
-	foreach ($AllTokens as $N => $TokenArray) {
-		list($TokenID) = $TokenArray;
-		$String = ArrayValue(1, $TokenArray);
-		if (!is_int($TokenID) || !in_array(token_name($TokenID), array('T_REQUIRE', 'T_REQUIRE_ONCE'))) continue;
+		$Content = file_get_contents($RealPath);
+		$AllTokens = token_get_all($Content);
+		foreach ($AllTokens as $N => $TokenArray) {
+			list($TokenID) = $TokenArray;
+			$String = ArrayValue(1, $TokenArray);
+			if (!is_int($TokenID) || !in_array(token_name($TokenID), array('T_REQUIRE', 'T_REQUIRE_ONCE'))) continue;
 
-		$PrevTokenString = ArrayValue(1, $AllTokens[$N-1]);
-		$PrevTokenString = str_replace("\r", '', $PrevTokenString);
-		if ($PrevTokenString !== "\n") continue;
+			$PrevTokenString = ArrayValue(1, $AllTokens[$N-1]);
+			$PrevTokenString = str_replace("\r", '', $PrevTokenString);
+			if ($PrevTokenString !== "\n") continue;
 
-		$OtherTokens = array_slice($AllTokens, $N);
-		$FileTokens = array();
-		foreach ($OtherTokens as $M => $Tk) {
-			if (count($Tk) == 1 && $Tk[0] == ';') {
-				$FileTokens = array_slice($OtherTokens, 0, $M);
-				break;
+			$OtherTokens = array_slice($AllTokens, $N);
+			$FileTokens = array();
+			foreach ($OtherTokens as $M => $Tk) {
+				if (count($Tk) == 1 && $Tk[0] == ';') {
+					$FileTokens = array_slice($OtherTokens, 0, $M);
+					break;
+				}
+			}
+			if (count($FileTokens) == 0) throw new Exception('FileTokens not found.');
+			$TheFile = False;
+			foreach(array_reverse($FileTokens) as $Tk){
+				if (is_int($Tk[0]) && token_name($Tk[0]) == 'T_CONSTANT_ENCAPSED_STRING') {
+					$TheFile = $Tk[1];
+					$TheFile = trim($TheFile, '"\'/\\');
+					break;
+				}
+			}
+			if (!$TheFile) throw Exception('No string file found.');
+			$DirnameFileConstruct = dirname($RealPath);
+			$TheFile = $DirnameFileConstruct . DS . $TheFile;
+			$RealFile = realpath($TheFile);
+			if (!$RealFile) throw new Exception(sprintf('Invalid path `%1$s`.', $TheFile));
+
+			$Hash = Crc32File($RealFile);
+			if (!array_key_exists($Hash, $RequiredFiles)) {
+				CompileFile($RealFile);
+				$RequiredFiles[$Hash] = $RealFile;
 			}
 		}
-		if (count($FileTokens) == 0) throw new Exception('FileTokens not found.');
-		$TheFile = False;
-		foreach(array_reverse($FileTokens) as $Tk){
-			if (is_int($Tk[0]) && token_name($Tk[0]) == 'T_CONSTANT_ENCAPSED_STRING') {
-				$TheFile = $Tk[1];
-				$TheFile = trim($TheFile, '"\'/\\');
-				break;
-			}
-		}
-		if (!$TheFile) throw Exception('No string file found.');
-		$DirnameFileConstruct = dirname($RealPath);
-		$TheFile = $DirnameFileConstruct . DS . $TheFile;
-		$RealFile = realpath($TheFile);
-		if (!$RealFile) throw new Exception(sprintf('Invalid path `%1$s`.', $TheFile));
 
-		$Hash = Crc32File($RealFile);
-		if (!array_key_exists($Hash, $RequiredFiles)) {
-			CompileFile($RealFile);
-			$RequiredFiles[$Hash] = $RealFile;
-		}
 	}
-
 }
 
 /**

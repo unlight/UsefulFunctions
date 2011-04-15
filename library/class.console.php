@@ -37,7 +37,7 @@ class Console extends Gdn_Pluggable {
 		LogMessage($File, $Line, $Object, $Method, $Message, $Code);
 		
 		// send error to email
-		$To = Gdn::Config('Plugins.PluginUtils.Console.Errors.EmailToAddress');
+		$To = Gdn::Config('Plugins.UsefulFunctions.Console.ErrorsEmailToAddress');
 		if (self::Check() && $To != False) {
 			$Text = sprintf(Gdn::Translate('Error in console script %1$s %2$s %3$s %4$s'), $Code, $Message, $File, $Line);
 			if (!class_exists('Gdn_Email')) return error_log("Error ($Code)", 1, $To, $Text);
@@ -124,7 +124,7 @@ class Console extends Gdn_Pluggable {
 	public static function Message() {
 		if (!defined('STDOUT')) return;
 		static $Encoding;
-		if (is_null($Encoding)) $Encoding = strtolower(C('Plugins.PluginUtils.Console.MessageEnconding', 'utf-8'));
+		if (is_null($Encoding)) $Encoding = strtolower(C('Plugins.UsefulFunctions.Console.MessageEnconding', 'utf-8'));
 		$Args = func_get_args();
 		$Message =& $Args[0];
 		$Count = substr_count($Message, '%');

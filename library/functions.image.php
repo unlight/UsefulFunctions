@@ -86,7 +86,7 @@ if (!function_exists('ImageMagick')) {
 	function ImageMagick($Command, $Source, $Options, $ResultImage) {
 		static $ImPath;
 		if ($ImPath === Null) {
-			$ImPath = C('Plugins.PluginUtils.ImPath', '/usr/local/bin');
+			$ImPath = C('Plugins.UsefulFunctions.ImPath', '/usr/local/bin');
 			$ImPath = realpath($ImPath);
 			if ($ImPath == False) throw new Exception('ImageMagick not found.');
 		}
@@ -195,7 +195,7 @@ if (!function_exists('ThumbnailImage')) {
 		//if(In_Array($Prefix, array('http://', 'https:/'))) {}
 		//$bLocalImage = False;
 
-		if($Prefix != 'http://') {
+		if ($Prefix != 'http://') {
 			//$bLocalImage = True;
 			$IncomingImage = $Data;
 			$ImageFindPaths[] = 'uploads'.DS.$Data;
@@ -206,7 +206,7 @@ if (!function_exists('ThumbnailImage')) {
 					break;
 				}
 			}
-		}else{
+		} else {
 			$IncomingImage = $Data;
 		}
 

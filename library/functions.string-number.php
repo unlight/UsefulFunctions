@@ -36,51 +36,53 @@ Result:
 +-----------+-------------------------+------------+
 */
 
-function TextDataGrid($Headers, $DataArray, $Options = False) {
-	
-	if (!function_exists('_TextDataRow')) {
-		function _TextDataSeparator($MaxLengthArray) {
-			$Result = '';
-			foreach ($MaxLengthArray as $Length) $Result .= '+-' . str_repeat('-', $Length) . '-';
-			return $Result.'+';
-		}
-
-		function _TextDataRow($Array, $MaxLengthArray) {
-			$Result = '';
-			foreach(array_values($Array) as $N => $Value) {
-				$MaxLengthOfRow = $MaxLengthArray[$N];
-				// TODO: How are we going to display null values?
-				if (is_numeric($Value))
-					$Result .= '| ' . mb_str_pad($Value, $MaxLengthOfRow, ' ', STR_PAD_LEFT) . ' ';
-				else 
-					$Result .= '| ' . mb_str_pad($Value, $MaxLengthOfRow, ' ', STR_PAD_RIGHT) . ' ';
+if (!function_exists('TextDataGrid')) {
+	function TextDataGrid($Headers, $DataArray, $Options = False) {
+		
+		if (!function_exists('_TextDataRow')) {
+			function _TextDataSeparator($MaxLengthArray) {
+				$Result = '';
+				foreach ($MaxLengthArray as $Length) $Result .= '+-' . str_repeat('-', $Length) . '-';
+				return $Result.'+';
 			}
-			return $Result.'|';
+
+			function _TextDataRow($Array, $MaxLengthArray) {
+				$Result = '';
+				foreach(array_values($Array) as $N => $Value) {
+					$MaxLengthOfRow = $MaxLengthArray[$N];
+					// TODO: How are we going to display null values?
+					if (is_numeric($Value))
+						$Result .= '| ' . mb_str_pad($Value, $MaxLengthOfRow, ' ', STR_PAD_LEFT) . ' ';
+					else 
+						$Result .= '| ' . mb_str_pad($Value, $MaxLengthOfRow, ' ', STR_PAD_RIGHT) . ' ';
+				}
+				return $Result.'|';
+			}
 		}
-	}
-	
-	$Length = count($Headers);
-	$MaxLengthArray = array_fill(0, $Length, 0);
-	array_unshift($DataArray, $Headers);
-	// 1. Detect max length
-	foreach ($DataArray as $Data) {
-		$Data = array_values($Data);
-		for ($i = 0; $i < $Length; $i++) {
-			$LocalLength = mb_strlen($Data[$i], 'utf-8');
-			if ($LocalLength > $MaxLengthArray[$i]) $MaxLengthArray[$i] = $LocalLength;
+		
+		$Length = count($Headers);
+		$MaxLengthArray = array_fill(0, $Length, 0);
+		array_unshift($DataArray, $Headers);
+		// 1. Detect max length
+		foreach ($DataArray as $Data) {
+			$Data = array_values($Data);
+			for ($i = 0; $i < $Length; $i++) {
+				$LocalLength = mb_strlen($Data[$i], 'utf-8');
+				if ($LocalLength > $MaxLengthArray[$i]) $MaxLengthArray[$i] = $LocalLength;
+			}
 		}
+		$Result = '';
+		// 2. Draw headers
+		$Result .= _TextDataSeparator($MaxLengthArray) . "\n";
+		$Result .= _TextDataRow(array_shift($DataArray), $MaxLengthArray) . "\n";	
+		$Result .= _TextDataSeparator($MaxLengthArray) . "\n";
+		// 3. Draw table rows
+		foreach($DataArray as $N => $Data)
+			$Result .= _TextDataRow($Data, $MaxLengthArray) . "\n";
+		$Result .= _TextDataSeparator($MaxLengthArray);
+		
+		return $Result;
 	}
-	$Result = '';
-	// 2. Draw headers
-	$Result .= _TextDataSeparator($MaxLengthArray) . "\n";
-	$Result .= _TextDataRow(array_shift($DataArray), $MaxLengthArray) . "\n";	
-	$Result .= _TextDataSeparator($MaxLengthArray) . "\n";
-	// 3. Draw table rows
-	foreach($DataArray as $N => $Data)
-		$Result .= _TextDataRow($Data, $MaxLengthArray) . "\n";
-	$Result .= _TextDataSeparator($MaxLengthArray);
-	
-	return $Result;
 }
 
 /**
@@ -106,36 +108,38 @@ if (!function_exists('mb_str_pad')) {
 /**
 * Crypt/Decrypt string using password.
 */
-function NCrypt($String, $Password, $bDecrypt) {
-	if (!defined('ALPHABET')) {
-		define('RALPHABET', pack('H*', '4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a31323334353637383930205c212c2e3a3b3f7e402324255e262a28295f2b2d3d5d5b7d7b2f3e3c2227607c4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a31323334353637383930205c212c2e3a3b3f7e402324255e262a28295f2b2d3d5d5b7d7b2f3e3c2227607c'));
-		define('ALPHABET', strrev(RALPHABET));
+if (!function_exists('NCrypt')) {
+	function NCrypt($String, $Password, $bDecrypt) {
+		if (!defined('ALPHABET')) {
+			define('RALPHABET', pack('H*', '4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a31323334353637383930205c212c2e3a3b3f7e402324255e262a28295f2b2d3d5d5b7d7b2f3e3c2227607c4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a31323334353637383930205c212c2e3a3b3f7e402324255e262a28295f2b2d3d5d5b7d7b2f3e3c2227607c'));
+			define('ALPHABET', strrev(RALPHABET));
+		}
+
+		$String = (!$bDecrypt) ? array_pop(unpack('H*', $String)) : pack('H*', $String);
+		$RevAlphabetLength = strlen(RALPHABET);
+		$PasswordLength = strlen($Password);
+		for ($i = 0; $i < $PasswordLength; $i++) {
+			$CurrentPasswordLtr = substr($Password, $i, 1);
+			$PosAlphaArray[] = substr(strstr(ALPHABET, $CurrentPasswordLtr), 0, $RevAlphabetLength);
+		}
+		$n = 0;
+		$Result = '';
+		for ($Length = strlen($String), $i = 0; $i < $Length; $i++) {
+			$Pos = strpos(RALPHABET, substr($String, $i, 1));
+			$Result .= substr($PosAlphaArray[$n], $Pos, 1);
+			if (++$n == $PasswordLength) $n = 0;
+		}
+		$Result = (!$bDecrypt) ? array_pop(unpack('H*', $Result)) : pack('H*', $Result);
+		return $Result;
 	}
 
-	$String = (!$bDecrypt) ? array_pop(unpack('H*', $String)) : pack('H*', $String);
-	$RevAlphabetLength = strlen(RALPHABET);
-	$PasswordLength = strlen($Password);
-	for ($i = 0; $i < $PasswordLength; $i++) {
-		$CurrentPasswordLtr = substr($Password, $i, 1);
-		$PosAlphaArray[] = substr(strstr(ALPHABET, $CurrentPasswordLtr), 0, $RevAlphabetLength);
+	function Encrypt($String, $Password) {
+		return NCrypt($String, $Password, False);
 	}
-	$n = 0;
-	$Result = '';
-	for ($Length = strlen($String), $i = 0; $i < $Length; $i++) {
-		$Pos = strpos(RALPHABET, substr($String, $i, 1));
-   		$Result .= substr($PosAlphaArray[$n], $Pos, 1);
-   		if (++$n == $PasswordLength) $n = 0;
-  	}
-	$Result = (!$bDecrypt) ? array_pop(unpack('H*', $Result)) : pack('H*', $Result);
-	return $Result;
-}
 
-function Encrypt($String, $Password) {
-	return NCrypt($String, $Password, False);
-}
-
-function Decrypt($String, $Password) {
-	return NCrypt($String, $Password, True);
+	function Decrypt($String, $Password) {
+		return NCrypt($String, $Password, True);
+	}
 }
 
 if (!function_exists('ArraySum')) {

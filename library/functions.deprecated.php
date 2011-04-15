@@ -1,50 +1,53 @@
 <?php
 
-function FormatTextAsRow($Array, $MaxLengthArray) {
-	if (defined('DEBUG')) 
-		trigger_error('FormatTextAsRow() is deprecated. Use TextDataGrid() instead.');
-	$Result = '';
-	$Array = array_values($Array);
-	$LastNum = count($Array) - 1;
-	foreach($Array as $N => $Value) {
-		$MaxLengthOfRow = $MaxLengthArray[$N];
-		$LocalLength = mb_strlen($Value, 'utf-8');
-		$NumOfSpace = $MaxLengthOfRow - $LocalLength + 4;
-		$Value = mb_str_pad($Value, $MaxLengthOfRow + 4, ' ');
-		$NumOfTabs = floor($NumOfSpace/4);
-		if ($NumOfTabs >= 1) {
-			$Value = mb_substr($Value, 0, -($NumOfTabs * 4), 'utf-8');
-			$Value .= str_repeat("\t", $NumOfTabs);
+if (!function_exists('FormatTextAsRow')) {
+	function FormatTextAsRow($Array, $MaxLengthArray) {
+		if (defined('DEBUG')) 
+			trigger_error('FormatTextAsRow() is deprecated. Use TextDataGrid() instead.');
+		$Result = '';
+		$Array = array_values($Array);
+		$LastNum = count($Array) - 1;
+		foreach($Array as $N => $Value) {
+			$MaxLengthOfRow = $MaxLengthArray[$N];
+			$LocalLength = mb_strlen($Value, 'utf-8');
+			$NumOfSpace = $MaxLengthOfRow - $LocalLength + 4;
+			$Value = mb_str_pad($Value, $MaxLengthOfRow + 4, ' ');
+			$NumOfTabs = floor($NumOfSpace/4);
+			if ($NumOfTabs >= 1) {
+				$Value = mb_substr($Value, 0, -($NumOfTabs * 4), 'utf-8');
+				$Value .= str_repeat("\t", $NumOfTabs);
+			}
+			if ($LastNum == $N) $Value = trim($Value);
+			$Result .= $Value;
 		}
-		if ($LastNum == $N) $Value = trim($Value);
-		$Result .= $Value;
+		return $Result;
+		
 	}
-	return $Result;
-	
 }
 
 
-function FormatTextAsTable($Headers, $DataArray, $Options = False) { // very slooooow
-	if (defined('DEBUG')) trigger_error('FormatTextAsTable() is deprecated. Use TextDataGrid() instead.');
-	$bHeaderLength = '';
-	$Length = count($Headers);
-	$MaxLengthArray = array_fill(0, $Length, 0);
-	array_unshift($DataArray, $Headers);
-	// 1. Detect max length
-	foreach($DataArray as $Data) {
-		$Data = array_values($Data);
-		for ($i = 0; $i < $Length; $i++) {
-			$LocalLength = mb_strlen($Data[$i], 'utf-8');
-			if ($LocalLength > $MaxLengthArray[$i]) $MaxLengthArray[$i] = $LocalLength;
+if (!function_exists('FormatTextAsTable')) {
+	function FormatTextAsTable($Headers, $DataArray, $Options = False) { // very slooooow
+		if (defined('DEBUG')) trigger_error('FormatTextAsTable() is deprecated. Use TextDataGrid() instead.');
+		$bHeaderLength = '';
+		$Length = count($Headers);
+		$MaxLengthArray = array_fill(0, $Length, 0);
+		array_unshift($DataArray, $Headers);
+		// 1. Detect max length
+		foreach($DataArray as $Data) {
+			$Data = array_values($Data);
+			for ($i = 0; $i < $Length; $i++) {
+				$LocalLength = mb_strlen($Data[$i], 'utf-8');
+				if ($LocalLength > $MaxLengthArray[$i]) $MaxLengthArray[$i] = $LocalLength;
+			}
 		}
+		$Result = '';
+		// 2. Draw headers / data lines
+		foreach($DataArray as $Data)
+			$Result .= FormatTextAsRow($Data, $MaxLengthArray) . "\n";
+		return $Result;
 	}
-	$Result = '';
-	// 2. Draw headers / data lines
-	foreach($DataArray as $Data)
-		$Result .= FormatTextAsRow($Data, $MaxLengthArray) . "\n";
-	return $Result;
 }
-
 
 
 

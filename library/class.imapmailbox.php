@@ -1,5 +1,5 @@
 <?php
-require_once PLUGINUTILS_VENDORS.DS.'IMAPv2.php';
+require_once USEFULFUNCTIONS_VENDORS.DS.'IMAPv2.php';
 
 class ImapMailbox extends Gdn_Pluggable {
 	
