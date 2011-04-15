@@ -23,6 +23,7 @@ Nothing! As standalone.
 This plugin is used by other plugins and applications, 
 using specific functions which doesn't exists in Garden core.
 
+
 CONFIG
 $Configuration['Plugins']['UsefulFunctions']['Console']['MessageEnconding'] = 'cp866';
 $Configuration['Plugins']['UsefulFunctions']['Console']['Check'] = TRUE;
@@ -30,7 +31,14 @@ $Configuration['Plugins']['UsefulFunctions']['ImPath'] = '/usr/local/bin/'; # Im
 $Configuration['Plugins']['UsefulFunctions']['InTick'] = FALSE;
 $Configuration['Plugins']['UsefulFunctions']['InTickMessage'] = 'admin@local';
 
-TODO
+LINKS: EXTERNAL CRON SERVICES
+http://www.onlinecronservices.com/serviceList.php?sort=mostPopular
+http://www.crondroid.com/
+http://www.mywebcron.com/
+http://www.easycron.com/
+http://www.cronjobs.org/
+http://www.setcronjob.com/
+http://cronjob.ru/
 
 */
 
