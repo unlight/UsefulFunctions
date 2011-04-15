@@ -464,13 +464,13 @@ class TreeModel extends Gdn_Model {
 				$this->SQL->Set($this->LeftKey, "case 
 					when {$this->LeftKey} between $Between1 then {$this->LeftKey} - $Value1
 					when {$this->LeftKey} between ($RightID2 + 1) and ($LeftID1 - 1) then {$this->LeftKey} + ($RightID1 - $LeftID1 + 1)
-					else {$this->LeftKey} end", False, False)
+					else {$this->LeftKey} end", False, False);
 				// INCORRECT. FIX ME
 				$this->SQL->Set($this->LeftKey, "case 
 					when {$this->LeftKey} between $Between1 then {$this->LeftKey} - $Value1
 					when {$this->LeftKey} BETWEEN ($RightID2 + 1) and ($LeftID1 - 1) then {$this->LeftKey} + ($RightID1 - $LeftID1 + 1) 
 					else {$this->LeftKey} end", False, False);
-				$this->SQL->Where("{$this->LeftKey} between ($RightID2 + 1) and $RightID1", Null, False, False)
+				$this->SQL->Where("{$this->LeftKey} between ($RightID2 + 1) and $RightID1", Null, False, False);
 			} else {
 				$this->SQL->Set($this->RightKey, "case 
 					when {$this->LeftKey} between $Between1 then {$this->RightKey} + ($RightID2 - $RightID1)
@@ -480,7 +480,7 @@ class TreeModel extends Gdn_Model {
 					when {$this->LeftKey} between $Between1 then {$this->LeftKey} + ($RightID2 - $RightID1)
 					when {$this->LeftKey} between ($RightID1 + 1) and $RightID2 then {$this->LeftKey} - ($RightID1 - $LeftID1 + 1) 
 					else {$this->LeftKey} end", False, False);
-				$this->SQL->Where("{$this->LeftKey} between $LeftID1 and $RightID2", Null, False, False)
+				$this->SQL->Where("{$this->LeftKey} between $LeftID1 and $RightID2", Null, False, False);
 			}
 		}
 		// $this->SQL->Where($Where)
