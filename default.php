@@ -79,7 +79,7 @@ require USEFULFUNCTIONS_LIBRARY.DS.'functions.debug.php';
 require USEFULFUNCTIONS_LIBRARY.DS.'functions.misc.php';
 require USEFULFUNCTIONS_LIBRARY.DS.'functions.sql.php';
 require USEFULFUNCTIONS_LIBRARY.DS.'functions.deprecated.php';
-require USEFULFUNCTIONS_LIBRARY.DS.'functions.dev.php';
+
 
 
 
