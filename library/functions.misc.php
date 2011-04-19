@@ -38,7 +38,7 @@ if (!function_exists('LoadExtension')) {
 		if (extension_loaded($Ext)) return True;
 		$Prefix = (PHP_SHLIB_SUFFIX == 'dll') ? 'php_' : '';
 		if (!function_exists('dl')) throw new Exception("dl() function is not supported. Trying to load '$Ext' extension.");
-		$Loaded = @dl($Prefix . $Ext . '.' . PHP_SHLIB_SUFFIX);
+		$Loaded = dl($Prefix . $Ext . '.' . PHP_SHLIB_SUFFIX);
 		$Result = ($Loaded > 0);
 		if ($bThrowException) throw new Exception(@$php_errormsg);
 		return $Result;
