@@ -1,5 +1,17 @@
 <?php
 
+if (!function_exists('StringIsNullOrEmpty')) {
+	/** Checks whether or not a string is null or an empty string.
+	* Taked from Garden core (for use this functions in other projects).
+	*
+	* @param string $String The string to check.
+	* @return bool
+	*/
+	function StringIsNullOrEmpty($String) {
+		return $String === NULL || $String === '';
+	}
+}
+
 /**
 * Convert full name. First letters uppercased.
 */
