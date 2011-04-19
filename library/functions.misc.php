@@ -1,5 +1,31 @@
 <?php
 
+if (!function_exists('SendEmailMessage')) {
+	/** 
+	* Send email message.
+	*/
+	function SendEmailMessage($Recipient, $Subject, $Message, $Options = False) {
+		if (!class_exists('Gdn_Email')) {
+			if (!defined('PATH_LIBRARY_CORE')) define('PATH_LIBRARY_CORE', realpath(dirname(__FILE__).'/../../../library/core'));
+			require_once PATH_LIBRARY_CORE . '/class.sliceprovider.php';
+			require_once PATH_LIBRARY_CORE . '/class.pluggable.php';
+			require_once PATH_LIBRARY_CORE . '/class.email.php';
+		}
+		$MimeType = ArrayValue('MimeType', $Options, 'text/plain');
+		$SenderEmail = ArrayValue('SenderEmail', $Options, '');
+		$SenderName = ArrayValue('SenderName', $Options, '');
+		$Email = new Gdn_Email();
+		$Result = $Email
+			->From($SenderEmail, $SenderName)
+			->MimeType($MimeType)
+			->Subject($Subject)
+			->To($Recipient)
+			->Message($Message)
+			->Send();
+		return $Result;
+	}
+}
+
 /** http://en.wikipedia.org/wiki/Bit_field
 * A bit field is a common idiom used in computer programming to compactly store a value as a short series of bits.
 */
