@@ -3,7 +3,7 @@
 # Credit http://php.russofile.ru/ru/authors/sql/nestedsets01/
 # 2005 Kuzma Feskov <kuzma[at]russofile[dot]ru>
 
-class TreeModel extends Gdn_Model {
+abstract class TreeModel extends Gdn_Model {
 	
 	protected $LeftKey = 'TreeLeft';
 	protected $RightKey = 'TreeRight';
@@ -31,7 +31,7 @@ class TreeModel extends Gdn_Model {
 	/**
 	* Receives left, right and level for unit with number id.
 	*/
-	public function GetNode($ID, $ResetCache = FALSE) {
+	public function GetNode($ID, $ResetCache = False) {
 		$Result =& $this->_CachedResult[$ID];
 		if (!isset($this->_CachedResult[$ID]) || $ResetCache) {
 			$Result = $this
@@ -48,7 +48,7 @@ class TreeModel extends Gdn_Model {
 	* Sets initial parameters of a tree and creates root of tree
 	* ATTENTION, all previous values in table are destroyed.
 	*/
-	public function Clear($Set = NULL) {
+	public function Clear($Set = Null) {
 		$this->SQL->Truncate($this->Name);
 		//$this->Delete(); // why need this?
 		if (is_array($Set)) $this->SQL->Insert($this->Name, $Set);
@@ -113,7 +113,7 @@ class TreeModel extends Gdn_Model {
 	/**
 	* Receives parent left, right and level for unit with number $id.
 	*/
-	public function GetParent($ID, $Condition = '', $ResetCache = FALSE) {
+	public function GetParent($ID, $Condition = '', $ResetCache = False) {
 		$Node = $this->GetNode($ID);
 		if (!$Node) return $Node;
 		
@@ -205,12 +205,9 @@ class TreeModel extends Gdn_Model {
 	*
 	* @return integer Inserted element id
 	*/
-	public function InsertNode($ID, $Data, $Where = '') {
-		$Node = $this->GetNode($ID);
-		if (!$Node) return $Node;
-		
-		$Data = (array)$Data;
-        list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($Node);
+	public function InsertNode($ID, $Data) {
+		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
+		$Data = (array)$Data;		
 		$Data[$this->LeftKey] = $RightID;
 		$Data[$this->RightKey] = $RightID + 1;
 		$Data[$this->DepthKey] = $Depth + 1;
@@ -228,11 +225,12 @@ class TreeModel extends Gdn_Model {
 			->Where($this->RightKey.'>=', $RightID)
 			->Put($this->Name);*/
 		
+		// One query.
 		$this->SQL
 			->Update($this->Name)
-			->Set($this->LeftKey, "case when {$this->LeftKey} > $RightID then {$this->LeftKey}+2 else {$this->LeftKey} end", FALSE, FALSE)
-			->Set($this->RightKey, "case when {$this->RightKey} >= $RightID then {$this->RightKey}+2 else {$this->RightKey} end", FALSE, FALSE)
-			->Where($this->RightKey . '>=', $RightID, FALSE, FALSE)
+			->Set($this->LeftKey, "case when {$this->LeftKey} > $RightID then {$this->LeftKey}+2 else {$this->LeftKey} end", False, False)
+			->Set($this->RightKey, "case when {$this->RightKey} >= $RightID then {$this->RightKey}+2 else {$this->RightKey} end", False, False)
+			->Where($this->RightKey . '>=', $RightID, False, False)
 			->Put();
 	
 		$ResultID = $this->SQL->Insert($this->Name, $Data);
@@ -248,7 +246,7 @@ class TreeModel extends Gdn_Model {
 	* @param integer $ID Number of a parental element
 	* @return integer Inserted element id
 	*/
-	public function InsertNear($ID, $Data = array(), $Where = '') {
+	public function InsertNear($ID, $Data = array()) {
 		$Node = $this->GetNode($ID);
 		if (!$Node) return $Node;
 		
@@ -272,13 +270,17 @@ class TreeModel extends Gdn_Model {
 	}
 	
 	protected function _NodeValues($Node) {
-		$Return = array_map('intval', array(
+		if (!is_object($Node)) {
+			$Node = $this->GetNode($Node);
+			if ($Node === False) throw new Exception('Empty node.');
+		}
+		$Result = array_map('intval', array(
 			$Node->{$this->LeftKey}, 
 			$Node->{$this->RightKey}, 
 			$Node->{$this->DepthKey}, 
 			$Node->{$this->PrimaryKey}
 		));
-		return $Return;
+		return $Result;
 	}
 	
 	/**
@@ -287,13 +289,8 @@ class TreeModel extends Gdn_Model {
 	* @param integer $ID node ID
 	*/
 	public function MoveAll($ID, $NewParentID, $Where = '') {
-		$Node = $this->GetNode($ID);
-		if (!$Node) return $Node;
-		list($LeftID, $RightID, $Depth) = $this->_NodeValues($Node);
-		
-		$ParentNode = $this->GetNode($NewParentID);
-		if (!$ParentNode) return $ParentNode;
-		list($ParentLeftID, $ParentRightID, $ParentDepth) = $this->_NodeValues($ParentNode);
+		list($LeftID, $RightID, $Depth) = $this->_NodeValues($ID);
+		list($ParentLeftID, $ParentRightID, $ParentDepth) = $this->_NodeValues($NewParentID);
 		
 		if ($ID == $NewParentID || $LeftID == $ParentLeftID 
 			|| ($ParentLeftID >= $LeftID && $ParentLeftID <= $RightID)
@@ -309,6 +306,7 @@ class TreeModel extends Gdn_Model {
 		$LeftRightParentM = $LeftID - $ParentRightID;
 		$RightIDP1 = $RightID + 1;
 		$ParentRightIDM1 = $ParentRightID - 1;
+		$BetweenLR = "$LeftID and $RightID";
 		
 		if ($ParentLeftID < $LeftID && $ParentRightID > $RightID && $ParentDepth < $Depth - 1) {
 			
@@ -317,51 +315,51 @@ class TreeModel extends Gdn_Model {
 			
 			$this->SQL
 				->Set($this->DepthKey, "case 
-					when {$this->LeftKey} between $LeftID and $RightID then {$this->DepthKey} $DepthSetValue 
-					else {$this->DepthKey} end", FALSE, FALSE)
+					when {$this->LeftKey} between $BetweenLR then {$this->DepthKey} $DepthSetValue 
+					else {$this->DepthKey} end", False, False)
 				->Set($this->RightKey, "case 
 					when {$this->RightKey} between $Between1 then {$this->RightKey} - $RightLeft1
 					when {$this->LeftKey} between {$LeftID} and {$RightID} then {$this->RightKey} + $SetValue1
-					else {$this->RightKey} end", FALSE, FALSE)
+					else {$this->RightKey} end", False, False)
 				->Set($this->LeftKey, "case
 					when {$this->LeftKey} between $Between1 then {$this->LeftKey} - $RightLeft1
 					when {$this->LeftKey} between {$LeftID} and {$RightID} then {$this->LeftKey} + $SetValue1
-					else {$this->LeftKey} end", FALSE, FALSE)
-				->Where($this->LeftKey, "between {$Between1}", FALSE, FALSE);
+					else {$this->LeftKey} end", False, False)
+				->Where($this->LeftKey, "between {$Between1}", False, False);
 			
 		} elseif ($ParentLeftID < $LeftID) {
 			$this->SQL
 				->Set($this->DepthKey, "case 
-					when {$this->LeftKey} between $LeftID and $RightID then {$this->DepthKey} $DepthSetValue 
-					else {$this->DepthKey} end", FALSE, FALSE)
+					when {$this->LeftKey} between $BetweenLR then {$this->DepthKey} $DepthSetValue 
+					else {$this->DepthKey} end", False, False)
 				->Set($this->LeftKey, "case
 					when {$this->LeftKey} between $RightID and $LeftIDM1 then {$this->LeftKey} + $RightLeft1
-					when {$this->LeftKey} between $LeftID and $RightID then {$this->LeftKey} - $LeftRightParentM
-					else {$this->LeftKey}", FALSE, FALSE)
+					when {$this->LeftKey} between $Between2 then {$this->LeftKey} - $LeftRightParentM
+					else {$this->LeftKey}", False, False)
 				->Set($this->RightKey, "case
 					when {$this->RightKey} between $ParentRightID and $LeftID then {$this->RightKey} + $RightLeft1
-					when {$this->RightKey} between $LeftID and $RightID then {$this->RightKey} - $LeftRightParentM
-					else {$this->RightKey} end", FALSE, FALSE)
+					when {$this->RightKey} between $BetweenLR then {$this->RightKey} - $LeftRightParentM
+					else {$this->RightKey} end", False, False)
 				->BeginWhereGroup()
-				->Where($this->LeftKey, "between $ParentLeftID and $RightID", FALSE, FALSE)
-				->OrWhere($this->RightKey, "between $ParentLeftID and $RightID", FALSE, FALSE)
+				->Where($this->LeftKey, "between $ParentLeftID and $RightID", False, False)
+				->OrWhere($this->RightKey, "between $ParentLeftID and $RightID", False, False)
 				->EndWhereGroup();
 		} else {
 			$RightParentM1 = $ParentRightID - 1 - $RightID;
 			$this->SQL
 				->Set($this->DepthKey, "case 
-					when {$this->LeftKey} between $LeftID and $RightID then {$this->DepthKey} $DepthSetValue else $Depth")
+					when {$this->LeftKey} between $BetweenLR then {$this->DepthKey} $DepthSetValue else $Depth")
 				->Set($this->LeftKey, "case
-					when {$this->LeftKey} between $RightID and $ParentRightID THEN {$this->LeftKey} - $RightLeft1
-					when {$this->LeftKey} between $LeftID and $RightID THEN {$this->LeftKey} + $RightParentM1
-					else {$this->LeftKey} end", FALSE, FALSE)
+					when {$this->LeftKey} between $RightID and $ParentRightID then {$this->LeftKey} - $RightLeft1
+					when {$this->LeftKey} between $BetweenLR then {$this->LeftKey} + $RightParentM1
+					else {$this->LeftKey} end", False, False)
 				->Set($this->RightKey, "case
 					when {$this->RightKey} between $RightIDP1 and $ParentRightIDM1 then {$this->RightKey} - $RightLeft1
-					when {$this->RightKey} between $LeftID AND $RightID then {$this->RightKey} + $RightParentM1 
-					else {$this->RightKey} end", FALSE, FALSE)
+					when {$this->RightKey} between $BetweenLR then {$this->RightKey} + $RightParentM1 
+					else {$this->RightKey} end", False, False)
 				->BeginWhereGroup()
-				->Where("{$this->LeftKey} between $LeftID and $ParentRightID", NULL, FALSE, FALSE)
-				->OrWhere("{$this->RightKey} between $LeftID and $ParentRightID", NULL, FALSE, FALSE)
+				->Where("{$this->LeftKey} between $LeftID and $ParentRightID", Null, False, False)
+				->OrWhere("{$this->RightKey} between $LeftID and $ParentRightID", Null, False, False)
 				->EndWhereGroup();
 		}
 		
@@ -391,7 +389,7 @@ class TreeModel extends Gdn_Model {
 			->Set($this->LeftKey, $Node2->{$this->LeftKey})
 			->Set($this->RightKey, $Node2->{$this->RightKey})
 			->Set($this->DepthKey, $Node2->{$this->DepthKey})
-			->Where($this->PrimaryKey, (int)$ID1, FALSE, FALSE)
+			->Where($this->PrimaryKey, (int)$ID1, False, False)
 			->Put();
 		
 		$this->SQL
@@ -399,7 +397,7 @@ class TreeModel extends Gdn_Model {
 			->Set($this->LeftKey, $Node1->{$this->LeftKey})
 			->Set($this->RightKey, $Node1->{$this->RightKey})
 			->Set($this->DepthKey, $Node1->{$this->DepthKey})
-			->Where($this->PrimaryKey, (int)$ID2, FALSE, FALSE)
+			->Where($this->PrimaryKey, (int)$ID2, False, False)
 			->Put();
 		
 		$this->Database->CommitTransaction();
@@ -438,24 +436,24 @@ class TreeModel extends Gdn_Model {
 					->Set($this->RightKey, "case
 						when {$this->LeftKey} between $LeftID1 and $RightID1 {$this->RightKey} - $LeftIDsDiff
 						when {$this->LeftKey} between $LeftID2 AND $LeftIDM1 then {$this->RightKey} + $RightLeft1 
-						else {$this->RightKey} end", FALSE, FALSE)
+						else {$this->RightKey} end", False, False)
 					->Set($this->LeftKey, "case
 						when {$this->LeftKey} between $LeftID1 and $RightID1 then {$this->LeftKey} - $LeftIDsDiff
 						when {$this->LeftKey} between $LeftID2 and $LeftIDM1 then {$this->LeftKey} + $RightLeft1 
-						else {$this->LeftKey} end", FALSE, FALSE)
-					->Where($this->LeftKey, "between $LeftID2 AND $RightID1", FALSE, FALSE);
+						else {$this->LeftKey} end", False, False)
+					->Where($this->LeftKey, "between $LeftID2 AND $RightID1", False, False);
 			} else {
 				$LeftIDsDiff = $LeftID2 - $LeftID1;
 				$this->SQL
 					->Set($this->RightKey, "case
 						when {$this->LeftKey} between $LeftID1 and $RightID1 then {$this->LeftKey} + ($LeftIDsDiff - $RightLeft1)
 						when {$this->LeftKey} between $RightID1P1 and $LeftID2M1 then {$this->LeftKey} - $RightLeft1 
-						else {$this->LeftKey} end", FALSE, FALSE)
+						else {$this->LeftKey} end", False, False)
 					->Set($this->LeftKey, "case
 						WHEN {$this->LeftKey} BETWEEN $LeftID1 AND $RightID1 THEN {$this->LeftKey} + ($LeftIDsDiff - $RightLeft1)
 						WHEN {$this->LeftKey} BETWEEN $RightID1P1 AND $LeftID2M1 THEN {$this->LeftKey} - $RightLeft1
-						ELSE {$this->LeftKey} end", FALSE, FALSE)
-					->Where($this->LeftKey, "BETWEEN $LeftID1 AND $LeftID2M1", FALSE, FALSE);
+						ELSE {$this->LeftKey} end", False, False)
+					->Where($this->LeftKey, "BETWEEN $LeftID1 AND $LeftID2M1", False, False);
 			}
 		} elseif ($Position = 'after') {
 			$Between1 = "$LeftID1 and $RightID1";
@@ -503,16 +501,16 @@ class TreeModel extends Gdn_Model {
 		$this->SQL
 			->Set($this->DepthKey, "case
 				when {$this->LeftKey} between $LeftID and $RightID then {$this->DepthKey} - 1
-				else {$this->DepthKey} end", FALSE, FALSE)
+				else {$this->DepthKey} end", False, False)
 			->Set($this->LeftKey, "case
 				when {$this->LeftKey} between $LeftID and $RightID then {$this->LeftKey} - 1
 				when {$this->LeftKey} > $RightID then {$this->LeftKey} - 2
-				else {$this->LeftKey} end", FALSE, FALSE)
+				else {$this->LeftKey} end", False, False)
 			->Set($this->LeftKey, "case
 				when {$this->LeftKey} between $LeftID and $RightID then {$this->LeftKey} - 1
 				when {$this->LeftKey} > $RightID then {$this->LeftKey} - 2
-				else {$this->LeftKey} end", FALSE, FALSE)
-			->Where($this->LeftKey .' >', $LeftID, FALSE, FALSE);
+				else {$this->LeftKey} end", False, False)
+			->Where($this->LeftKey .' >', $LeftID, False, False);
 		if (is_array($Where)) $this->Where($Where);
 
 		$Result = $this->SQL->Update($this->Name)->Put();
@@ -531,7 +529,7 @@ class TreeModel extends Gdn_Model {
         list($LeftID, $RightID) = $this->_NodeValues($Node);
         $this->Database->BeginTransaction();
         $this->SQL
-            ->Where($this->LeftKey, "between $LeftID and $RightID", FALSE, FALSE)
+            ->Where($this->LeftKey, "between $LeftID and $RightID", False, False)
             ->Delete($this->Name);
         
         $DeltaID = (($RightID - $LeftID) + 1);
@@ -539,7 +537,7 @@ class TreeModel extends Gdn_Model {
 		//$this->SQL->Where($Where);
 		$this->SQL
 			->Update($this->Name)
-			->Set($this->LeftKey, "when {$this->LeftKey} > $LeftID then {$this->LeftKey} - 1 - $DeltaID else {$this->LeftKey} end", FALSE, FALSE)
+			->Set($this->LeftKey, "when {$this->LeftKey} > $LeftID then {$this->LeftKey} - 1 - $DeltaID else {$this->LeftKey} end", False, False)
 			->Set($this->RightKey, "when $this->RightKey > $LeftID then $this->RightKey - $DeltaID else {$this->LeftKey}")
 			->Where($this->RightKey . ' >', $RightID)
 			->Put();
@@ -551,7 +549,7 @@ class TreeModel extends Gdn_Model {
 	* Returns all elements of the tree sortet by left.
 	*
 	*/
-	public function GetFull($Fields = '*') {
+	public function GetFullTree($Fields = '*') {
         $Result = $this->SQL
             ->Select($Fields)
             ->From($this->Name)
@@ -571,9 +569,9 @@ class TreeModel extends Gdn_Model {
             ->From($this->Name . ' b')
             // N? 
             ->SelectCase("a.{$this->LeftKey}", array("a.{$this->LeftKey} + 1 < a.{$this->RightKey}" => 1, '' => 0), 'N')
-            ->Where('b.'.$this->PrimaryKey, (int)$ID, FALSE, FALSE)
-            ->Where("a.{$this->LeftKey} >=", 'b.'.$this->LeftKey, FALSE, FALSE)
-            ->Where("a.{$this->RightKey} <=", 'b.'.$this->RightKey, FALSE, FALSE)
+            ->Where('b.'.$this->PrimaryKey, (int)$ID, False, False)
+            ->Where("a.{$this->LeftKey} >=", 'b.'.$this->LeftKey, False, False)
+            ->Where("a.{$this->RightKey} <=", 'b.'.$this->RightKey, False, False)
             ->OrderBy('a.'.$this->LeftKey)
             ->Get();
 		return $Result;
@@ -590,8 +588,8 @@ class TreeModel extends Gdn_Model {
             ->Select('a.*')
             // What is N? 
             ->SelectCase('a.'.$this->LeftKey, array("a.{$this->LeftKey} + 1 < a.{$this->RightKey}" => 1, '' => 0), 'N')
-            ->Where('b.'.$this->PrimaryKey, (int)$ID, FALSE, FALSE)
-            ->Where("b.{$this->LeftKey} between a.{$this->LeftKey} and a.{$this->RightKey}", NULL, FALSE, FALSE)
+            ->Where('b.'.$this->PrimaryKey, (int)$ID, False, False)
+            ->Where("b.{$this->LeftKey} between a.{$this->LeftKey} and a.{$this->RightKey}", Null, False, False)
             ->OrderBy('a.'.$this->LeftKey)
             ->Get();
         return $Result;
@@ -609,7 +607,7 @@ class TreeModel extends Gdn_Model {
             ->Select('a.*')
             ->From($this->Name . ' a')
             ->BeginWhereGroup()
-            ->Where($this->DepthKey, 1, FALSE, FALSE);
+            ->Where($this->DepthKey, 1, False, False);
 		
         $i = 0;
         foreach ($DataSet->ResultArray() as $Row) {
@@ -617,9 +615,9 @@ class TreeModel extends Gdn_Model {
             $this->SQL
                 ->OrOp()
                 ->BeginWhereGroup()
-				->Where($this->DepthKey, $Row[$this->DepthKey] + 1, FALSE, FALSE)
-                ->Where($this->LeftKey.' >', $Row[$this->LeftKey], FALSE, FALSE)
-                ->Where($this->RightKey.' <', $Row[$this->RightKey], FALSE, FALSE)
+				->Where($this->DepthKey, $Row[$this->DepthKey] + 1, False, False)
+                ->Where($this->LeftKey.' >', $Row[$this->LeftKey], False, False)
+                ->Where($this->RightKey.' <', $Row[$this->RightKey], False, False)
                 ->EndWhereGroup();
         }
         $Result = $this->SQL
@@ -629,6 +627,9 @@ class TreeModel extends Gdn_Model {
         return $Result;
 	}
 	
+    /**
+    *
+    */
 	protected function GetNodeWidth($NodeID) {
 		$Width = $this->SQL
 			->Select($this->RightKey.'-'.$this->RightKey.'+1', '', 'Width')
@@ -648,7 +649,7 @@ class TreeModel extends Gdn_Model {
 		$Result = $this->SQL
 			->Select($Fields)
 			->From($this->Name)
-            ->Where($this->RightKey, $this->LeftKey .'+1', FALSE)
+            ->Where($this->RightKey, $this->LeftKey .'+1', False)
 			->Get();
 		return $Result;
 	}
