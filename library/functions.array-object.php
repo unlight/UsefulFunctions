@@ -1,5 +1,30 @@
 <?php
 
+if (!function_exists('GetValue')) {
+	/**
+	* Return the value from an associative array or an object.
+	* Taked from Garden core (for use this functions in other projects).
+	*
+	* @param string $Key The key or property name of the value.
+	* @param mixed $Collection The array or object to search.
+	* @param mixed $Default The value to return if the key does not exist.
+	* @param bool $Remove Whether or not to remove the item from the collection.
+	* @return mixed The value from the array or object.
+	*/
+	function GetValue($Key, &$Collection, $Default = FALSE, $Remove = FALSE) {
+		$Result = $Default;
+		if (is_array($Collection) && array_key_exists($Key, $Collection)) {
+			$Result = $Collection[$Key];
+			if ($Remove) unset($Collection[$Key]);
+		} elseif (is_object($Collection) && property_exists($Collection, $Key)) {
+			$Result = $Collection->$Key;
+			if($Remove)
+			unset($Collection->$Key);
+		}
+		return $Result;
+	}
+}
+
 // http://code-snippets.co.cc/PHP/PHP-array-rotation
 if (!function_exists('RotateArray')) {
 	function RotateArray($Steps, $Array) {
@@ -69,8 +94,7 @@ if (!function_exists('CombineArrays')) {
 if (!function_exists('ObjectValue')) {
 	function ObjectValue($Key, $Object, $Default = False) {
 		$Result = $Default;
-		if (is_object($Object) && property_exists($Object, $Key))
-			$Result = $Object->$Key;
+		if (is_object($Object) && property_exists($Object, $Key)) $Result = $Object->$Key;
 		return $Result;
 	}
 }
@@ -78,8 +102,7 @@ if (!function_exists('ObjectValue')) {
 if (!function_exists('ArrayValue')) {
 	function ArrayValue($Key, $Array, $Default = False) {
 		$Result = $Default;
-		if (is_array($Array) && array_key_exists($Key, $Array))
-			$Result = $Array[$Key];
+		if (is_array($Array) && array_key_exists($Key, $Array)) $Result = $Array[$Key];
 		return $Result;
 	}
 }
@@ -89,10 +112,8 @@ if (!function_exists('array_flat')) {
 	function array_flat($arr){
 		$result = array();
 		foreach($arr as $value){
-			if(!is_array($value))
-				$result[]   = $value;
-			else
-				array_splice($result, count($result), 0, array_flat($value));
+			if (!is_array($value)) $result[]   = $value;
+			else array_splice($result, count($result), 0, array_flat($value));
 		}
 		return  $result;
 	}
