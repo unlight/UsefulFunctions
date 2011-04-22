@@ -25,7 +25,7 @@ if ($InTick === TRUE) {
 SaveToConfig('Plugins.UsefulFunctions.InTick', TRUE);
 
 ini_set('memory_limit', '256M');
-require USEFULFUNCTIONS_LIBRARY . DS .  'class.tick.php';
+require USEFULFUNCTIONS_LIBRARY . '/class.tick.php';
 
 $Handler = new Tick();
 
