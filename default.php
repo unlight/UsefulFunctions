@@ -55,6 +55,7 @@ if (interface_exists('Gdn_IPlugin')) {
 			RemoveFromConfig('EnabledPlugins.UsefulFunctions');
 			$OldConfiguration = C('Plugins.PluginUtils');
 			if ($OldConfiguration) {
+				// TODO: Incorrect fix me
 				SaveToConfig('Plugins.UsefulFunctions', $OldConfiguration);
 				RemoveFromConfig('Plugins.PluginUtils');
 			}
