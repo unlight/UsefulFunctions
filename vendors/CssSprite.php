@@ -14,6 +14,8 @@
  * Devin Smith            www.devin-smith.com            2009.06.18
  *
  */
+ 
+ // Fixed by S.
 
 
 class CssSprite {
@@ -120,6 +122,7 @@ class CssSpriteMap {
 	private $_inPath = './';
 	private $_css;
 	private $_cssPrefix = 'csssprite';
+	private $_OutOptions = '';
 
 
 	public function getImg($image) {
@@ -209,7 +212,7 @@ class CssSpriteMap {
 		}
 
 		if ($this->getForceRefresh() || (!file_exists($this->getOutPath().$this->getOutName()) && $useableImages)){
-		 	$cmd = realpath($this->getImPath()) . '/montage ' . $useableImages . ' -mode Concatenate -tile 1x -geometry +0+' . $this->getSpacing() . ' ' . $this->getOutPath().$this->getOutName();
+		 	$cmd = realpath($this->getImPath()) . '/montage ' . $useableImages . ' -mode Concatenate -tile 1x -geometry +0+' . $this->getSpacing(). ' '.$this->OutOptions().' ' . $this->getOutPath().$this->getOutName();
 			$out = $rar = Null;
 			exec($cmd,$out,$rar);
 			if ($rar !== 0) trigger_error('Montage failed.', E_USER_ERROR);
@@ -219,6 +222,14 @@ class CssSpriteMap {
 		return $this;	
 
 	}
+	
+	// Fixed by S.
+	public function OutOptions($Value = NULL) {
+		if ($Value === NULL) return $this->_OutOptions;
+		$this->_OutOptions = $Value;
+		return $this;
+	}
+	
 
 	public function setOutPath($v) {
 		$this->_outPath = $v;
