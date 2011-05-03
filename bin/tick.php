@@ -9,20 +9,11 @@
 
 require dirname(__FILE__) . '/../bootstrap.console.php';
 $bLoop = Console::Argument('loop', False) !== False;
-$Reset = Console::Argument('reset', False) !== False;
+/*$Reset = Console::Argument('reset', False) !== False;
 if ($Reset) {
 	RemoveFromConfig('Plugins.UsefulFunctions.InTick');
 	Console::Message('^3Tick mark removed!');
-}
-$InTick = C('Plugins.UsefulFunctions.InTick');
-
-if ($InTick === TRUE) {
-	$Message = "InTick ".Gdn_Format::ToDateTime();
-	$InTickMessage = C('Plugins.UsefulFunctions.InTickMessage');
-	if ($InTickMessage) mail($InTickMessage, $Message, $Message);
-	exit();
-}
-SaveToConfig('Plugins.UsefulFunctions.InTick', TRUE);
+}*/
 
 ini_set('memory_limit', '256M');
 require USEFULFUNCTIONS_LIBRARY . '/class.tick.php';
@@ -81,7 +72,7 @@ do {
 
 $Database = Gdn::Database();
 if($Database != Null) $Database->CloseConnection();
-RemoveFromConfig('Plugins.UsefulFunctions.InTick');
+//RemoveFromConfig('Plugins.UsefulFunctions.InTick');
 exit();
 
 
