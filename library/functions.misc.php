@@ -5,12 +5,6 @@ if (!function_exists('SendEmailMessage')) {
 	* Send email message.
 	*/
 	function SendEmailMessage($Recipient, $Subject, $Message, $Options = False) {
-		if (!class_exists('Gdn_Email')) {
-			if (!defined('PATH_LIBRARY_CORE')) define('PATH_LIBRARY_CORE', realpath(dirname(__FILE__).'/../../../library/core'));
-			require_once PATH_LIBRARY_CORE . '/class.sliceprovider.php';
-			require_once PATH_LIBRARY_CORE . '/class.pluggable.php';
-			require_once PATH_LIBRARY_CORE . '/class.email.php';
-		}
 		$MimeType = ArrayValue('MimeType', $Options, 'text/plain');
 		$SenderEmail = ArrayValue('SenderEmail', $Options, '');
 		$SenderName = ArrayValue('SenderName', $Options, '');
