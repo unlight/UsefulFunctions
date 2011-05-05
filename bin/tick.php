@@ -9,11 +9,6 @@
 
 require dirname(__FILE__) . '/../bootstrap.console.php';
 $bLoop = Console::Argument('loop', False) !== False;
-/*$Reset = Console::Argument('reset', False) !== False;
-if ($Reset) {
-	RemoveFromConfig('Plugins.UsefulFunctions.InTick');
-	Console::Message('^3Tick mark removed!');
-}*/
 
 ini_set('memory_limit', '256M');
 require USEFULFUNCTIONS_LIBRARY . '/class.tick.php';
@@ -72,7 +67,6 @@ do {
 
 $Database = Gdn::Database();
 if($Database != Null) $Database->CloseConnection();
-//RemoveFromConfig('Plugins.UsefulFunctions.InTick');
 exit();
 
 

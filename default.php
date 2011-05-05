@@ -28,8 +28,6 @@ CONFIG
 $Configuration['Plugins']['UsefulFunctions']['Console']['MessageEnconding'] = 'cp866';
 $Configuration['Plugins']['UsefulFunctions']['Console']['Check'] = TRUE;
 $Configuration['Plugins']['UsefulFunctions']['ImPath'] = '/usr/local/bin/'; # ImageMagick path
-$Configuration['Plugins']['UsefulFunctions']['InTick'] = FALSE;
-$Configuration['Plugins']['UsefulFunctions']['InTickMessage'] = 'admin@local';
 
 LINKS: EXTERNAL CRON SERVICES
 http://www.onlinecronservices.com/serviceList.php?sort=mostPopular
