@@ -50,7 +50,7 @@ Result:
 
 if (!function_exists('TextDataGrid')) {
 	function TextDataGrid($Headers, $DataArray, $Options = False) {
-		
+		// TODO: FIX FOR MULTILINE TEXT
 		if (!function_exists('_TextDataRow')) {
 			function _TextDataSeparator($MaxLengthArray) {
 				$Result = '';
