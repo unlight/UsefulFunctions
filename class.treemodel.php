@@ -142,7 +142,6 @@ abstract class TreeModel extends Gdn_Model {
 			->OrderBy($this->LeftKey)
 			->Get()
 			->FirstRow();
-		}
 		return $Result;
 	}
 	
