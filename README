@@ -1,0 +1,60 @@
+UsefulFunctions: Description
+============================
+
+This plugin do nothing as standalone. This plugin is used by other plugins and applications, 
+using specific functions which doesn't exists in Garden core.
+
+Provides functions for:
+- render elements
+- validation
+- manipulate arrays and objects
+- work with files (upload, remove, etc.)
+- process images (thumbnaills, sprites, etc.)
+- run various common sql queries
+- load html document or file to phpQuery
+- translate short phrase by Google or Lingvo
+- debug, etc.
+
+Also:
+- allow plugins to run time-based schedule code (like cron)
+- nested sets tree model
+
+
+SETUP
+=====
+Add folowing line to cron task file ('crontab -e')
+*/5 * * * *  /usr/local/bin/php -q /home/www/htdocs/plugins/UsefulFunctions/bin/tick.php
+
+
+CONFIGURATION
+=============
+$Configuration['Plugins']['UsefulFunctions']['Console']['MessageEnconding'] = 'cp866';
+	Ecoding for messages in command line mode.
+
+$Configuration['Plugins']['UsefulFunctions']['Console']['Check'] = TRUE;
+	By default you cant run command line scripts from browser.
+	Set this to False to disable checking.
+
+$Configuration['Plugins']['UsefulFunctions']['ImPath'] = '/usr/local/bin/';
+	ImageMagick path. If you are on Windows, this value can be c:\Program Files\ImageMagick\
+	
+UPGRADE FROM PLUGINUTILS
+========================
+Some old plugins require PluginUtils plugin.
+You can keep it. But very recomended to remove it, and use UsefulFunctions instead.
+Open conf/config.php and do search & replace operation: PluginUtils => UsefulFunctions
+
+CHANGELOG
+=========
+None.
+
+
+EXTERNAL CRON SERVICES
+======================
+http://www.onlinecronservices.com/serviceList.php?sort=mostPopular
+http://www.crondroid.com/
+http://www.mywebcron.com/
+http://www.easycron.com/
+http://www.cronjobs.org/
+http://www.setcronjob.com/
+http://cronjob.ru/

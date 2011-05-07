@@ -4,45 +4,13 @@ $PluginInfo['UsefulFunctions'] = array(
 	'Name' => 'Useful Functions',
 	'Description' => 'Useful functions for plugin and application developers (ex- PluginUtils).',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.13'),
-	'Version' => '3.1.89',
+	'Version' => '3.1.90',
 	'Date' => '7 May 2011',
 	'Author' => 'Vanilla Fan'
 );
 
-# INSTAL
-# ======
-# 1. Unpack and upload files to plugins directory
-# 2. Add this string to cron task file ('crontab -e')
-# */5 * * * *  /usr/local/bin/php -q /home/www/htdocs/plugins/UsefulFunctions/bin/tick.php
-# 3. Change permission of file plugins/UsefulFunctions/bin/tick.php to 700
-
-/**************************
-DESCRIPTION
-What this plugin do?
-Nothing! As standalone.
-This plugin is used by other plugins and applications, 
-using specific functions which doesn't exists in Garden core.
-
-
-CONFIG
-$Configuration['Plugins']['UsefulFunctions']['Console']['MessageEnconding'] = 'cp866';
-$Configuration['Plugins']['UsefulFunctions']['Console']['Check'] = TRUE;
-$Configuration['Plugins']['UsefulFunctions']['ImPath'] = '/usr/local/bin/'; # ImageMagick path
-
-LINKS: EXTERNAL CRON SERVICES
-http://www.onlinecronservices.com/serviceList.php?sort=mostPopular
-http://www.crondroid.com/
-http://www.mywebcron.com/
-http://www.easycron.com/
-http://www.cronjobs.org/
-http://www.setcronjob.com/
-http://cronjob.ru/
-
-*/
-
 define('USEFULFUNCTIONS_LIBRARY', dirname(__FILE__).'/library');
 define('USEFULFUNCTIONS_VENDORS', dirname(__FILE__).'/vendors');
-
 
 if (interface_exists('Gdn_IPlugin')) {
 	class UsefulFunctionsPlugin implements Gdn_IPlugin {

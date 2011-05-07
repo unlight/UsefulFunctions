@@ -1,5 +1,24 @@
 <?php
 
+/**
+* Get your IP-address
+* Credit: http://projects.westhost.com/contest/php/function/getipaddress/213
+*/
+if (!function_exists('GetIpAddress')) {
+	function GetIpAddress($NumericFormat = True) {
+		if (defined('DEBUG')) trigger_error(sprintf('%s is deprecated, use RealIpAddress() instead.', __FUNCTION__), E_USER_DEPRECATED);
+		$Ip = False;
+		foreach(array('HTTP_CLIENT_IP','HTTP_X_FORWARDED_FOR','HTTP_X_FORWARDED','HTTP_X_CLUSTER_CLIENT_IP','HTTP_FORWARDED_FOR','HTTP_FORWARDED','REMOTE_ADDR') as $Key) {
+			if (isset($_SERVER[$Key])) {
+				list ($Ip) = explode(',', $_SERVER[$Key]);
+				break;
+			}
+		}
+		if ($NumericFormat) $Ip = sprintf('%u', ip2long($Ip));
+		return $Ip;
+	}
+}
+
 if (!function_exists('GetRealIpAddress')) {
 	function GetRealIpAddress($bIPv4Format = False) {
 		if (defined('DEBUG')) trigger_error(sprintf('%s is deprecated, use RealIpAddress() instead.', __FUNCTION__), E_USER_DEPRECATED);

@@ -37,25 +37,6 @@ if (!function_exists('CheckIpMask')) {
 
 
 /**
-* Get your IP-address
-* Credit: http://projects.westhost.com/contest/php/function/getipaddress/213
-*/
-if (!function_exists('GetIpAddress')) {
-	function GetIpAddress($NumericFormat = True) {
-		$Ip = False;
-		foreach(array('HTTP_CLIENT_IP','HTTP_X_FORWARDED_FOR','HTTP_X_FORWARDED','HTTP_X_CLUSTER_CLIENT_IP','HTTP_FORWARDED_FOR','HTTP_FORWARDED','REMOTE_ADDR') as $Key) {
-			if (isset($_SERVER[$Key])) {
-				list ($Ip) = explode(',', $_SERVER[$Key]);
-				break;
-			}
-		}
-		if ($NumericFormat) $Ip = sprintf('%u', ip2long($Ip));
-		return $Ip;
-	}
-}
-
-
-/**
 * Get MX records corresponding to a given Internet host name;
 * For Windows.
 */ 
