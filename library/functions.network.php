@@ -1,5 +1,24 @@
 <?php
 
+/**
+* Gets/converts IP-address (numeric format/dot format)
+*/
+if (!function_exists('RealIpAddress')) {
+	function RealIpAddress($Ip = Null) {
+		if (is_null($Ip)) {
+			foreach(array('HTTP_CLIENT_IP','HTTP_X_FORWARDED_FOR','HTTP_X_FORWARDED','HTTP_X_CLUSTER_CLIENT_IP','HTTP_FORWARDED_FOR','HTTP_FORWARDED','REMOTE_ADDR') as $Key) {
+				if (isset($_SERVER[$Key])) {
+					list ($Ip) = explode(',', $_SERVER[$Key]);
+					break;
+				}
+			}
+		}
+		if (!$Ip) return $Ip;
+		return (is_numeric($Ip)) ? long2ip($Ip) : ip2long($Ip);
+	}
+}
+
+
 if (!function_exists('IsOnline')) {
 	function IsOnline() {
 		return is_int(ip2long(gethostbyname('google.com')));
@@ -16,12 +35,13 @@ if (!function_exists('CheckIpMask')) {
 	}
 }
 
+
 /**
 * Get your IP-address
 * Credit: http://projects.westhost.com/contest/php/function/getipaddress/213
 */
 if (!function_exists('GetIpAddress')) {
-	function GetIpAddress($bNumericFormat = True) {
+	function GetIpAddress($NumericFormat = True) {
 		$Ip = False;
 		foreach(array('HTTP_CLIENT_IP','HTTP_X_FORWARDED_FOR','HTTP_X_FORWARDED','HTTP_X_CLUSTER_CLIENT_IP','HTTP_FORWARDED_FOR','HTTP_FORWARDED','REMOTE_ADDR') as $Key) {
 			if (isset($_SERVER[$Key])) {
@@ -29,25 +49,11 @@ if (!function_exists('GetIpAddress')) {
 				break;
 			}
 		}
-		if ($bNumericFormat) $Ip = sprintf('%u', ip2long($Ip));
+		if ($NumericFormat) $Ip = sprintf('%u', ip2long($Ip));
 		return $Ip;
 	}
 }
 
-if (!function_exists('GetRealIpAddress')) {
-	function GetRealIpAddress($bIPv4Format = False) {
-		// Use GetIpAddress() instead
-		if (!empty($_SERVER['HTTP_CLIENT_IP'])) $Ip = $_SERVER['HTTP_CLIENT_IP'];
-		elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) $Ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-		else $Ip = $_SERVER['REMOTE_ADDR'];
-		if ($bIPv4Format) {
-			// 2130706433 = 127.0.0.1
-			// -1 = Invalid IP
-			$Ip = sprintf('%u', ip2long($Ip));
-		}
-		return $Ip;
-	}
-}
 
 /**
 * Get MX records corresponding to a given Internet host name;

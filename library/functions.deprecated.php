@@ -1,5 +1,21 @@
 <?php
 
+if (!function_exists('GetRealIpAddress')) {
+	function GetRealIpAddress($bIPv4Format = False) {
+		if (defined('DEBUG')) trigger_error(sprintf('%s is deprecated, use RealIpAddress() instead.', __FUNCTION__), E_USER_DEPRECATED);
+		// Use GetIpAddress() instead
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) $Ip = $_SERVER['HTTP_CLIENT_IP'];
+		elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) $Ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		else $Ip = $_SERVER['REMOTE_ADDR'];
+		if ($bIPv4Format) {
+			// 2130706433 = 127.0.0.1
+			// -1 = Invalid IP
+			$Ip = sprintf('%u', ip2long($Ip));
+		}
+		return $Ip;
+	}
+}
+
 if (!function_exists('FormatTextAsRow')) {
 	function FormatTextAsRow($Array, $MaxLengthArray) {
 		if (defined('DEBUG')) 
