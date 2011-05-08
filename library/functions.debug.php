@@ -1,6 +1,21 @@
 <?php
 
 /**
+* A quick and simple service for getting pictures of kittens for use as placeholders in your designs or code. 
+* Just put your image size (width & height) after our URL and you'll get a placeholder.
+*/
+if (!function_exists('PlaceKitten')) {
+	function PlaceKitten($Width, $Height = False, $Colored = False) {
+		if ($Height === False) $Height = $Width;
+		$ResultUrl = 'http://placekitten.com/';
+		if (!$Colored) $ResultUrl .= 'g/';
+		$ResultUrl .= $Width . '/' . $Height;
+		return $ResultUrl;
+	}
+}
+
+
+/**
 * Dumps information about arguments passed to functions
 */
 if (!function_exists('d')) {
@@ -9,14 +24,14 @@ if (!function_exists('d')) {
 		static $bExit = True;
 		if (!defined('DPHP_USE_ACCESSIBLE')) require USEFULFUNCTIONS_VENDORS.DS.'class.dumphper.php';
 		$Args = func_get_args();
-		if(count($Args) == 0 && $bExit) $bExit = False;
+		if (count($Args) == 0 && $bExit) $bExit = False;
 		if (PHP_SAPI != 'cli') {
 			if (!headers_sent()) header('Content-Type: text/html; charset=utf-8');
 			if ($bSetStyle) {
 				$bSetStyle = False;
 				echo "<style type='text/css'>.dumphper span{font-size:13px !important;font-family:'Arial' !important;}</style>\n";
 			}
-			foreach($Args as $A) {
+			foreach ($Args as $A) {
 				if (is_string($A) && defined('CP1251')) $A = ConvertEncoding($A);
 				Dumphper::dump($A);
 			}

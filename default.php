@@ -4,7 +4,7 @@ $PluginInfo['UsefulFunctions'] = array(
 	'Name' => 'Useful Functions',
 	'Description' => 'Useful functions for plugin and application developers (ex- PluginUtils).',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.13'),
-	'Version' => '3.1.90',
+	'Version' => '3.1.91',
 	'Date' => '7 May 2011',
 	'Author' => 'Vanilla Fan'
 );
