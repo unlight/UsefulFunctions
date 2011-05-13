@@ -6,7 +6,7 @@ class Console extends Gdn_Pluggable {
 	
 	public static function ErrorHandler($Error, $Message = '', $File = '', $Line = '') {
 		
-		if(error_reporting() == 0) return False;
+		if (error_reporting() == 0) return False;
 		
 		$Object = 'PHP';
 		$Method = 'Function';
@@ -154,7 +154,7 @@ class Console extends Gdn_Pluggable {
 		return Gdn_Format::Timespan(Now() - $Started);
 	}
 	
-	public static function Check(){
+	public static function Check() {
 		return (PHP_SAPI == 'cli');
 	}
 	

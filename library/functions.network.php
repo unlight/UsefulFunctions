@@ -52,8 +52,8 @@ if (!function_exists ('getmxrr')) {
 		exec($command, $result);
 		$i = 0;
 		$nslookup = array();
-		while(list($key, $value) = each($result)){
-			if(strstr($value, 'mail exchanger')){
+		while (list($key, $value) = each($result)) {
+			if (strstr($value, 'mail exchanger')) {
 				$nslookup[$i] = $value;
 				$i++;
 			}
@@ -69,7 +69,7 @@ if (!function_exists ('getmxrr')) {
 
 		array_multisort($mx);
 
-		foreach($mx as $value){
+		foreach ($mx as $value) {
 			$mxhosts[] = $value[1];
 			$weight[] = $value[0];
 		}

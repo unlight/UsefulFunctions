@@ -109,9 +109,9 @@ if (!function_exists('ArrayValue')) {
 
 
 if (!function_exists('array_flat')) {
-	function array_flat($arr){
+	function array_flat($arr) {
 		$result = array();
-		foreach($arr as $value){
+		foreach ($arr as $value) {
 			if (!is_array($value)) $result[]   = $value;
 			else array_splice($result, count($result), 0, array_flat($value));
 		}
@@ -121,7 +121,7 @@ if (!function_exists('array_flat')) {
 
 // http://phunction.sf.net/
 if (!function_exists('Flatten')) {
-	function Flatten($Array){
+	function Flatten($Array) {
 		$Result = array();
 		foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($Array)) as $Value)
 			$Result[] = $Value;
@@ -146,15 +146,15 @@ if (!function_exists('SetNullValues')) {
 	}
 }
 
-if(!function_exists('ReplaceEmpty')) {
+if (!function_exists('ReplaceEmpty')) {
 	function ReplaceEmpty(&$Collection, $R) {
-		if(is_object($Collection)){
-			foreach(get_object_vars($Collection) as $Property => $Value){
+		if (is_object($Collection)) {
+			foreach (get_object_vars($Collection) as $Property => $Value) {
 				if(StringIsNullOrEmpty($Value)) $Collection->$Property = $R;
 			}
 		}
-		else if(is_array($Collection)){
-			foreach($Collection as &$Value){
+		else if (is_array($Collection)) {
+			foreach ($Collection as &$Value) {
 				if(StringIsNullOrEmpty($Value)) $Value = $R;
 			}
 		}
@@ -162,13 +162,13 @@ if(!function_exists('ReplaceEmpty')) {
 	}
 }
 
-if(!function_exists('CamelizeResult')){
-	function CamelizeResult($Data, $bRemoveUnderscoreKeys = True){
+if (!function_exists('CamelizeResult')) {
+	function CamelizeResult($Data, $bRemoveUnderscoreKeys = True) {
 		$Data = Gdn_Format::ObjectAsArray($Data);
 		$Keys = array_keys($Data);
 		$CamelizedKeys = array_map('Camelize', $Keys);
 		$Keys = array_combine($Keys, $CamelizedKeys);
-		foreach($Keys as $Key => $CamelizedKey){
+		foreach ($Keys as $Key => $CamelizedKey) {
 			$Data[$CamelizedKey] = $Data[$Key];
 			if ($bRemoveUnderscoreKeys) unset($Data[$Key]);
 		}

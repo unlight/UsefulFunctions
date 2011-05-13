@@ -155,10 +155,10 @@ if (!function_exists('NCrypt')) {
 }
 
 if (!function_exists('ArraySum')) {
-	function ArraySum($Array){
+	function ArraySum($Array) {
 		$N = 0;
 		$Array = array_values($Array);
-		for($Count = Count($Array), $i = 0; $i < $Count; $i++) $N = Summation($N, $Array[$i]);
+		for ($Count = Count($Array), $i = 0; $i < $Count; $i++) $N = Summation($N, $Array[$i]);
 		return $N;
 	}
 }
@@ -229,11 +229,11 @@ if (!function_exists('CleanupString')) {
 }
 
 if (!function_exists('ConvertEncoding')) {
-	function ConvertEncoding($Value){ // TODO: make windows-1251 as param or config
-		if(!mb_check_encoding($Value, 'utf-8')){
+	function ConvertEncoding($Value) { // TODO: make windows-1251 as param or config
+		if (!mb_check_encoding($Value, 'utf-8')) {
 			if(mb_check_encoding($Value, 'windows-1251')) $Value = mb_convert_encoding($Value, 'utf-8', 'windows-1251');
 		}
-		if(!mb_check_encoding($Value, 'utf-8')) trigger_error('Failed to encode value.');
+		if (!mb_check_encoding($Value, 'utf-8')) trigger_error('Failed to encode value.');
 		return $Value;
 	}
 }
@@ -249,7 +249,7 @@ if (!function_exists('SplitString')) {
 		$Array = preg_split($RegExpr, $String);
 		$Array = array_map('trim', $Array);
 		$Type = gettype($FilterFunction);
-		switch($Type){
+		switch ($Type) {
 			case 'NULL': $Array = array_filter($Array); break;
 			case 'string': $Array = array_filter($Array, $FilterFunction); break;
 			case 'array': {
@@ -273,7 +273,7 @@ if (!function_exists('GetSimilarity')) {
 	function GetSimilarity($String, $DataArray, $IdKey = '', $ValueKey = '') {
 		$Percents = array();
 		$String = strip_tags($String);
-		foreach($DataArray as $Key => $Array){
+		foreach ($DataArray as $Key => $Array) {
 			if (is_array($Array)) {
 				$TestValue = strip_tags($Array[$ValueKey]);
 				$MatcheId = $Array[$IdKey];

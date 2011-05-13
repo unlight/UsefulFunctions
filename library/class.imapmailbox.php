@@ -7,9 +7,9 @@ class ImapMailbox extends Gdn_Pluggable {
 	public $Connection;
 	public $CheckResult;
 	
-	public function __construct($Host, $Options, $Login, $Password){
+	public function __construct($Host, $Options, $Login, $Password) {
 		
-		if(!extension_loaded('imap')){
+		if (!extension_loaded('imap')) {
 			$Library = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? 'php_imap.dll' : 'imap.so';
 			dl($Library);
 		}
@@ -20,13 +20,13 @@ class ImapMailbox extends Gdn_Pluggable {
 		parent::__construct();
 	}
 	
-	public function Close(){
+	public function Close() {
 		//$this->IMAP2->setOptions('close', CL_EXPUNGE);
 		$this->IMAP2->Expunge();
 		$this->IMAP2->Close();
 	}
 	
-	public function MessageCount(){
+	public function MessageCount() {
 		//return $this->IMAP2->MessageCount();
 		$MessagesCount = $this->Check('Nmsgs');
 		return $MessagesCount;
@@ -39,26 +39,26 @@ class ImapMailbox extends Gdn_Pluggable {
 	Mailbox - the mailbox name 
 	Nmsgs - number of messages in the mailbox 
 	Recent - number of recent messages in the mailbox */
-	public function Check($Name = ''){
+	public function Check($Name = '') {
 		$this->CheckResult = imap_check($this->Connection);
 		return ($Name != '') ? ObjectValue($Name, $this->CheckResult) : $this->CheckResult;
 	}
 	
-	public function GetMessage($N){
+	public function GetMessage($N) {
 		$ImapMessage = new ImapMessage($N, $this);
 		return $ImapMessage;
 	}
 	
-	public function GetNum($N){ // deprecated
+	public function GetNum($N) { // deprecated
 		$ImapMessage = new ImapMessage($N, $this);
 		return $ImapMessage;
 	}
 	
-	public function GetUnseenEmails(){
+	public function GetUnseenEmails() {
 		return $this->Search('UNSEEN');
 	}
 	
-	public function Search($Flag){
+	public function Search($Flag) {
 		return imap_search($this->Connection, $Flag);
 	}
 
@@ -80,7 +80,7 @@ class ImapMessage{
 	
 	public $Mailbox;
 	
-	public function __construct($Number, &$Mailbox){
+	public function __construct($Number, &$Mailbox) {
 		$this->Mailbox =& $Mailbox;
 		$Connection =& $this->Mailbox->Connection;
 		$Tmp = imap_fetch_overview($Connection, $Number);
@@ -99,7 +99,7 @@ class ImapMessage{
 		return $this;
 	}
 	
-	public function RetrieveAttachments(){
+	public function RetrieveAttachments() {
 		$Parts = $this->Mailbox->IMAP2->getParts($this->Number, '0', True, array('retrieve_all' => True));
 
 		$InlineParts = @$Parts['in']['ftype'];
@@ -114,7 +114,7 @@ class ImapMessage{
 		$Pids = $this->Mailbox->IMAP2->extractMIME($this->Number, array_unique($Mimes));
 		if(!$Pids) return False;
 		$TempFolder = realpath(sys_get_temp_dir());
-		foreach($Pids as $Pid){
+		foreach($Pids as $Pid) {
 			$Body = $this->Mailbox->IMAP2->getBody($this->Number, $Pid);
 			$Dummy = new StdClass();
 			$Dummy->MimeType = $Body['ftype'];
@@ -127,7 +127,7 @@ class ImapMessage{
 		return $this;
 	}
 	
-	public function RetrieveInfo(){
+	public function RetrieveInfo() {
 		$this->Subject = self::DecodeMimeString( ObjectValue('subject', $this->Overview) );
 		$From = $this->HeaderInfo->from[0];
 		$this->SenderMail = strtolower($From->mailbox.'@'.$From->host);
@@ -135,7 +135,7 @@ class ImapMessage{
 		return $this;
 	}
 	
-	public function RetrieveBodyText(){
+	public function RetrieveBodyText() {
 		$Body = $this->Mailbox->IMAP2->getBody($this->Number);
 		//$RawMessage = $this->Mailbox->IMAP2->getRawMessage($this->Number);
 		//$BodyTextPlain = $this->Mailbox->IMAP2->getBody($this->Number, 1, 2);
@@ -144,7 +144,7 @@ class ImapMessage{
 		//d($this->Number, $Body, $this->Mailbox->IMAP2->getBody($this->Number, '1.1'));
 		
 		//if(!$Body) throw new Exception('Body is none.');
-		if(!$Body){
+		if (!$Body) {
 			$this->BodyText = '';
 			return $this;
 		}
@@ -172,7 +172,7 @@ class ImapMessage{
 		$Headers = imap_mime_header_decode($String);
 		$Count = Count($Headers);
 		$Return = '';
-		for($i = 0; $i < $Count; $i++){
+		for ($i = 0; $i < $Count; $i++) {
 			$Charset = $Headers[$i]->charset;
 			$Text = $Headers[$i]->text;
 			//if($Charset == 'default') $Charset = 'ISO-8859-1';
@@ -182,27 +182,27 @@ class ImapMessage{
 		return $Return;
 	}
 	
-	public function MarkAsFlagged(){
+	public function MarkAsFlagged() {
 		imap_setflag_full($this->Mailbox->Connection, $this->Number, "\\Flagged");
 		return $this;
 	}
 	
-	public function MarkAsSeen(){
+	public function MarkAsSeen() {
 		imap_setflag_full($this->Mailbox->Connection, $this->Number, "\\Seen");
 		return $this;
 	}
 	
-	public function MarkAsDeleted(){
+	public function MarkAsDeleted() {
 		imap_setflag_full($this->Mailbox->Connection, $this->Number, "\\Deleted");
 		return $this;
 	}
 	
-	public function Delete(){
+	public function Delete() {
 		return $this->Mailbox->IMAP2->Delete($this->Number);
 	}
 	
 	// todo: need remove this
-	public function ReportCompleteTask($Name = ''){
+	public function ReportCompleteTask($Name = '') {
 		$Email = new Gdn_Email();
 		$Email
 			->To($this->SenderMail, $this->SenderName)
@@ -213,7 +213,7 @@ class ImapMessage{
 		return $this;
 	}
 	
-	public function ReturEmailToSender($ErrorText = ''){
+	public function ReturEmailToSender($ErrorText = '') {
 		$Email = new Gdn_Email();
 		$Message = LocalizedMessage('ReturEmailToSender %1$s %2$s %3$s', 
 			$this->Subject, $this->BodyText, $ErrorText);

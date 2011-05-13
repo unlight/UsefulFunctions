@@ -13,19 +13,19 @@ if (!function_exists('TableDataValues')) {
 		$Result = array();
 		$Data = Gdn_Format::ObjectAsArray($Data);
 		foreach ($Data as $Name => $Value) {
-			if(is_object($Value) || is_array($Value)) continue;
+			if (is_object($Value) || is_array($Value)) continue;
 			
 			// TODO: WE CAN PUT THIS INTO CACHE
 			$ColumnKeys = array_keys($Columns);
 			$ColumnKeys = array_combine(array_map('strtolower', $ColumnKeys), $ColumnKeys);
 			$NameLowered = strtolower($Name);
 
-			if(array_key_exists($NameLowered, $ColumnKeys)) {
+			if (array_key_exists($NameLowered, $ColumnKeys)) {
 				$Name = $ColumnKeys[$NameLowered];
 				$Field = $Columns[$Name];
 				$Float = array('float', 'double');
 				$Int = array('int', 'tinyint', 'smallint', 'mediumint', 'bigint');
-				if(in_array($Field->Type, $Int)) $Value = intval($Value);
+				if (in_array($Field->Type, $Int)) $Value = intval($Value);
 				else if(in_array($Field->Type, $Float)) $Value = floatval($Value);
 				if (!is_null($Value)) $Value = strval($Value);
 				$Result[$Name] = $Value;
@@ -89,7 +89,7 @@ if (!function_exists('SaveTags')) {
 		$ConsolidatedTags = ConsolidateArrayValuesByKey($ExistingTagData->ResultArray(), 'Name', 'TagID');
 		foreach($TagsNames as $TagName) {
 			$TagID = GetValue($TagName, $ConsolidatedTags);
-			if($TagID === False) {
+			if ($TagID === False) {
 				$TagID = Gdn::SQL()
 					->History(False, True)
 					->Insert('Tag', array('Name' => $TagName));
@@ -166,7 +166,7 @@ if (!function_exists('K')) {
 		}
 
 		// Delete
-		if($Value === False) {
+		if ($Value === False) {
 			if (is_array($Name)) return $SQL->WhereIn('Name', $Name)->Delete('Data');
 			if (is_string($Name)) return $SQL->Like('Name', $Name, 'right')->Delete('Data');
 			trigger_error(sprintf('Incorrect type of Key (%s)', gettype($Name)));
