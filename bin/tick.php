@@ -110,7 +110,7 @@ class ExamplePlugin implements Gdn_IPlugin {
 		// weekly
 	}
 	
-	public static Match_17_Minutes_11_Hours_Thursday() {
+	public static Match_17_Minutes_11_Hours_Thursday_Handler() {
 		// Every Thursday on 11:17 am
 	}
 

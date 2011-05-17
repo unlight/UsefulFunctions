@@ -133,7 +133,9 @@ if (!function_exists('FlashObject')) {
 		$FlashVars = GetValue('FlashVars', $Attributes, $FlashVars, True);
 		$Params = GetValue('Params', $Attributes, array(), True);
 		$Movie = Asset($Movie, True);
-		$AltContent = GetValue('AltContent', $Attributes, Anchor(Img('http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif', array('alt' => 'Get Adobe Flash player')), 'http://www.adobe.com/go/getflashplayer', '', '', True), True);
+		
+		$AltContent = GetValue('AltContent', $Attributes, 
+			Anchor(Img('http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif', array('alt' => 'Get Adobe Flash player')), 'http://www.adobe.com/go/getflashplayer', '', array('rel' => 'nofollow'), True), True);
 		
 		foreach(array('wmode', 'allowfullscreen', 'allowscriptaccess', 'quality', 'menu') as $Name) {
 			$Value = GetValue($Name, $Attributes, False, True);

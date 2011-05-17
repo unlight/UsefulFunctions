@@ -134,6 +134,7 @@ class Console extends Gdn_Pluggable {
 		$S = self::TimeSeconds() . ' -!- ' . self::ColorizeMessage($Message);
 		if (substr($S, -1, 1) != "\n") $S .= "\n";
 		fwrite(STDOUT, $S);
+		return $S;
 	}
 	
 	public static function Argument($Name, $Default = False) {
