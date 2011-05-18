@@ -1,5 +1,15 @@
 <?php
 
+// Gdn_Format::To($FileSize, 'Xhtml')
+
+/*if (!function_exists('Xhtml')) {
+	function Xhtml($String) {
+		$HtmlFormatter = Gdn::Factory('HtmlFormatter');
+		if ($HtmlFormatter) $String = $HtmlFormatter->Format($String);
+		return $String;
+	}
+}*/
+
 // Gdn_Format::To($FileSize, 'Size')
 if (!function_exists('Size')) {
 	function Size($Bytes, $Precision = 2) {

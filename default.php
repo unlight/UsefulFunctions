@@ -4,8 +4,8 @@ $PluginInfo['UsefulFunctions'] = array(
 	'Name' => 'Useful Functions',
 	'Description' => 'Useful functions for plugin and application developers (ex- PluginUtils).',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.13'),
-	'Version' => '3.1.91',
-	'Date' => '7 May 2011',
+	'Version' => '3.2.93',
+	'Date' => '17 May 2011',
 	'Author' => 'Vanilla Fan'
 );
 
@@ -17,12 +17,13 @@ if (class_exists('Gdn')) {
 	Gdn::FactoryInstall('Snoopy', 'Snoopy', USEFULFUNCTIONS_VENDORS.'/Snoopy.class.php', Gdn::FactorySingleton);
 	Gdn::FactoryInstall('Mailbox', 'ImapMailbox', USEFULFUNCTIONS_LIBRARY.'/class.imapmailbox.php', Gdn::FactorySingleton);
 	Gdn::FactoryInstall('CssSpriteMap', 'CssSpriteMap', USEFULFUNCTIONS_VENDORS.'/CssSprite.php', Gdn::FactorySingleton);
+	Gdn::FactoryInstall('xHtmlFormatter', 'HTMLPurifierPlugin', PATH_PLUGINS.'/HtmlPurifier/default.php', Gdn::FactorySingleton);
 }
 
 require USEFULFUNCTIONS_LIBRARY.'/functions.render.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.image.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.time.php';
-require USEFULFUNCTIONS_LIBRARY.'/functions.dom.php';
+require USEFULFUNCTIONS_LIBRARY.'/functions.xml.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.network.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.array-object.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.string-number.php';

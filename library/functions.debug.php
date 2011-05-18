@@ -49,7 +49,10 @@ if (!function_exists('d')) {
 			if ($Encoding && $Encoding != 'utf-8') $String = mb_convert_encoding($String, $Encoding, 'utf-8');
 			echo $String;
 		}
-		// TODO: neeed close database connection
+		if (class_exists('Gdn')) {
+			$Database = Gdn::Database();
+			if ($Database != Null) $Database->CloseConnection();
+		}
 		if ($bExit) exit();
 	}
 }
