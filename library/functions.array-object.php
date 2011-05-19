@@ -82,12 +82,10 @@ if (!function_exists('GroupByKey')) {
 
 if (!function_exists('CombineArrays')) {
 	function CombineArrays() {
-		$Result = array();
 		$Arrays = func_get_args();
-		foreach($Arrays as $Array) foreach($Array as $Value) $Result[] = $Value;
-		$Result = array_unique($Result);
-		$Result = array_values($Result);
-		return $Result;
+		$Result = Flatten($Arrays);
+		$Result = array_values(array_unique($Result));
+		return $Result;		
 	}
 }
 
