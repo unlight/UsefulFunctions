@@ -14,7 +14,7 @@ if (!function_exists('RealIpAddress')) {
 			}
 		}
 		if (!$Ip) return $Ip;
-		return (is_numeric($Ip)) ? long2ip($Ip) : ip2long($Ip);
+		return (is_numeric($Ip)) ? long2ip($Ip) : sprintf('%u', ip2long($Ip));
 	}
 }
 
