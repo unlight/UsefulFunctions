@@ -12,13 +12,7 @@ class TreeModel extends Gdn_Model {
 	protected $RightKey = 'TreeRight';
 	protected $DepthKey = 'Depth';
 	protected $ParentKey = 'ParentID';
-	
-	protected $_CachedResult;
-	
-	// TODO: 
-	// CELKO DB CLASS:
-	// $FieldOrder => Field name for table nasted set order field
-	// $FieldIgnore => Field name for tablr nested set ignore field
+	protected $CachedNodeResults;
 	
 	public function GetRoot() {
 		$Root = $this
@@ -35,8 +29,8 @@ class TreeModel extends Gdn_Model {
 	* Receives left, right and level for unit with number id.
 	*/
 	public function GetNode($ID, $ResetCache = False) {
-		$Result =& $this->_CachedResult[$ID];
-		if (!isset($this->_CachedResult[$ID]) || $ResetCache) {
+		$Result =& $this->CachedNodeResults[$ID];
+		if (!isset($this->CachedNodeResults[$ID]) || $ResetCache) {
 			$Result = $this
 				->SelectNodeFields()
 				->From($this->Name)
@@ -112,7 +106,8 @@ class TreeModel extends Gdn_Model {
 		$Query = "update {$Px}{$this->Name} tree set tree.Depth = ($TemporaryTable)";
 		$this->SQL->Query($Query);
 	}
-	
+
+	// TODO: MAKE IT STATIC
 	protected function _NodeValues($Node) {
 		if (!is_object($Node)) {
 			$Node = $this->GetNode($Node);
@@ -134,7 +129,7 @@ class TreeModel extends Gdn_Model {
 		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
 		if (!$NodeID) return False;
 		$Level = $Level - 1;
-		//$Result =& $this->_CachedResult[$ID];
+		//$Result =& $this->CachedNodeResults[$ID];
 		$Result = $this->SQL
 			//->SelectNodeFields()
 			->Select('*')
@@ -184,7 +179,7 @@ class TreeModel extends Gdn_Model {
 	* Adds a new child element to the top of the list of child elements
 	*/
 	public function PrependTo($Parent, $Data) {
-		if (is_numeric($Parent)) $Parent = $this->GetNode($Parent);
+
 		list($ParentLeftID, $ParentRightID, $ParentDepth, $ParentID) = $this->_NodeValues($Parent);
 		
 		SetValue($this->LeftKey, $Data, $ParentLeftID + 1);
@@ -328,90 +323,110 @@ class TreeModel extends Gdn_Model {
 		return $this->Insert($this->Name, $Fields);
 	}
 	
+	public function HasChildrend($ID) {
+		list($LeftID, $RightID) = $this->_NodeValues($ID);
+		$Result = (($RightID - $LeftID) > 1);
+		return $Result;
+	}
+	
+	public function IsRoot($ID) {
+		//list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
+		list($LeftID) = $this->_NodeValues($ID);
+		return ($LeftID == 1);
+	}
+	
+	public function IsLeaf($Node) {
+		list($LeftID, $RightID) = $this->_NodeValues($Node);
+		return (($RightID - $LeftID) == 1);
+	}
+	
+	/* returns true, if '$Node1' is a direct child or in the subtree of '$Node2' */
+	public function IsChild($Node1, $Node2) {
+		list($LeftID1, $RightID1, $Depth1, $NodeID1) = $this->_NodeValues($Node1);
+		list($LeftID2, $RightID2, $Depth2, $NodeID2) = $this->_NodeValues($Node2);
+		$Result = (($LeftID1 > $LeftID2) && $RightID1 < $RightID2);
+		return $Result;
+	}
+	
 
 	/**
 	* Assigns a node with all its children to another parent.
 	*
 	* @param integer $ID node ID
 	*/
-/*	public function MoveAll($ID, $NewParentID, $Where = '') {
-		list($LeftID, $RightID, $Depth) = $this->_NodeValues($ID);
-		list($ParentLeftID, $ParentRightID, $ParentDepth) = $this->_NodeValues($NewParentID);
+	public function MoveAll($ID, $NewParentID, $Where = False) {
 		
-		if ($ID == $NewParentID || $LeftID == $ParentLeftID 
+		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
+		list($ParentLeftID, $ParentRightID, $ParentDepth, $ParentNodeID) = $this->_NodeValues($NewParentID);
+		
+		if ($NodeID == $ParentNodeID 
+			|| $LeftID == $ParentLeftID 
 			|| ($ParentLeftID >= $LeftID && $ParentLeftID <= $RightID)
 			|| ($Depth == $ParentDepth+1 && $LeftID > $ParentLeftID && $RightID < $ParentRightID)) {
 			trigger_error('Cannot move tree.', E_USER_ERROR);
 			return False;
 		}
-		//$this->SQL->Where($Where)
 		
-		$DepthSetValue = sprintf('%+d', -($Depth-1) + $ParentDepth);
-		$LeftIDM1 = $LeftID - 1;
-		$RightLeft1 = $RightID - $LeftID + 1;
-		$LeftRightParentM = $LeftID - $ParentRightID;
-		$RightIDP1 = $RightID + 1;
-		$ParentRightIDM1 = $ParentRightID - 1;
-		$BetweenLR = "$LeftID and $RightID";
+		$this->Database->BeginTransaction();
 		
-		if ($ParentLeftID < $LeftID && $ParentRightID > $RightID && $ParentDepth < $Depth - 1) {
-			
-			$Between1 = $RightIDP1.' and '.$ParentRightIDM1;
-			$SetValue1 = ((($ParentRightID-$RightID-$Depth+$ParentDepth)/2)*2+$Depth-$ParentDepth-1);
-			
-			$this->SQL
-				->Set($this->DepthKey, "case 
-					when {$this->LeftKey} between $BetweenLR then {$this->DepthKey} $DepthSetValue 
-					else {$this->DepthKey} end", False, False)
-				->Set($this->RightKey, "case 
-					when {$this->RightKey} between $Between1 then {$this->RightKey} - $RightLeft1
-					when {$this->LeftKey} between {$LeftID} and {$RightID} then {$this->RightKey} + $SetValue1
-					else {$this->RightKey} end", False, False)
-				->Set($this->LeftKey, "case
-					when {$this->LeftKey} between $Between1 then {$this->LeftKey} - $RightLeft1
-					when {$this->LeftKey} between {$LeftID} and {$RightID} then {$this->LeftKey} + $SetValue1
-					else {$this->LeftKey} end", False, False)
-				->Where($this->LeftKey, "between {$Between1}", False, False);
-			
-		} elseif ($ParentLeftID < $LeftID) {
-			$this->SQL
-				->Set($this->DepthKey, "case 
-					when {$this->LeftKey} between $BetweenLR then {$this->DepthKey} $DepthSetValue 
-					else {$this->DepthKey} end", False, False)
-				->Set($this->LeftKey, "case
-					when {$this->LeftKey} between $RightID and $LeftIDM1 then {$this->LeftKey} + $RightLeft1
-					when {$this->LeftKey} between $Between2 then {$this->LeftKey} - $LeftRightParentM
-					else {$this->LeftKey}", False, False)
-				->Set($this->RightKey, "case
-					when {$this->RightKey} between $ParentRightID and $LeftID then {$this->RightKey} + $RightLeft1
-					when {$this->RightKey} between $BetweenLR then {$this->RightKey} - $LeftRightParentM
-					else {$this->RightKey} end", False, False)
-				->BeginWhereGroup()
-				->Where($this->LeftKey, "between $ParentLeftID and $RightID", False, False)
-				->OrWhere($this->RightKey, "between $ParentLeftID and $RightID", False, False)
-				->EndWhereGroup();
-		} else {
-			$RightParentM1 = $ParentRightID - 1 - $RightID;
-			$this->SQL
-				->Set($this->DepthKey, "case 
-					when {$this->LeftKey} between $BetweenLR then {$this->DepthKey} $DepthSetValue else $Depth")
-				->Set($this->LeftKey, "case
-					when {$this->LeftKey} between $RightID and $ParentRightID then {$this->LeftKey} - $RightLeft1
-					when {$this->LeftKey} between $BetweenLR then {$this->LeftKey} + $RightParentM1
-					else {$this->LeftKey} end", False, False)
-				->Set($this->RightKey, "case
-					when {$this->RightKey} between $RightIDP1 and $ParentRightIDM1 then {$this->RightKey} - $RightLeft1
-					when {$this->RightKey} between $BetweenLR then {$this->RightKey} + $RightParentM1 
-					else {$this->RightKey} end", False, False)
-				->BeginWhereGroup()
-				->Where("{$this->LeftKey} between $LeftID and $ParentRightID", Null, False, False)
-				->OrWhere("{$this->RightKey} between $LeftID and $ParentRightID", Null, False, False)
-				->EndWhereGroup();
-		}
+		$Result = $this->SQL
+			->Update($this->Name)
+			->Set($this->ParentKey, $ParentNodeID)
+			->Where($this->PrimaryKey, $NodeID)
+			->Put();
 		
-		$this->SQL->Update($this->Name)->Put();
-		return TRUE;
-	}*/
+		$DeltaDepth = sprintf('%+d', -($Depth-1) + $ParentDepth);
+		$SqlValueDepth = "case 
+			when $this->TreeLeft between $LeftID and $RightID then $this->DepthKey $DeltaDepth
+			else $this->DepthKey end";
+		$DeltaRL = $RightID - $LeftID + 1;
+		
+        if ($ParentLeftID < $LeftID && $ParentRightID > $RightID && $ParentDepth < $Depth - 1) {
+			$DeltaTree = (($ParentRightID - $RightID - $Depth + $ParentDepth) / 2) * 2 + $Depth - $ParentDepth - 1;
+			$SqlValueRight = "case 
+				when $this->TreeRight between ($RightID+1) and ($ParentRightID-1) then $this->TreeRight - $DeltaRL
+				when $this->TreeLeft between $LeftID and $RightID then $this->TreeRight + $DeltaTree
+				else $this->TreeRight end";
+			$SqlValueLeft = "case 
+				when $this->TreeLeft between ($RightID+1) and ($ParentRightID-1) then $this->TreeLeft - $DeltaRL
+				when $this->TreeLeft between $LeftID and $RightID then $this->TreeLeft + $DeltaTree
+				else $this->TreeLeft end";
+			$WhereCondition = "$this->TreeLeft between ($ParentLeftID + 1) and ($ParentRightID - 1)";
+        } elseif ($ParentLeftID < $LeftID) {
+			$SqlValueLeft = "case 
+				when $this->TreeLeft between $ParentRightID and ($LeftID-1) then $this->TreeLeft + $DeltaRL
+				when $this->TreeLeft between $LeftID and $RightID then $this->TreeLeft - ($LeftID-$ParentRightID)
+				else $this->TreeLeft end";
+			$SqlValueRight = "case 
+				when $this->TreeRight between $ParentRightID and $LeftID then $this->TreeRight + $DeltaRL
+				when $this->TreeRight between $LeftID and $RightID then $this->TreeRight - ($LeftID-$ParentRightID) 
+				else $this->TreeRight end";
+			$WhereCondition = "($this->TreeLeft between $ParentLeftID and $RightID or $this->TreeRight between $ParentLeftID and $RightID)";
+        } else {
+			$SqlValueLeft = "case 
+				when $this->TreeLeft between $RightID and $ParentRightID then $this->TreeLeft - $DeltaRL
+				when $this->TreeLeft between $LeftID and $RightID then $this->TreeLeft + ($ParentRightID-1-$RightID)
+				else $this->TreeLeft end";
+			$SqlValueRight = "case
+				when $this->TreeRight between ($RightID+1) and ($ParentRightID-1) then $this->TreeRight - $DeltaRL
+				when $this->TreeRight between $LeftID and $RightID then $this->TreeRight + ($ParentRightID-1-$RightID)
+				else $this->TreeRight end";
+			$WhereCondition = "($this->TreeLeft between $LeftID and $ParentRightID or $this->TreeRight between $LeftID and $ParentRightID)";
+        }
+		
+		if (is_array($Where)) $this->SQL->Where($Where);
+		$Result = $this->SQL
+			->Update($this->Name)
+			->Set($this->RightKey, $SqlValueRight, False, False)
+			->Set($this->LeftKey, $SqlValueLeft, False, False)
+			->Set($this->DepthKey, $SqlValueDepth, False, False)
+			->Where($WhereCondition, Null, False, False)
+			->Put();
+		
+		$this->Database->CommitTransaction();
+		
+		return $Result;
+	}
 	
 	
 	/**
@@ -420,35 +435,32 @@ class TreeModel extends Gdn_Model {
 	* @param integer $id1 first item ID
 	* @param integer $id2 second item ID
 	*/
-/*	public function ChangePosition($ID1, $ID2) {
+	public function ChangePosition($ID1, $ID2) {
 		
-		$Node1 = $this->GetNode($ID1);
-		if (!$Node1) return $Node;
-		
-		$Node2 = $this->GetNode($ID2);
-		if (!$Node2) return $Node2;
-		
-		$this->Database->BeginTransaction();
-		
+		list($LeftID1, $RightID1, $Depth1, $NodeID1) = $this->_NodeValues($ID1);
+		list($LeftID2, $RightID2, $Depth2, $NodeID2) = $this->_NodeValues($ID2);
+		if (!$NodeID1 || !$NodeID1) return False;
+
 		$this->SQL
 			->Update($this->Name)
-			->Set($this->LeftKey, $Node2->{$this->LeftKey})
-			->Set($this->RightKey, $Node2->{$this->RightKey})
-			->Set($this->DepthKey, $Node2->{$this->DepthKey})
-			->Where($this->PrimaryKey, (int)$ID1, False, False)
+			->Set($this->LeftKey, $LeftID2)
+			->Set($this->RightKey, $RightID2)
+			->Set($this->DepthKey, $Depth2)
+			->Where($this->PrimaryKey, $NodeID1, False, False)
 			->Put();
-		
-		$this->SQL
+		$this->Database->BeginTransaction();
+	
+		$Result = $this->SQL
 			->Update($this->Name)
-			->Set($this->LeftKey, $Node1->{$this->LeftKey})
-			->Set($this->RightKey, $Node1->{$this->RightKey})
-			->Set($this->DepthKey, $Node1->{$this->DepthKey})
-			->Where($this->PrimaryKey, (int)$ID2, False, False)
+			->Set($this->LeftKey, $LeftID1)
+			->Set($this->RightKey, $RightID1)
+			->Set($this->DepthKey, $Depth1)
+			->Where($this->PrimaryKey, $NodeID2, False, False)
 			->Put();
 		
 		$this->Database->CommitTransaction();
-		return TRUE;
-	}*/
+		return $Result;
+	}
 	
 	
 	/**
@@ -456,9 +468,11 @@ class TreeModel extends Gdn_Model {
 	*
 	*/
 	public function ChangePositionAll($ID1, $ID2, $Position = 'after', $Where = False) {
-		list($LeftID1, $RightID1, $Depth1, $NodeID1) = $this->_NodeValues($ID1);
+		$Node1 = $this->GetNode($ID1);
+		$Node2 = $this->GetNode($ID2);
+		list($LeftID1, $RightID1, $Depth1, $NodeID1) = $this->_NodeValues($Node1);
 		if (!$NodeID1) return False;
-		list($LeftID2, $RightID2, $Depth2, $NodeID2) = $this->_NodeValues($ID2);
+		list($LeftID2, $RightID2, $Depth2, $NodeID2) = $this->_NodeValues($Node2);
 		if (!$NodeID2) return False;
 
 		if ($Depth1 != $Depth2) {
@@ -467,8 +481,8 @@ class TreeModel extends Gdn_Model {
 		}
 		
 		switch (strtolower($Position)) {
-			case 'before': $this->_ChangePositionBeforeQuery($LeftID1, $RightID1, $LeftID2); break;
-			case 'after': $this->_ChangePositionAfterQuery($LeftID1, $RightID1, $LeftID2, $RightID2); break;
+			case 'before': $this->_ChangePositionBeforeQuery($Node1, $Node2); break;
+			case 'after': $this->_ChangePositionAfterQuery($Node1, $Node2); break;
 			default: {
 				trigger_error('Unknown position.', E_USER_ERROR);
 				return False;
@@ -479,7 +493,9 @@ class TreeModel extends Gdn_Model {
 		return $Result;
 	}
 	
-	private function _ChangePositionAfterQuery($LeftID1, $RightID1, $LeftID2, $RightID2) {
+	private function _ChangePositionAfterQuery($Node1, $Node2) {
+		list($LeftID1, $RightID1) = $this->_NodeValues($Node1);
+		list($LeftID2, $RightID2) = $this->_NodeValues($Node2);
 		if ($LeftID1 > $LeftID2) {
 			$Value1 = $LeftID1 - $LeftID2 - ($RightID2 - $LeftID2 + 1);
 			$SqlValueRight = "case when {$this->LeftKey} between $LeftID1 and $RightID1 then {$this->RightKey} - $Value1
@@ -493,42 +509,24 @@ class TreeModel extends Gdn_Model {
 				->Set($this->LeftKey, $SqlValueLeft, False, False)
 				->Where("{$this->LeftKey} between ($RightID2 + 1) and $RightID1", Null, False, False);
 		} else {
-/*$SqlValueRight = '';
-// i'm here
-$sql = 'UPDATE ' . $this->table . ' SET '
-. {$this->RightKey} . ' = CASE WHEN ' . {$this->LeftKey} . ' BETWEEN ' . $LeftID1 . ' AND ' . $RightID1 . ' THEN ' . {$this->RightKey} . ' + ' . ($RightID2 - $RightID1) . ' '
-. 'WHEN ' . {$this->LeftKey} . ' BETWEEN ' . ($RightID1 + 1) . ' AND ' . $RightID2 . ' THEN ' . {$this->RightKey} . ' - ' . (($RightID1 - $LeftID1 + 1)) . ' ELSE ' . {$this->RightKey} . ' END, '
-. {$this->LeftKey} . ' = CASE WHEN ' . {$this->LeftKey} . ' BETWEEN ' . $LeftID1 . ' AND ' . $RightID1 . ' THEN ' . {$this->LeftKey} . ' + ' . ($RightID2 - $RightID1) . ' '
-. 'WHEN ' . {$this->LeftKey} . ' BETWEEN ' . ($RightID1 + 1) . ' AND ' . $RightID2 . ' THEN ' . {$this->LeftKey} . ' - ' . ($RightID1 - $LeftID1 + 1) . ' ELSE ' . {$this->LeftKey} . ' END '
-. 'WHERE ' . {$this->LeftKey} . ' BETWEEN ' . $LeftID1 . ' AND ' . $RightID2;*/
-		}
-		
-/*		if ($LeftID1 > $LeftID2) {
-			$Value1 = $LeftID1 - $LeftID2 - ($RightID2 - $LeftID2 + 1); // $RightID1
-			$this->SQL->Set($this->LeftKey, "case 
-				when {$this->LeftKey} between $Between1 then {$this->LeftKey} - $Value1
-				when {$this->LeftKey} between ($RightID2 + 1) and ($LeftID1 - 1) then {$this->LeftKey} + ($RightID1 - $LeftID1 + 1)
-				else {$this->LeftKey} end", False, False);
-			// INCORRECT. FIX ME
-			$this->SQL->Set($this->LeftKey, "case 
-				when {$this->LeftKey} between $Between1 then {$this->LeftKey} - $Value1
-				when {$this->LeftKey} BETWEEN ($RightID2 + 1) and ($LeftID1 - 1) then {$this->LeftKey} + ($RightID1 - $LeftID1 + 1) 
-				else {$this->LeftKey} end", False, False);
-			$this->SQL->Where("{$this->LeftKey} between ($RightID2 + 1) and $RightID1", Null, False, False);
-		} else {
-			$this->SQL->Set($this->RightKey, "case 
-				when {$this->LeftKey} between $Between1 then {$this->RightKey} + ($RightID2 - $RightID1)
-				when {$this->LeftKey} between ($RightID1 + 1) and $RightID2 then {$this->RightKey} - ($RightID1 - $LeftID1 + 1)
-				else {$this->LeftKey} end", False, False);
-			$this->SQL->Set($this->LeftKey, "case 
-				when {$this->LeftKey} between $Between1 then {$this->LeftKey} + ($RightID2 - $RightID1)
+			$SqlValueRight = "case 
+				when {$this->LeftKey} between $LeftID1 and $RightID1 then {$this->RightKey} + ($RightID2 - $RightID1)
+				when {$this->LeftKey} between ($RightID1 + 1) and $RightID2 then {$this->RightKey} - (($RightID1 - $LeftID1 + 1))
+				else {$this->RightKey} end";
+			$SqlValueLeft = "case
+				when {$this->LeftKey} between $LeftID1 and $RightID1 then {$this->LeftKey} + ($RightID2 - $RightID1)
 				when {$this->LeftKey} between ($RightID1 + 1) and $RightID2 then {$this->LeftKey} - ($RightID1 - $LeftID1 + 1) 
-				else {$this->LeftKey} end", False, False);
-			$this->SQL->Where("{$this->LeftKey} between $LeftID1 and $RightID2", Null, False, False);
-		}*/
+				else {$this->LeftKey} end";
+			$this->SQL
+				->Set($this->RightKey, $SqlValueRight, False, False)
+				->Set($this->LeftKey, $SqlValueLeft, False, False)
+				->Where("{$this->LeftKey} between $LeftID1 and $RightID2", Null, False, False);
+		}
 	}
 	
-	private function _ChangePositionBeforeQuery($LeftID1, $RightID1, $LeftID2) {
+	private function _ChangePositionBeforeQuery($Node1, $Node2) {
+		list($LeftID1, $RightID1) = $this->_NodeValues($Node1);
+		list($LeftID2, $RightID2) = $this->_NodeValues($Node2);
 		$Between1 = "$LeftID1 and $RightID1";
 		$Between2 = $LeftID2 . ' and ' . ($LeftID1 - 1);
 		$Between3 = ($RightID1 + 1) . ' and ' . ($LeftID2 - 1);
@@ -554,8 +552,8 @@ $sql = 'UPDATE ' . $this->table . ' SET '
 					when {$this->LeftKey} between $Between3 then {$this->LeftKey} - $DeltaRight 
 					else {$this->LeftKey} end", False, False)
 				->Set($this->LeftKey, "case
-					WHEN {$this->LeftKey} between $Between1 then {$this->LeftKey} + ($DeltaLeft - $DeltaRight)
-					WHEN {$this->LeftKey} between $Between3 then {$this->LeftKey} - $DeltaRight
+					when {$this->LeftKey} between $Between1 then {$this->LeftKey} + ($DeltaLeft - $DeltaRight)
+					when {$this->LeftKey} between $Between3 then {$this->LeftKey} - $DeltaRight
 					ELSE {$this->LeftKey} end", False, False)
 				->Where("{$this->LeftKey} between $LeftID1 and ($LeftID2 - 1)", Null, False, False);
 		}
@@ -565,60 +563,70 @@ $sql = 'UPDATE ' . $this->table . ' SET '
 	* Delete element with number $id from the tree wihtout deleting it's children.
 	*
 	*/
-/*	public function Delete($ID, $Where = '') {
-		$Node = $this->GetNode($ID);
-		if (!$Node) return $Node;
-		list($LeftID, $RightID) = $this->_NodeValues($Node);
+	public function Delete($ID, $Where = False) {
+		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
+		if (!$NodeID) return False;
 		
 		$this->Database->BeginTransaction();
-		$this->Delete(array($this->PrimaryKey => $ID));
+		$this->Delete(array($this->PrimaryKey => $NodeID));
 		
+		$SqlValueDepth = "case
+			when {$this->LeftKey} between $LeftID and $RightID then {$this->DepthKey} - 1
+			else {$this->DepthKey} end";
+		$SqlValueRight = "case 
+			when {$this->RightKey} between $LeftID and $RightID then {$this->RightKey} - 1
+			when {$this->RightKey} > $RightID then {$this->RightKey} - 2
+			else {$this->RightKey} end";
+		$SqlValueLeft = "case 
+			when {$this->LeftKey} between $LeftID and $RightID then {$this->LeftKey} - 1
+			when {$this->LeftKey} > $RightID then {$this->LeftKey} - 2 
+			else {$this->LeftKey} end";
 		$this->SQL
-			->Set($this->DepthKey, "case
-				when {$this->LeftKey} between $LeftID and $RightID then {$this->DepthKey} - 1
-				else {$this->DepthKey} end", False, False)
-			->Set($this->LeftKey, "case
-				when {$this->LeftKey} between $LeftID and $RightID then {$this->LeftKey} - 1
-				when {$this->LeftKey} > $RightID then {$this->LeftKey} - 2
-				else {$this->LeftKey} end", False, False)
-			->Set($this->LeftKey, "case
-				when {$this->LeftKey} between $LeftID and $RightID then {$this->LeftKey} - 1
-				when {$this->LeftKey} > $RightID then {$this->LeftKey} - 2
-				else {$this->LeftKey} end", False, False)
-			->Where($this->LeftKey .' >', $LeftID, False, False);
+			->Set($this->DepthKey, $SqlValueDepth, False, False)
+			->Set($this->RightKey, $SqlValueRight, False, False)
+			->Set($this->LeftKey, $SqlValueLeft, False, False)
+			->Where($this->RightKey .' >', $LeftID, False, False);
+		
 		if (is_array($Where)) $this->Where($Where);
 
 		$Result = $this->SQL->Update($this->Name)->Put();
 		$this->Database->CommitTransaction();
 		return $Result;
-	}*/
+	}
 
 	/**
 	* Delete element with number $ID from the tree and all it children.
 	*
 	*/
-/*	public function DeleteAll($ID, $Where = '') {
-		// TODO:
-		$Node = $this->GetNode($ID);
-		if (!$Node) return $Node;
-		list($LeftID, $RightID) = $this->_NodeValues($Node);
+	public function DeleteAll($ID, $Where = False) {
+		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
+		if (!$NodeID) return False;
 		$this->Database->BeginTransaction();
+		
 		$this->SQL
 			->Where($this->LeftKey, "between $LeftID and $RightID", False, False)
 			->Delete($this->Name);
 		
-		$DeltaID = (($RightID - $LeftID) + 1);
+		$DeltaID = $RightID - $LeftID + 1;
+		$SqlValueLeft = "case 
+			when {$this->LeftKey} > $LeftID then {$this->LeftKey} - $DeltaID 
+			else {$this->LeftKey} end";
+		$SqlValueRight = "case 
+			when {$this->RightKey} > $LeftID then $this->RightKey - $DeltaID 
+			else {$this->RightKey} end";
 		
-		//$this->SQL->Where($Where);
-		$this->SQL
+		if (is_array($Where)) $this->SQL->Where($Where);
+		$Result = $this->SQL
 			->Update($this->Name)
-			->Set($this->LeftKey, "when {$this->LeftKey} > $LeftID then {$this->LeftKey} - 1 - $DeltaID else {$this->LeftKey} end", False, False)
-			->Set($this->RightKey, "when $this->RightKey > $LeftID then $this->RightKey - $DeltaID else {$this->LeftKey}")
+			->Set($this->LeftKey, $SqlValueLeft, False, False)
+			->Set($this->RightKey, $SqlValueRight, False, False)
 			->Where($this->RightKey . ' >', $RightID)
 			->Put();
+			
 		$this->Database->CommitTransaction();
-		return TRUE;
-	}*/
+		return $Result;
+	}
+	
 
 	/**
 	* Returns all elements of the tree sortet by left.
