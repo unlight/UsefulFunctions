@@ -1,6 +1,9 @@
 <?php
 // …
 
+/**
+* Converts HTML to Markdown
+*/ 
 if (!function_exists('Markdownify')) {
 	function Markdownify($Html) {
 		$Html = Gdn_Format::To($Html, 'xHtml');
@@ -14,63 +17,9 @@ if (!function_exists('Markdownify')) {
 	}
 }
 
-/**
-* Converts HTML to Markdown (uses PhpQuery library)
-*/ 
-
-/*if (!function_exists('UnMarkdown')) {
-	function UnMarkdown($Html) {
-		$Result = '';
-		$Doc = PqDocument($Html);
-		$Blocks = array();
-		foreach (Pq('p') as $Paragraph) {
-			if ($Paragraph->HasAttributes()) continue;
-			$Blocks[] = Pq($Paragraph)->Html();
-			d(Pq($Paragraph)->HtmlOuter());
-			//DOMNode->hasAttributes() - Checks if node has attributes
-		}
-		d($Html);
-		// http://en.wikipedia.org/wiki/Markdown
-		// 1. **strong emphasis** (more common) or __strong emphasis__ (e.g., boldface)
-		
-		// 2. *emphasis* or _emphasis_ (more common)  (e.g., italics)
-		// 3. Some text with `some code` inside,
-		// 3.1 or indent several lines of code by at least four spaces, as in:
-		//
-		//	line 1 of code
-		//	line 2 of code
-		//	line 3 of code
-		//
-		// Lists
-		// The latter option makes Markdown retain all whitespace -- as opposed 
-		// to the usual behavoiur, which, by removing line breaks and excess spaces, would break indentation and code layout.
-		// * An item in a bulleted (unordered) list
-		//     * A subitem, indented with 4 spaces
-		// * Another item in a bulleted list
-		
-		// 1. An item in an enumerated (ordered) list
-		//2. Another item in an enumerated list
-		
-		// # First-level heading
-		// #### Fourth-level heading
-		
-		// Blockquotes
-		// > This text will be enclosed in an HTML bloc
-		// > Blockquote elements are reflowable. You may arbi
-		
-		// Links
-		// Images
-		// Horizontal rules
-		
-		
-		return $Result;
-	}
-}*/
-
 if (!function_exists('LoadPhpQuery')) {
 	function LoadPhpQuery() {
-		//if(!class_exists('PhpQuery')) require_once dirname(__FILE__).DS.'vendors' . DS . 'phpQuery.php';
-		if (!function_exists('Pq')) require_once USEFULFUNCTIONS_VENDORS . DS . 'phpQuery.php';
+		if (!function_exists('Pq')) require_once USEFULFUNCTIONS_VENDORS . '/phpQuery.php';
 	}
 }
 

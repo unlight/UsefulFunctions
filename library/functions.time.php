@@ -4,7 +4,6 @@
 * Return current Unix timestamp with microseconds
 */
 if (!function_exists('Now')) {
-	// TODO: remove it, exists in core (functions.general.php)
 	function Now() {
 		return microtime(True);
 	}

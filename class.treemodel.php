@@ -590,7 +590,7 @@ class TreeModel extends Gdn_Model {
 			$this
 				->SelectNodeFields()
 				->Select('Name');
-		}
+		} else $this->SQL->Select($Fields);
 		if (is_array($Where)) $this->SQL->Where($Where);
 		$Result = $this->SQL
 			->Select($Fields)
@@ -726,81 +726,6 @@ class TreeModel extends Gdn_Model {
 		$Result = (($LeftID1 > $LeftID2) && $RightID1 < $RightID2);
 		return $Result;
 	}
-	
-	
-	// moves the node '$src' and all its children (subtree) that it is the first child of '$dst'.
-/*	public function MoveToFirstChild ($Source, $Destination) {
-		throw new BadFunctionCallException();
-		list($SourceLeftID, $SourceRightID, $SourceDepth, $SourceNodeID) = $this->_NodeValues($Source);
-		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($Destination);
-		$this->Database->BeginTransaction();
-		$this->_MoveSubTree($Source, $LeftID);
-		//$this->UpdateParentKey($SourceNodeID, $NodeID);
-		$this->Database->CommitTransaction();
-	}*/
-	
-/*	protected function UpdateParentKey($NodeID, $NewParentID) {
-		$this->SQL
-			->Update($this->Name)
-			->Set($this->ParentKey, (int)$NewParentID, False, False)
-			->Where($this->PrimaryKey, (int)$NodeID, False, False)
-			->Put();
-	}*/
-	
-	/* '$src' is the node/subtree, '$to' is its destination l-value */
-/*	protected function _MoveSubTree ($Source, $DestinationLeftID) {
-		list($SourceLeftID, $SourceRightID, $Depth, $NodeID) = $this->_NodeValues($Source);
-		$SourceLeftID = GetValue($this->LeftKey, $Source);
-		$SourceRightID = GetValue($this->RightKey, $Source);
-		$TreeSize = $SourceRightID - $SourceLeftID + 1;
-		$this->_ShiftRLValues($TreeSize, $DestinationLeftID);
-		if ($SourceLeftID >= $DestinationLeftID) { // src was shifted too?
-			$SourceLeftID += $TreeSize;
-			$SourceRightID += $TreeSize;
-		}
-		// now there's enough room next to target to move the subtree
-		$NewPosition = $this->_ShiftRLRange($DestinationLeftID - $SourceLeftID, $SourceLeftID, $SourceRightID);
-		// correct values after source
-		$this->_ShiftRLValues(-$TreeSize, $SourceRightID + 1);
-		if ($SourceLeftID <= $DestinationLeftID) { // dst was shifted too?
-			$NewPosition[$this->LeftKey] -= $TreeSize;
-			$NewPosition[$this->RightKey] -= $TreeSize;
-		}  
-		return $NewPosition;
-	}*/
-	
-	// Adds '$delta' to all L and R values that are >= '$first'. '$delta' can also be negative.
-/*	protected function _ShiftRLValues($Delta, $First, $Last = False) {
-		$Delta = sprintf('%+d', $Delta);
-		if ($Last !== False) $this->SQL->Where($this->LeftKey . '<=', $Last);
-		$this->SQL
-			->Update($this->Name)
-			->Set($this->LeftKey, $this->LeftKey . $Delta, False)
-			->Where($this->LeftKey . '>=', $First)
-			->Put();
-		if ($Last !== False) $this->SQL->Where($this->RightKey . '<=', $Last);
-		$this->SQL
-			->Update($this->Name)
-			->Set($this->RightKey, $this->RightKey . $Delta, False)
-			->Where($this->RightKey . '>=', $First)
-			->Put();
-	}*/
-
-	/* adds '$delta' to all L and R values that are >= '$first' and <= '$last'. '$delta' can also be negative. 
-		returns the shifted first/last values as node array.
-	*/	
-/*	protected function _ShiftRLRange($Delta, $First, $Last) {
-		$this->_ShiftRLValues($Delta, $First, $Last);
-		$Result = array($this->LeftKey => $First + $Delta, $this->RightKey => $Last + $Delta);
-		return $Result;
-	}*/
-	
-	/* creates a new root record and returns the node 'l'=1, 'r'=2. */
-/*	protected function _InsertNew($Node, $Other) {
-		// DO NOT USE!
-		$Fields = array_merge((array)$Node, (array)$Other);
-		return $this->Insert($this->Name, $Fields);
-	}*/
 	
 }
 

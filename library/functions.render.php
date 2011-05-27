@@ -1,7 +1,5 @@
 <?php
 
-// Gdn_Format::To($FileSize, 'Xhtml')
-
 /*if (!function_exists('Xhtml')) {
 	function Xhtml($String) {
 		$HtmlFormatter = Gdn::Factory('HtmlFormatter');

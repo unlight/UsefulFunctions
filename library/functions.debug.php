@@ -1,5 +1,19 @@
 <?php
 
+/** 
+* Displays structured information about one or more expressions that includes its type and value.
+*/ 
+if (!function_exists('VarDump')) {
+	function VarDump($Var) {
+		ob_start();
+		var_dump($Var);
+		$String = ob_get_contents();
+		ob_end_clean();
+		return $String;
+	}
+}
+
+
 /**
 * A quick and simple service for getting pictures of kittens for use as placeholders in your designs or code. 
 * Just put your image size (width & height) after our URL and you'll get a placeholder.
