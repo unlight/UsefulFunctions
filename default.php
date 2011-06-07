@@ -21,6 +21,11 @@ if (class_exists('Gdn')) {
 	
 	// Since 2.0.18 $ClassName must be defined
 /*	class UsefulFunctionsPlugin implements Gdn_IPlugin {
+	
+		public function Structure() {
+			//select distinct Name from GDN_UserMeta;
+		}
+		
 		public function Setup() {
 		}
 	}*/
