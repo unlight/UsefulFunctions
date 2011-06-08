@@ -137,6 +137,9 @@ class Console extends Gdn_Pluggable {
 		return $S;
 	}
 	
+	//public static GetOption() {
+	//}
+	
 	public static function Argument($Name, $Default = False) {
 		$argv = ArrayValue('argv', $GLOBALS);
 		if (!is_array($argv)) return $Default;

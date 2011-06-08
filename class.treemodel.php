@@ -52,12 +52,14 @@ class TreeModel extends Gdn_Model {
 	}
 	
 	
-	protected function SelectNodeFields() {
+	protected function SelectNodeFields($TableAlias = '') {
+		if ($TableAlias != '') $TableAlias .= '.';
 		$this->SQL
-			->Select($this->LeftKey)
-			->Select($this->RightKey)
-			->Select($this->DepthKey)
-			->Select($this->PrimaryKey);
+			->Select($TableAlias.$this->LeftKey)
+			->Select($TableAlias.$this->RightKey)
+			->Select($TableAlias.$this->DepthKey)
+			->Select($TableAlias.$this->PrimaryKey)
+			->Select($TableAlias.$this->ParentKey);
 		return $this->SQL;
 	}
 
@@ -108,14 +110,26 @@ class TreeModel extends Gdn_Model {
 		$this->SQL->Query($Query);
 	}
 	
+	// TODO: MAKE STATIC (need make static $this->PrimaryKey)
+	public function DropDownArray($ValueField, $DataSet) {
+		$Result = array();
+		foreach ($DataSet as $Node) {
+			$Value = $Node->$ValueField;
+			if ($Node->Depth - 1 > 0) {
+				$Value = str_repeat('  ', $Node->Depth - 1) . $Value;
+			}
+			$Result[$Node->{$this->PrimaryKey}] = $Value;
+		}
+		return $Result;
+	}
+	
 	public function GetCorruptedRows() {
 		$SQL = Gdn::SQL();
 		// 1. Left key is always less than the right
 		$CorruptedSql[] = $this->SelectNodeFields()->Select("Name, 'Dummy' as M") ->From($this->Name)->Where($this->LeftKey . '>=', $this->RightKey, False, False)->GetSelect();
 		$SQL->Reset();
-		// 2. The least left key is always 1
-		// 3. The greatest right key is always equal to doubled number of nodes
-		// TODO: 
+		// TODO: 2. The least left key is always 1
+		// TODO: 3. The greatest right key is always equal to doubled number of nodes
 		
 		// 4. The difference between right and left key is always the odd number
 		// N % 2, use %% because called as $Field = sprintf($Function, $Field); Prevents error printf(): Too few arguments.
@@ -127,11 +141,8 @@ class TreeModel extends Gdn_Model {
 		$SQL->Reset();
 		
 		// 6. The left and right keys are always unique
-		$CorruptedSql[] = $this->SQL
-			->Select('t1.'.$this->LeftKey)
-			->Select('t1.'.$this->RightKey)
-			->Select('t1.'.$this->DepthKey)
-			->Select('t1.'.$this->PrimaryKey)
+		$CorruptedSql[] = $this
+			->SelectNodeFields('t1')
 			->Select('t1.Name')
 			->From(array($this->Name .' t1', $this->Name .' t2', $this->Name .' t3'))
 			->Select('t1.'.$this->PrimaryKey, 'count', 'Rep')
@@ -140,9 +151,10 @@ class TreeModel extends Gdn_Model {
 			->Where("t1.$this->RightKey <> t2.$this->LeftKey", Null, False, False)
 			->Where("t1.$this->RightKey <> t2.$this->RightKey", Null, False, False)
 			->GroupBy('t1.'.$this->PrimaryKey)
-			->Having("max(t3.$this->RightKey) <>", "SQRT(4 * Rep + 1) + 1", False, False)
+			->Having("max(t3.$this->RightKey) <>", "sqrt(4 * Rep + 1) + 1", False, False)
 			->GetSelect();
 		$SQL->Reset();
+		
 		
 		$Table = implode("\nunion all\n", $CorruptedSql);
 		$SqlQuery = "select * from ($Table) as t group by t.$this->PrimaryKey";
@@ -404,6 +416,8 @@ class TreeModel extends Gdn_Model {
 		list($LeftID2, $RightID2, $Depth2, $NodeID2) = $this->_NodeValues($ID2);
 		if (!$NodeID1 || !$NodeID1) return False;
 
+		$this->Database->BeginTransaction();
+		
 		$this->SQL
 			->Update($this->Name)
 			->Set($this->LeftKey, $LeftID2)
@@ -411,7 +425,6 @@ class TreeModel extends Gdn_Model {
 			->Set($this->DepthKey, $Depth2)
 			->Where($this->PrimaryKey, $NodeID1, False, False)
 			->Put();
-		$this->Database->BeginTransaction();
 	
 		$Result = $this->SQL
 			->Update($this->Name)
@@ -501,8 +514,6 @@ class TreeModel extends Gdn_Model {
 			}
 		}
 		
-		// TODO: Update ParentKey;
-		
 		//if (is_array($Where)) $this->SQL->Where($Where);
 		$Result = $this->SQL
 			->Update($this->Name)
@@ -510,6 +521,7 @@ class TreeModel extends Gdn_Model {
 			->Set($this->LeftKey, $SqlValueLeft, False, False)
 			->Where($WhereCondition, Null, False, False)
 			->Put();
+		
 		return $Result;
 	}
 	
@@ -568,7 +580,7 @@ class TreeModel extends Gdn_Model {
 			when {$this->RightKey} > $LeftID then $this->RightKey - $DeltaID 
 			else {$this->RightKey} end";
 		
-		if (is_array($Where)) $this->SQL->Where($Where);
+		//if (is_array($Where)) $this->SQL->Where($Where);
 		$Result = $this->SQL
 			->Update($this->Name)
 			->Set($this->LeftKey, $SqlValueLeft, False, False)
@@ -591,7 +603,7 @@ class TreeModel extends Gdn_Model {
 				->SelectNodeFields()
 				->Select('Name');
 		} else $this->SQL->Select($Fields);
-		if (is_array($Where)) $this->SQL->Where($Where);
+		//if (is_array($Where)) $this->SQL->Where($Where);
 		$Result = $this->SQL
 			->Select($Fields)
 			->From($this->Name)
@@ -702,7 +714,7 @@ class TreeModel extends Gdn_Model {
 	# Part of Nested Set Tree Library by Rolf Brugger
 	# http://www.edutech.ch/contribution/nstrees
 	
-	public function HasChildrend($ID) {
+	public function HasChildren($ID) {
 		list($LeftID, $RightID) = $this->_NodeValues($ID);
 		$Result = (($RightID - $LeftID) > 1);
 		return $Result;
