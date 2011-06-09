@@ -658,7 +658,7 @@ class TreeModel extends Gdn_Model {
 	* Returns a slightly opened tree from an element with number $ID.
 	*
 	*/
-	public function Ajar($ID, $Where = '') {
+	public function Ajar($ID, $Where = False) {
 		$DataSet = $this->Parents($ID);
 		$NumRows = $DataSet->NumRows();
 		
@@ -679,19 +679,21 @@ class TreeModel extends Gdn_Model {
 				->Where($this->RightKey.' <', $Row[$this->RightKey])
 				->EndWhereGroup();
 		}
+		$this->SQL->EndWhereGroup();
+		if (is_array($Where)) $this->SQL->Where($Where);
 		$Result = $this->SQL
-			->EndWhereGroup()
 			->OrderBy($this->LeftKey)
 			->Get();
 		return $Result;
 	}
 	
 	/**
-	*
+	* Unknown
 	*/
 	protected function GetNodeWidth($ID) {
 		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
-		$Width = $LeftID - $RightID + 1;
+		// (rgt - lft) + 1)
+		$Width = ($RightID - $LeftID) + 1;
 		return $Width;
 	}
 	
@@ -728,7 +730,8 @@ class TreeModel extends Gdn_Model {
 	
 	public function IsLeaf($Node) {
 		list($LeftID, $RightID) = $this->_NodeValues($Node);
-		return (($RightID - $LeftID) == 1);
+		$Result = (($RightID - $LeftID) == 1);
+		return $Result;
 	}
 	
 	/* returns true, if '$Node1' is a direct child or in the subtree of '$Node2' */
