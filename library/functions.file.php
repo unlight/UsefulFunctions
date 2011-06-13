@@ -166,7 +166,12 @@ if (!function_exists('UploadFile')) {
 			} else $FileName = array($FileName);
 			$TempFile = $Upload->ValidateUpload($InputName);
 			$TargetFile = GenerateCleanTargetName($TargetFolder, $FileName[$i], '', $TempFile, $CanOverwrite);
-			$Upload->SaveAs($TempFile, $TargetFile);
+			
+			// 2.0.18 screwed Gdn_Upload::SaveAs()
+			//$Upload->SaveAs($TempFile, $TargetFile);
+			if (!move_uploaded_file($TempFile, $TargetFile))
+				throw new Exception(sprintf(T('Failed to move uploaded file to target destination (%s).'), $TargetFile));
+			
 			if ($WebTarget != False) $File = str_replace(DS, '/', $TargetFile);
 			elseif (array_key_exists('WithTargetFolder', $Options)) $File = $TargetFile;
 			else $File = pathinfo($TargetFile, PATHINFO_BASENAME);
@@ -175,13 +180,6 @@ if (!function_exists('UploadFile')) {
 		$_FILES = $OriginalFiles;
 		if ($IsMultipleUpload) return $Result;
 		return $File;
-/*		$TempFile = $Upload->ValidateUpload($InputName);
-		$TargetFile = GenerateCleanTargetName($TargetFolder, $FileName, '', $TempFile, $CanOverwrite);
-
-		$Upload->SaveAs($TempFile, $TargetFile);
-		$File = pathinfo($TargetFile, PATHINFO_BASENAME);
-		if($WebTarget != False) $File = str_replace(DS, '/', $TargetFile);
-		return $File;*/
 	}
 }
 
