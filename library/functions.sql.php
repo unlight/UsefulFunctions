@@ -1,7 +1,55 @@
 <?php
-// …
+
+/** 
+BEGIN
+select group_concat(Name separator ',') from (select distinct Name from GDN_UserMeta) as t INTO @Fields;
+set @SqlGroups = 'UserID';
+loop1: loop
+	set @Column = substring_index(@Fields, ',', 1);
+	set @Fields = mid(@Fields, length(@Column)+2);
+	set @SqlGroups = concat(@SqlGroups, ', group_concat(if(Name = "', @Column, '", Value, NULL)) as ', @Column);
+	if (length(@Fields) = 0) then leave loop1; end if;
+end loop loop1;
+set @Sql = concat('select ', @SqlGroups, ' from Gdn_UserMeta group by UserID');
+                
+set @Sql = concat('create or replace view GDN_VwUserMeta as ', @Sql);
+prepare St FROM @Sql;
+execute St;
+END
+
+One line:
+CREATE PROCEDURE `CreateViewUserMeta`()  LANGUAGE SQL  NOT DETERMINISTIC  CONTAINS SQL  SQL SECURITY DEFINER  COMMENT '' BEGIN select group_concat(Name separator ',') from (select distinct Name from GDN_UserMeta) as t INTO @Fields; set @SqlGroups = 'UserID'; loop1: loop  set @Column = substring_index(@Fields, ',', 1);  set @Fields = mid(@Fields, length(@Column)+2);  set @SqlGroups = concat(@SqlGroups, ', group_concat(if(Name = "', @Column, '", Value, NULL)) as ', @Column);  if (length(@Fields) = 0) then leave loop1; end if; end loop loop1; set @Sql = concat('select ', @SqlGroups, ' from Gdn_UserMeta group by UserID');          set @Sql = concat('create or replace view GDN_VwUserMeta as ', @Sql); prepare St FROM @Sql; execute St; END;
+*/
+if (!function_exists('CreateViewUserMeta')) {
+	/**
+	* Create "flat" view for UserMeta table
+	*
+	*/
+	function CreateViewUserMeta() {
+		$SQL = Gdn::SQL();
+		$Px = $SQL->Database->DatabasePrefix;
+		$ViewFileds = $SQL
+			->Distinct()
+			->Select('Name')
+			->From('UserMeta')
+			->Get()
+			->Result();
+		$FieldNames[] = 'UserID';
+		foreach ($ViewFileds as $Name) $FieldNames[] = "group_concat(if(Name = '$Name', Value, NULL)) as $Name";
+		$FieldNames = implode(", \n", $FieldNames);
+		Gdn::Structure()->View('VwUserMeta', $SQL
+			->Select($FieldNames)
+			->From('UserMeta')
+			->GroupBy('UserID')
+		);
+	}
+}
 
 if (!function_exists('TableDataValues')) {
+	/**
+	* Undocumented
+	*
+	*/
 	function TableDataValues($Data, $TableName, $Options = False){
 		static $Cache;
 		if (!isset($Cache[$TableName])) {
@@ -180,3 +228,5 @@ if (!function_exists('K')) {
 		}
 	}
 }
+
+// utf-8 mark …

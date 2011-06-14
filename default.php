@@ -19,7 +19,7 @@ if (class_exists('Gdn')) {
 	Gdn::FactoryInstall('CssSpriteMap', 'CssSpriteMap', USEFULFUNCTIONS_VENDORS.'/CssSprite.php', Gdn::FactorySingleton);
 	Gdn::FactoryInstall('xHtmlFormatter', 'HTMLPurifierPlugin', PATH_PLUGINS.'/HtmlPurifier/default.php', Gdn::FactorySingleton);
 	
-	// Since 2.0.18 $ClassName must be defined
+	// Since 2.0.18 PluginNameClass must be defined
 	class UsefulFunctionsPlugin implements Gdn_IPlugin {
 	
 		public function Structure() {

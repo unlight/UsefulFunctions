@@ -1,5 +1,18 @@
 <?php
 
+/** 
+* Fire event for non Pluggable objects
+*/
+if (!function_exists('StaticFireEvent')) {
+	function StaticFireEvent($ClassName, $EventName, $EventArguments, $Value = '') {
+		if (!is_array($EventArguments)) $EventArguments = array($EventArguments => $Value);
+		$Sender = new StdClass();
+		$Sender->Returns = array();
+		$Sender->EventArguments = (array)$EventArguments;
+		Gdn::PluginManager()->CallEventHandlers($Sender, $ClassName, $EventName);
+	}
+}
+
 if (!function_exists('SendEmailMessage')) {
 	/** 
 	* Send email message.
