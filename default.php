@@ -4,7 +4,7 @@ $PluginInfo['UsefulFunctions'] = array(
 	'Name' => 'Useful Functions',
 	'Description' => 'Useful functions for plugin and application developers (ex- PluginUtils).',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.13'),
-	'Version' => '3.2.101',
+	'Version' => '3.2.102',
 	'Date' => 'Summer 2011',
 	'Author' => 'Vanilla Fan'
 );
@@ -23,7 +23,6 @@ if (class_exists('Gdn')) {
 	class UsefulFunctionsPlugin implements Gdn_IPlugin {
 	
 		public function Structure() {
-			//select distinct Name from GDN_UserMeta;
 		}
 		
 		public function Setup() {
