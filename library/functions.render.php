@@ -1,12 +1,19 @@
 <?php
 
-/*if (!function_exists('Xhtml')) {
+/**
+* Clean HtmlFormatter without mentions, linebreak, etc.
+* 
+* @param string $String Input string. 
+* @return string $String Output string.
+*/
+if (!function_exists('Xhtml')) {
 	function Xhtml($String) {
 		$HtmlFormatter = Gdn::Factory('HtmlFormatter');
 		if ($HtmlFormatter) $String = $HtmlFormatter->Format($String);
+		else $String = Gdn_Format::Text($String);
 		return $String;
 	}
-}*/
+}
 
 // Gdn_Format::To($FileSize, 'Size')
 if (!function_exists('Size')) {
