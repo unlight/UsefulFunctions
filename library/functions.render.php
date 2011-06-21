@@ -6,8 +6,8 @@
 * @param string $String Input string. 
 * @return string $String Output string.
 */
-if (!function_exists('Xhtml')) {
-	function Xhtml($String) {
+if (!function_exists('xHtml')) {
+	function xHtml($String) {
 		$HtmlFormatter = Gdn::Factory('HtmlFormatter');
 		if ($HtmlFormatter) $String = $HtmlFormatter->Format($String);
 		else $String = Gdn_Format::Text($String);
