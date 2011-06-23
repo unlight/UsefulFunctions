@@ -62,7 +62,7 @@ if (!function_exists('d')) {
 		if (!class_exists('Dumphper', False)) {
 			$Path = (defined('USEFULFUNCTIONS_VENDORS')) ? USEFULFUNCTIONS_VENDORS : dirname(__FILE__).'/../vendors';
 			require $Path.'/class.dumphper.php';
-			Dumphper::$escape_keys = true;
+			Dumphper::$escape_keys = false;
 			Dumphper::$max_showw_depth = 8;
 			Dumphper::$encoding = 'utf-8';
 		}
