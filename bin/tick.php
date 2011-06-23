@@ -1,4 +1,3 @@
-#!/usr/local/bin/php
 <?php
 # Add this line to cron task file, 'crontab -e'
 # */5 * * * *  /usr/local/bin/php -q /path/to/plugins/UsefulFunctions/bin/tick.php
@@ -7,12 +6,14 @@ require dirname(__FILE__) . '/../bootstrap.console.php';
 $bLoop = Console::Argument('loop', False) !== False;
 
 ini_set('memory_limit', '256M');
-require USEFULFUNCTIONS_LIBRARY . '/class.tick.php';
 
-$Handler = new Tick();
+$Handler = new StdClass();
+$Handler->Returns = array();
+$Handler->EventArguments = array();
+$PluginManager = Gdn::PluginManager();
 
 $Ticks = array(60 => 'Minute', 3600 => 'Hour', 86400 => 'Day');
-$Matches = array('Minutes' => 'i', 'Hours' => 'H', 'Day' => 'j', 'Month' => 'n'); // , 'WeekDay' => 'w'
+$Matches = array('Minutes' => 'i', 'Hours' => 'H', 'Day' => 'j', 'Month' => 'n');
 
 $Events = array();
 $LastYearSeconds = 0;
@@ -23,13 +24,13 @@ do {
 	
 	foreach ($Matches as $Name => $Token) {
 		$Event = PrefixString('Match', $Event . '_' . date($Token) . '_' . $Name);
-		$Handler->FireEvent($Event);
+		$PluginManager->CallEventHandlers($Handler, 'Tick', $Event);
 		Console::Message('Tick: %s', $Event);
 		$Events[] = $Event;
 	}
 	
 	$Event = $Events[1].'_'.date('l');
-	$Handler->FireEvent($Event);
+	$PluginManager->CallEventHandlers($Handler, 'Tick', $Event);
 	Console::Message('Tick: %s', $Event);
 	$Events[] = $Event;
 	
@@ -44,8 +45,8 @@ do {
 			if ($YearSeconds % $Second == 0 && ($YearSeconds / $Second) % $i == 0) {
 				$Event = 'Every_'.$i.'_'.$Name.$Suffix;
 				$Events[] = $Event;
-				// TODO: FIX ME, chain break if error, maybe use try/catch here
-				$Handler->FireEvent($Event);
+				// TODO: FIX ME, chain break if error, maybe use try/catch here?
+				$PluginManager->CallEventHandlers($Handler, 'Tick', $Event);
 				Console::Message('Tick: %s', $Event);
 			}
 		}
