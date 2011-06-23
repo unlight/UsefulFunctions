@@ -1,14 +1,10 @@
 <?php
-// fixed by S
 /**
  * Impored var_dump for PHP 5.2.3++
  * @author Dmitry "widowmaker" Khavilo
  * @email wm .dot. morgun .at. gmail .dot. com
  **/
 
-Define('DPHP_USE_ACCESSIBLE', (version_compare(PHP_VERSION, '5.3.0') >= 0));
-
- 
 class Dumphper
 {
   /** config **/

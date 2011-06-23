@@ -1,22 +1,25 @@
 <?php
 
-/*if (!function_exists('Deprecated')) {
-	/ **
+if (!function_exists('Deprecated')) {
+	/**
 	* Mark a function deprecated (Garden)
 	*
 	* @param string $Name The name of the deprecated function.
 	* @param string $NewName The name of the new function that should be used instead.
-	* /
+	*/
 	function Deprecated($Name, $NewName = FALSE) {
 		$Msg = $Name.' is deprecated.';
 		if ($NewName) $Msg .= " Use $NewName instead.";
 		trigger_error($Msg, E_USER_DEPRECATED);
 	}
-}*/
+}
 
-/** 
+/**
 * Displays structured information about one or more expressions that includes its type and value.
-*/ 
+* 
+* @param mixed $Expression.
+* @return string $String.
+*/
 if (!function_exists('VarDump')) {
 	function VarDump($Var) {
 		ob_start();
@@ -31,6 +34,10 @@ if (!function_exists('VarDump')) {
 /**
 * A quick and simple service for getting pictures of kittens for use as placeholders in your designs or code. 
 * Just put your image size (width & height) after our URL and you'll get a placeholder.
+* @param int $Width 
+* @param int $Height 
+* @param bool $Colored 
+* @return string $Url. 
 */
 if (!function_exists('PlaceKitten')) {
 	function PlaceKitten($Width, $Height = False, $Colored = False) {
@@ -45,12 +52,20 @@ if (!function_exists('PlaceKitten')) {
 
 /**
 * Dumps information about arguments passed to functions
+* 
 */
 if (!function_exists('d')) {
 	function d() {
 		static $bSetStyle = True;
 		static $bExit = True;
-		if (!defined('DPHP_USE_ACCESSIBLE')) require USEFULFUNCTIONS_VENDORS.DS.'class.dumphper.php';
+		define('DPHP_USE_ACCESSIBLE', (version_compare(PHP_VERSION, '5.3.0') >= 0));
+		if (!class_exists('Dumphper', False)) {
+			$Path = (defined('USEFULFUNCTIONS_VENDORS')) ? USEFULFUNCTIONS_VENDORS : dirname(__FILE__).'/../vendors';
+			require $Path.'/class.dumphper.php';
+			Dumphper::$escape_keys = true;
+			Dumphper::$max_showw_depth = 8;
+			Dumphper::$encoding = 'utf-8';
+		}
 		$Args = func_get_args();
 		if (count($Args) == 0 && $bExit) $bExit = False;
 		if (PHP_SAPI != 'cli') {
@@ -85,6 +100,11 @@ if (!function_exists('d')) {
 	}
 }
 
+/**
+* Undocumented 
+* 
+* @param string 
+*/
 if (!function_exists('dplg')) {
 	function dplg($PluginFunction) {
 		if (!isset($_GET['d'])) return;
