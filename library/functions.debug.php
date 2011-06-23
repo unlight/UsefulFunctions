@@ -58,8 +58,8 @@ if (!function_exists('d')) {
 	function d() {
 		static $bSetStyle = True;
 		static $bExit = True;
-		define('DPHP_USE_ACCESSIBLE', (version_compare(PHP_VERSION, '5.3.0') >= 0));
 		if (!class_exists('Dumphper', False)) {
+			define('DPHP_USE_ACCESSIBLE', (version_compare(PHP_VERSION, '5.3.0') >= 0));
 			$Path = (defined('USEFULFUNCTIONS_VENDORS')) ? USEFULFUNCTIONS_VENDORS : dirname(__FILE__).'/../vendors';
 			require $Path.'/class.dumphper.php';
 			Dumphper::$escape_keys = false;
