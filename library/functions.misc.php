@@ -51,29 +51,32 @@ if (!function_exists('ToggleBit')) {
 	}
 }
 
-/**
-* Loads a PHP extension at runtime.
-* 
-* @param string $Ext. 
-* @return bool $Result.
-*/
 if (!function_exists('LoadExtension')) {
+	/**
+	* Loads a PHP extension at runtime.
+	* 
+	* @param string $Ext. 
+	* @return bool $Result.
+	*/
 	function LoadExtension($Ext, $bThrowException = False) {
 		$Ext = strtolower($Ext);
 		if (extension_loaded($Ext)) return True;
 		$Prefix = (PHP_SHLIB_SUFFIX == 'dll') ? 'php_' : '';
 		if (!function_exists('dl')) throw new Exception("dl() function is not supported. Trying to load '$Ext' extension.");
 		$Loaded = dl($Prefix . $Ext . '.' . PHP_SHLIB_SUFFIX);
-		if ($Loaded) return True
+		if ($Loaded) return True;
 		if ($bThrowException) throw new Exception(@$php_errormsg);
 		return False;
 	}
 }
 
-/**
-* Returns first non-empty argument.
-*/ 
 if (!function_exists('Pick')) {
+	/**
+	* Returns first non-empty argument.
+	* Last value in list of arguments is default.
+	* 
+	* @return mixed $Default.
+	*/
 	function Pick($Default = False) {
 		$Arguments = func_get_args();
 		$Default = array_pop($Arguments);
@@ -84,7 +87,6 @@ if (!function_exists('Pick')) {
 	}
 }
 
-// TODO: Try to extend method for controllers
 if (!function_exists('GetBodyIdentifier')) {
 	function GetBodyIdentifier(&$Controller) {
 		$ControllerName = GetShortControllerName($Controller);

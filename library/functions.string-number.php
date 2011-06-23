@@ -1,7 +1,8 @@
 <?php
 
 if (!function_exists('StringIsNullOrEmpty')) {
-	/** Checks whether or not a string is null or an empty string.
+	/** 
+	* [Garden]. Checks whether or not a string is null or an empty string.
 	* Taked from Garden core (for use this functions in other projects).
 	*
 	* @param string $String The string to check.
@@ -12,43 +13,42 @@ if (!function_exists('StringIsNullOrEmpty')) {
 	}
 }
 
-/**
-* Convert full name. First letters uppercased.
-*/
 if (!function_exists('ToTitleCase')) {
+	/**
+	* Convert full name. First letters uppercased.
+	*/
 	function ToTitleCase($S) {
 		return mb_convert_case($S, MB_CASE_TITLE, 'utf-8');
 	}
 }
 
-/**
-* Removes everything except digits, + and -
-*/
 if (!function_exists('CleanUpPhone')) {
+	/**
+	* Removes everything except digits, + and -.
+	*/
 	function CleanUpPhone(&$String) {
 		$String = preg_replace('/[^0-9\+\-]/', '', $String);
 		return $String;
 	}
 }
 
-/**
-* Function for drawing text as table like in MySQL client console.
-* Example:
-$Row1 = array('Yvan', 'kras@mail.com', '1');
-$Row2 = array('John', 'dsffffkrok@mail.ag', '0');
-echo TextDataGrid(array('FirstName', 'Email', 'OnlineWork'), array($Row1, $Row2, ...));
-Result:
-+-----------+-------------------------+------------+
-| FirstName | Email                   | OnlineWork |
-+-----------+-------------------------+------------+
-| Yvan      | kras@mail.com           |          1 |
-| John      | dsffffkrok@mail.ag      |          0 |
-| Dummy     | krokuswww@mail.com      |          1 |
-| Andy      | lande@reg.maosss.cow    |          0 |
-+-----------+-------------------------+------------+
-*/
-
 if (!function_exists('TextDataGrid')) {
+	/**
+	* Function for drawing text as table like in MySQL client console.
+	* Example:
+	$Row1 = array('Yvan', 'kras@mail.com', '1');
+	$Row2 = array('John', 'dsffffkrok@mail.ag', '0');
+	echo TextDataGrid(array('FirstName', 'Email', 'OnlineWork'), array($Row1, $Row2, ...));
+	Result:
+	+-----------+-------------------------+------------+
+	| FirstName | Email                   | OnlineWork |
+	+-----------+-------------------------+------------+
+	| Yvan      | kras@mail.com           |          1 |
+	| John      | dsffffkrok@mail.ag      |          0 |
+	| Dummy     | krokuswww@mail.com      |          1 |
+	| Andy      | lande@reg.maosss.cow    |          0 |
+	+-----------+-------------------------+------------+
+	*/
 	function TextDataGrid($Headers, $DataArray, $Options = False) {
 		// TODO: FIX FOR MULTILINE TEXT
 		if (!function_exists('_TextDataRow')) {
@@ -97,19 +97,19 @@ if (!function_exists('TextDataGrid')) {
 	}
 }
 
-/**
-* Check given $String for UTF
-*/
 if (!function_exists('CheckUtf')) {
+	/**
+	* Check given $String for UTF
+	*/
 	function CheckUtf($String) {
 		return (bool) preg_match('~~u', $String);
 	}
 }
 
-/**
-* UTF-8 string padding. str_pad() for multibyte string.
-*/
 if (!function_exists('mb_str_pad')) {
+	/**
+	* UTF-8 string padding. str_pad() for multibyte string.
+	*/
 	function mb_str_pad($String, $PadLength, $PadString = ' ', $PadType = STR_PAD_RIGHT) {
 		$Diff = strlen($String) - mb_strlen($String, 'utf-8');
 		return str_pad($String, $PadLength + $Diff, $PadString, $PadType);
@@ -117,10 +117,10 @@ if (!function_exists('mb_str_pad')) {
 }
 
 
-/**
-* Crypt/Decrypt string using password.
-*/
 if (!function_exists('NCrypt')) {
+	/**
+	* Crypt/Decrypt string using password.
+	*/
 	function NCrypt($String, $Password, $bDecrypt) {
 		if (!defined('ALPHABET')) {
 			define('RALPHABET', pack('H*', '4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a31323334353637383930205c212c2e3a3b3f7e402324255e262a28295f2b2d3d5d5b7d7b2f3e3c2227607c4142434445464748494a4b4c4d4e4f505152535455565758595a6162636465666768696a6b6c6d6e6f707172737475767778797a31323334353637383930205c212c2e3a3b3f7e402324255e262a28295f2b2d3d5d5b7d7b2f3e3c2227607c'));
@@ -163,10 +163,10 @@ if (!function_exists('ArraySum')) {
 	}
 }
 
-/**
-* Calculate the sum of integer values (values can be any length)
-*/ 
 if (!function_exists('Summation')) {
+	/**
+	* Calculate the sum of integer values (values can be any length)
+	*/ 
 	function Summation($A) {
 		$Arguments = func_get_args();
 		if (is_array($A)) $Arguments = Flatten($Arguments);
@@ -193,12 +193,11 @@ if (!function_exists('Summation')) {
 	}
 }
 
-
-/**
-* Calculates small hash for any data based on crc32()
-* Length of string 6-7 chars of [a-z0-9]
-*/ 
 if (!function_exists('Crc32Value')) {
+	/**
+	* Calculates small hash for any data based on crc32()
+	* Length of string 6-7 chars of [a-z0-9]
+	*/ 
 	function Crc32Value() {
 		$Value = func_get_args();
 		$Crc = crc32(serialize($Value));
@@ -208,10 +207,14 @@ if (!function_exists('Crc32Value')) {
 	}
 }
 
-/**
-* Returns the first number clamped to the interval from A to B.
-*/
 if (!function_exists('Clamp')) {
+	/**
+	* Returns the first number clamped to the interval from A to B.
+	* 
+	* @param mixed $A.
+	* @param mixed $B
+	* @return mixed $V.
+	*/
 	function Clamp($V, $A, $B) {
 		if ($V > $B) return $B;
 		else if ($V < $A) return $A;
@@ -219,10 +222,10 @@ if (!function_exists('Clamp')) {
 	}
 }
 
-/**
-* CleanupString function from Vanilla I
-*/
 if (!function_exists('CleanupString')) {
+	/**
+	* CleanupString function from Vanilla I
+	*/
 	function CleanupString($String) {
 		return Gdn_Format::Clean($String);
 	}
@@ -238,11 +241,11 @@ if (!function_exists('ConvertEncoding')) {
 	}
 }
 
-/**
-* Split string to array by a regular expression, calls callback or filter for this array.
-* Useful for tags or something like.
-*/
 if (!function_exists('SplitString')) {
+	/**
+	* Split string to array by a regular expression, calls callback or filter for this array.
+	* Useful for tags or something like.
+	*/
 	function SplitString($String, $RegExpr = False, $FilterFunction = Null) {
 		if ($RegExpr == False) $RegExpr = '/\s*,\s*/';
 		elseif ($RegExpr{0} != '/') $RegExpr = '/'.$RegExpr.'/';
@@ -261,15 +264,15 @@ if (!function_exists('SplitString')) {
 	}
 }
 
-/**
-* Compares the string $String with all elements of the array $DataArray using the similar_text();
-* Returns object holding properties:
-* Percent: Similarity in percent 
-* Value: Value of more similarity of subarray (or object) with key/property = $ValueKey
-* Id: Value of more similarity of subarray (or object) with key/property = $IdKey
-* String: Compared $String
-*/
 if (!function_exists('GetSimilarity')) {
+	/**
+	* Compares the string $String with all elements of the array $DataArray using the similar_text();
+	* Returns object holding properties:
+	* Percent: Similarity in percent 
+	* Value: Value of more similarity of subarray (or object) with key/property = $ValueKey
+	* Id: Value of more similarity of subarray (or object) with key/property = $IdKey
+	* String: Compared $String
+	*/
 	function GetSimilarity($String, $DataArray, $IdKey = '', $ValueKey = '') {
 		$Percents = array();
 		$String = strip_tags($String);
@@ -299,12 +302,12 @@ if (!function_exists('GetSimilarity')) {
 
 }
 
-/*
-* Camelize string.
-* Example: Camelize('my_var_name');
-* Returns: MyVarName
-*/
 if (!function_exists('Camelize')) {
+	/*
+	* Camelize string.
+	* Example: Camelize('my_var_name');
+	* Returns: MyVarName
+	*/
 	function Camelize($String) {
 		$String = str_replace('_', ' ', $String);
 		$String = ucwords($String);

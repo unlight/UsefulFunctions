@@ -1,17 +1,17 @@
 <?php
 
-/**
-* Gets currect locale language;
-* Example: Locale: en-CA, returns "en".
-*/
-
 if (!function_exists('LocaleLanguageCode')) {
+	/**
+	* Gets current language from defined locale.
+	* Example: Locale: en-CA, returns "en".
+	* 
+	* @return string, default "en". 
+	*/
 	function LocaleLanguageCode() {
 		$T = SplitString(Gdn::Locale()->Current(), '/[_-]/');
 		return ArrayValue(0, $T, 'en');
 	}
 }
-
 
 if (!function_exists('GoogleTranslate')) {
 	function GoogleTranslate($Text, $Options = False) {
@@ -66,12 +66,15 @@ if (!function_exists('LingvoTranslate')) {
 	}
 }
 
-/**
-* Translate arguments passed to function;
-* Returns associative array: T(Value) => Value;
-* Usefull for dropdown form menu / enum fields.
-*/
 if (!function_exists('LocalizedOptions')) {
+	/**
+	* Translate arguments passed to function.
+	* Returns associative array: T(Value) => Value.
+	* Usefull for dropdown form menu / enum fields.
+	* 
+	* @param mixed $Options, array or elements of array.
+	* @return array $Options. 
+	*/
 	function LocalizedOptions($Options) {
 		if (is_string($Options)) $Options = func_get_args();
 		if (is_array($Options)) $Options = array_combine($Options, array_map('T', $Options));
@@ -79,13 +82,18 @@ if (!function_exists('LocalizedOptions')) {
 	}
 }
 
-/**
-* Shortening for translate message with parameters.
-* Example: sprintf(T('Hello %1$s, today is %2$s!'), 'John', 'Tuesday');
-* Same as: LocalizedMessage('Hello %1$s, today is %2$s', 'John', 'Tuesday');
-*/
 if (!function_exists('LocalizedMessage')) {
-	function LocalizedMessage() {
+	/**
+	* Shortening for translate message with parameters. 
+	* Example: sprintf(T('Hello %1$s, today is %2$s!'), 'John', 'Tuesday').
+	* Same as: LocalizedMessage('Hello %1$s, today is %2$s', 'John', 'Tuesday').
+	* 
+	* @param string $Format. 
+	* @param mixed $Parameter Parameter1.
+	* @param mixed ...
+	* @return string Localized string. 
+	*/
+	function LocalizedMessage($Format, $Parameter = Null) {
 		$Args = func_get_args();
 		$Args[0] = Gdn::Translate($Args[0]);
 		return call_user_func_array('sprintf', $Args);

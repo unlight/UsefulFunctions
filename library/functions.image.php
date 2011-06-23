@@ -1,11 +1,10 @@
 <?php
 
-/**
-* Use the montage program to create a composite image by combining several separate images.
-* http://www.imagemagick.org/script/montage.php
-*/
-
 if (!function_exists('MontageImage')) {
+	/**
+	* Use the montage program to create a composite image by combining several separate images.
+	* http://www.imagemagick.org/script/montage.php
+	*/
 	function MontageImage($Sources, $Options) {
 
 		$Source = $Sources[0];
@@ -65,11 +64,11 @@ if (!function_exists('ConvertImage')) {
 		return $ResultImage;
 	}
 }
-/**
-* ImageMagick helper function.
-* Checks image. Saves remote file (URL) to directory.
-*/ 
 if (!function_exists('GetImageSource')) {
+	/**
+	* ImageMagick helper function.
+	* Checks image. Saves remote file (URL) to directory.
+	*/ 
 	function GetImageSource($Source) {
 		$Source = ltrim($Source, '/');
 		if (!is_file($Source)) {
@@ -102,12 +101,11 @@ if (!function_exists('ImageMagick')) {
 }
 
 
-/**
-* Makes thumbnail image by ImageMagick
-* Use ConvertImage()
-*/
-
 if (!function_exists('Thumbnail')) {
+	/**
+	* Makes thumbnail image by ImageMagick
+	* Use ConvertImage()
+	*/
 	function Thumbnail($Source, $Attributes, &$OutData = Null) {
 		$OutData = Null;
 		$Width = ArrayValue('width', $Attributes);

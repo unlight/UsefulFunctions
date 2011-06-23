@@ -1,10 +1,13 @@
 <?php
 
-/**
-* @function     GetGeoCoords
-* @description  Gets GeoCoords by calling the Google Maps geoencoding API
-*/
 if (!function_exists('GetGeoCoords')) {
+	/**
+	* Gets GeoCoords by calling the Google Maps geoencoding API. 
+	* 
+	* @param mixed $Address.
+	* @param mixed $Name.
+	* @return mixed $Result.
+	*/
 	function GetGeoCoords($Address, $Name = False) {
 		//$Address = utf8_encode($Address);
 		// call geoencoding api with param json for output

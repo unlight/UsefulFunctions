@@ -1,10 +1,10 @@
 <?php
 // …
 
-/**
-* Converts HTML to Markdown
-*/ 
 if (!function_exists('Markdownify')) {
+	/**
+	* Converts HTML to Markdown
+	*/ 
 	function Markdownify($Html) {
 		$Html = Gdn_Format::To($Html, 'xHtml');
 		$Snoopy = Gdn::Factory('Snoopy');
@@ -23,16 +23,18 @@ if (!function_exists('LoadPhpQuery')) {
 	}
 }
 
-/**
-* Creates phpQuery document from string or file.
-* Options: 
-* FixHtml (True|False): Clean content by HtmlFormatter
-* phpQuery is a server-side, chainable, CSS3 selector driven Document Object Model (DOM),
-* API based on jQuery JavaScript Library. 
-* More information: http://code.google.com/p/phpquery/
-*/ 
-
 if (!function_exists('PqDocument')) {
+	/**
+	* Creates phpQuery document from string or file.
+	* Options: 
+	* FixHtml (True|False): Clean content by HtmlFormatter
+	* phpQuery is a server-side, chainable, CSS3 selector driven Document Object Model (DOM),
+	* API based on jQuery JavaScript Library. 
+	* More information: http://code.google.com/p/phpquery/
+	* 
+	* @param mixed $Document, string, file or url.
+	* @return PhpQueryDocument object.
+	*/ 
 	function PqDocument($Document, $Options = False) {
 		if (!function_exists('Pq')) require_once USEFULFUNCTIONS_VENDORS.'/phpQuery.php';
 		if (strpos($Document, '<') === False) {

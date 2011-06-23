@@ -4,7 +4,8 @@ if (!function_exists('GetValue')) {
 	/**
 	* Return the value from an associative array or an object.
 	* Taked from Garden core (for use this functions in other projects).
-	*
+	* 
+	* @note Garden.Core function.
 	* @param string $Key The key or property name of the value.
 	* @param mixed $Collection The array or object to search.
 	* @param mixed $Default The value to return if the key does not exist.
@@ -18,15 +19,22 @@ if (!function_exists('GetValue')) {
 			if ($Remove) unset($Collection[$Key]);
 		} elseif (is_object($Collection) && property_exists($Collection, $Key)) {
 			$Result = $Collection->$Key;
-			if($Remove)
-			unset($Collection->$Key);
+			if ($Remove) unset($Collection->$Key);
 		}
 		return $Result;
 	}
 }
 
-// http://code-snippets.co.cc/PHP/PHP-array-rotation
 if (!function_exists('RotateArray')) {
+	/**
+	* This function rotates array values by specified amount of steps. 
+	* Positive number will make array rotate forward, negative - backward.
+	* 
+	* @credit http://webcodingeasy.com/PHP/PHP-array-rotation
+	* @param int $Steps.
+	* @param array $Array.
+	* @return array $Array.
+	*/
 	function RotateArray($Steps, $Array) {
 		if ($Steps >= 0) {
 			for ($i = 0; $i < $Steps; $i++) {
@@ -43,23 +51,30 @@ if (!function_exists('RotateArray')) {
 	}
 }
 
-
-// loota-php_util
 if (!function_exists('IsEmpty')) {
+	/**
+	* Undocumented 
+	* 
+	* @credit loota-php_util
+	* @param mixed $Array.
+	* @return bool $Result.
+	*/
 	function IsEmpty($Array) {
 		if (!is_array($Array)) $Array = (array)$Array;
 		return (count(array_filter($Array)) == 0);
 	}
 }
 
-
-/**
-* Promote key for associative array/dataset
-*/
 if (!function_exists('PromoteKey')) {
+	/**
+	* Promote key for associative array/dataset.
+	* 
+	* @param array $Collection (or any iterable object).
+	* @return array $Result.
+	*/
 	function PromoteKey($Collection, $PromotedKey) {
 		$Result = array();
-		foreach($Collection as $Data) {
+		foreach ($Collection as $Data) {
 			$K = GetValue($PromotedKey, $Data);
 			$Result[$K] = $Data;
 		}
@@ -117,8 +132,14 @@ if (!function_exists('array_flat')) {
 	}
 }
 
-// http://phunction.sf.net/
 if (!function_exists('Flatten')) {
+	/**
+	* Undocumented 
+	* 
+	* @credit http://phunction.sf.net
+	* @param array 
+	* @return array $Result.
+	*/
 	function Flatten($Array) {
 		$Result = array();
 		foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($Array)) as $Value)
@@ -128,13 +149,22 @@ if (!function_exists('Flatten')) {
 }
 
 if (!function_exists('RandomValue')) {
+	/**
+	* Get random value from array $Collection.
+	* 
+	* @param array $Collection.
+	* @param mixed $Default, this value returned if $Collection is not array.
+	* @param bool $Remove, if true remove this random value from $Collection.
+	* @return mixed $Result.
+	*/
 	function RandomValue(&$Collection, $Default = False, $Remove = False) {
+		$Result = $Default;
 		if (is_array($Collection)) {
 			$Index = array_rand($Collection);
-			$Default = $Collection[$Index];
-			if($Remove) unset($Collection[$Index]);
+			$Result = $Collection[$Index];
+			if ($Remove) unset($Collection[$Index]);
 		}
-		return $Default;
+		return $Result;
 	}
 }
 

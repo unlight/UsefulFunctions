@@ -1,9 +1,12 @@
 <?php
 
-/**
-* Gets/converts IP-address (numeric format/dot format)
-*/
 if (!function_exists('RealIpAddress')) {
+	/**
+	* Gets/converts IP-address (numeric format/dot format).
+	* 
+	* @param mixed $Ip.
+	* @return mixed $Ip, converted or gotten numeric IP.
+	*/
 	function RealIpAddress($Ip = Null) {
 		if (is_null($Ip)) {
 			foreach(array('HTTP_CLIENT_IP','HTTP_X_FORWARDED_FOR','HTTP_X_FORWARDED','HTTP_X_CLUSTER_CLIENT_IP','HTTP_FORWARDED_FOR','HTTP_FORWARDED','REMOTE_ADDR') as $Key) {
@@ -35,14 +38,13 @@ if (!function_exists('CheckIpMask')) {
 	}
 }
 
-
-/**
-* Get MX records corresponding to a given Internet host name;
-* For Windows.
-*/ 
-
 if (!function_exists ('getmxrr')) {
-	// This script was writed by Setec Astronomy - setec@freemail.it
+	/**
+	* Get MX records corresponding to a given Internet host name for Windows.
+	* 
+	* @see http://www.php.net/manual/en/function.getmxrr.php
+	* @credits This script was writed by Setec Astronomy - setec@freemail.it
+	*/
 	function getmxrr($hostname = '', &$mxhosts, &$weight = array()) {
 		$weight = array();
 		$mxhosts = array();
