@@ -51,7 +51,12 @@ if (!function_exists('ToggleBit')) {
 	}
 }
 
-
+/**
+* Loads a PHP extension at runtime.
+* 
+* @param string $Ext. 
+* @return bool $Result.
+*/
 if (!function_exists('LoadExtension')) {
 	function LoadExtension($Ext, $bThrowException = False) {
 		$Ext = strtolower($Ext);
@@ -59,9 +64,9 @@ if (!function_exists('LoadExtension')) {
 		$Prefix = (PHP_SHLIB_SUFFIX == 'dll') ? 'php_' : '';
 		if (!function_exists('dl')) throw new Exception("dl() function is not supported. Trying to load '$Ext' extension.");
 		$Loaded = dl($Prefix . $Ext . '.' . PHP_SHLIB_SUFFIX);
-		$Result = ($Loaded > 0);
+		if ($Loaded) return True
 		if ($bThrowException) throw new Exception(@$php_errormsg);
-		return $Result;
+		return False;
 	}
 }
 

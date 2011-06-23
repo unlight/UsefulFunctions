@@ -17,7 +17,7 @@ if (!function_exists('Deprecated')) {
 /**
 * Displays structured information about one or more expressions that includes its type and value.
 * 
-* @param mixed $Expression.
+* @param mixed $Var.
 * @return string $String.
 */
 if (!function_exists('VarDump')) {
