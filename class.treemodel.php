@@ -1,10 +1,14 @@
 <?php if (!defined('APPLICATION')) exit();
 
-# Credits: 
-# Kuzma Feskov <kuzma[at]russofile[dot]ru>
-# http://php.russofile.ru/ru/authors/sql/nestedsets01/
-# Rolf Brugger, edutech
-# http://www.edutech.ch/contribution/nstrees
+
+/**
+* Credits:
+* Kuzma Feskov <kuzma[at]russofile[dot]ru>
+* http://php.russofile.ru/ru/authors/sql/nestedsets01/
+* Rolf Brugger, edutech
+* http://www.edutech.ch/contribution/nstrees
+* 
+*/
 
 class TreeModel extends Gdn_Model {
 	
@@ -126,18 +130,35 @@ class TreeModel extends Gdn_Model {
 	public function GetCorruptedRows() {
 		$SQL = Gdn::SQL();
 		// 1. Left key is always less than the right
-		$CorruptedSql[] = $this->SelectNodeFields()->Select("Name, 'Dummy' as M") ->From($this->Name)->Where($this->LeftKey . '>=', $this->RightKey, False, False)->GetSelect();
+		$CorruptedSql[] = $this
+			->SelectNodeFields()
+			->Select("Name, 'Dummy' as M")
+			->From($this->Name)
+			->Where($this->LeftKey . '>=', $this->RightKey, False, False)
+			->GetSelect();
 		$SQL->Reset();
 		// TODO: 2. The least left key is always 1
 		// TODO: 3. The greatest right key is always equal to doubled number of nodes
 		
 		// 4. The difference between right and left key is always the odd number
 		// N % 2, use %% because called as $Field = sprintf($Function, $Field); Prevents error printf(): Too few arguments.
-		$CorruptedSql[] = $this->SelectNodeFields()->Select("Name")->From($this->Name)->Select('TreeRight - TreeLeft', '(%s) %% 2', 'M')->Having('M', 0, False, False)->GetSelect();
+		$CorruptedSql[] = $this
+			->SelectNodeFields()
+			->Select("Name")
+			->From($this->Name)
+			->Select('TreeRight - TreeLeft', '(%s) %% 2', 'M')
+			->Having('M', 0, False, False)
+			->GetSelect();
 		$SQL->Reset();
 		// 5.If the level of the node is an odd number then the left key is always an odd number, the same thing for even numbers;
 		$SQL->Reset();
-		$CorruptedSql[] = $this->SelectNodeFields()->Select("Name")->From($this->Name)->Select('TreeLeft - Depth + 2', '(%s) %% 2', 'M')->Having('M', 0, False, False)->GetSelect();
+		$CorruptedSql[] = $this
+			->SelectNodeFields()
+			->Select("Name")
+			->From($this->Name)
+			->Select('TreeLeft - Depth + 2', '(%s) %% 2', 'M')
+			->Having('M', 0, False, False)
+			->GetSelect();
 		$SQL->Reset();
 		
 		// 6. The left and right keys are always unique
@@ -154,7 +175,6 @@ class TreeModel extends Gdn_Model {
 			->Having("max(t3.$this->RightKey) <>", "sqrt(4 * Rep + 1) + 1", False, False)
 			->GetSelect();
 		$SQL->Reset();
-		
 		
 		$Table = implode("\nunion all\n", $CorruptedSql);
 		$SqlQuery = "select * from ($Table) as t group by t.$this->PrimaryKey";
