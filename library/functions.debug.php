@@ -51,8 +51,10 @@ if (!function_exists('DebugCheckPoint')) {
 		} elseif ($Sender) {
 			$Sender = '# ' . $Sender;
 		}
-
-		echo '<div style=\'font-size:12px;font-family:"courier new";line-height:13px;\'>', sprintf('%04d', $Count), $TimeStamp, ": $Message", $Sender, "</div>";
+		
+		$Message = sprintf('%04d', $Count) . $TimeStamp . ": $Message" . $Sender;
+		if (PHP_SAPI != 'cli') $Message = '<div style=\'font-size:12px;font-family:"courier new";line-height:13px;\'>' . $Message . '</div>';
+		echo $Message, "\n";
 	}
 }
 
