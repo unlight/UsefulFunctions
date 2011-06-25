@@ -14,6 +14,49 @@ if (!function_exists('Deprecated')) {
 	}
 }
 
+
+if (!function_exists('DebugCheckPoint')) {
+	/**
+	* Undocumented 
+	* 
+	* @param string $Message. 
+	* @return NULL.
+	*/
+	function DebugCheckPoint($Message, $Sender = False) {
+		static $Count = 0;
+		static $StartTime;
+		if ($Count == 0) $StartTime = microtime(true);
+		++$Count;
+		$TimeStamp = sprintf(' (%01.3f)', (microtime(true) - $StartTime));
+		
+		if (is_int($Sender)) {
+			$Trace = debug_backtrace();
+			ob_start();
+			debug_print_backtrace();
+			$Backtrace = ob_get_contents();
+			ob_end_clean();
+			$Backtrace = preg_split('/#\d+ /', $Backtrace);
+			unset($Backtrace[0], $Backtrace[1]);
+			$PathRoot = PATH_ROOT;
+			$Call = array();
+			foreach ($Backtrace as &$Trace) {
+				$CalledAtPos = strpos($Trace, 'called at');
+				$SenderFileLine = str_replace($PathRoot, '', substr($Trace, $CalledAtPos + strlen('called at')));
+				$SenderFileLine = trim(trim(trim($SenderFileLine), '[]'), '/\\');
+				$Trace = mb_strimwidth($Trace, 0, 80, '…', 'utf-8');
+				$Call[] = "\t" . $Trace . ' @ ' . $SenderFileLine;
+				if (--$Sender == 0) break;
+			}
+			$Sender = ' #' . implode("\n", $Call);
+		} elseif ($Sender) {
+			$Sender = '# ' . $Sender;
+		}
+
+		echo '<div style=\'font-size:12px;font-family:"courier new";line-height:13px;\'>', sprintf('%04d', $Count), $TimeStamp, ": $Message", $Sender, "</div>";
+	}
+}
+
+
 /**
 * Displays structured information about one or more expressions that includes its type and value.
 * 
