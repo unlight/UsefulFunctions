@@ -18,6 +18,11 @@ class TreeModel extends Gdn_Model {
 	protected $ParentKey = 'ParentID';
 	protected $CachedNodeResults;
 	
+	/**
+	* Undocumented 
+	* 
+	* @return object $Root.
+	*/
 	public function GetRoot() {
 		$Root = $this
 			->SelectNodeFields()
@@ -28,9 +33,12 @@ class TreeModel extends Gdn_Model {
 		return $Root;
 	}
 	
-	
 	/**
-	* Receives left, right and level for unit with number id.
+	* Receives left, right and level for node with number $ID.
+	* 
+	* @param int $ID.
+	* @param mixed $ResetCache.
+	* @return mixed $Result.
 	*/
 	public function GetNode($ID, $ResetCache = False) {
 		$Result =& $this->CachedNodeResults[$ID];
@@ -94,8 +102,11 @@ class TreeModel extends Gdn_Model {
 		return $SideID;
 	}
 	
-	/** 
-	* Set Depth for all nodes. Use after AjacencyListToNestedSets()
+	/**
+	* Set Depth for all nodes.
+	* Use after AjacencyListToNestedSets().
+	* 
+	* @return Null.
 	*/
 	public function UpdateTreeDepth() {
 		$Px = $this->SQL->Database->DatabasePrefix;
@@ -127,6 +138,11 @@ class TreeModel extends Gdn_Model {
 		return $Result;
 	}
 	
+	/**
+	* Get corrupted nodes of tree.
+	* 
+	* @return mixed $Result.
+	*/
 	public function GetCorruptedRows() {
 		$SQL = Gdn::SQL();
 		// 1. Left key is always less than the right
@@ -199,7 +215,10 @@ class TreeModel extends Gdn_Model {
 	}
 	
 	/**
-	* Receives parent left, right and level for unit with number $id.
+	* Receives parent left, right and level for unit with number $ID.
+	* 
+	* @param mixed $ID, id of node or node object.
+	* @return mixed $Result.
 	*/
 	public function GetParent($ID) {
 		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
@@ -219,9 +238,12 @@ class TreeModel extends Gdn_Model {
 		return $Result;
 	}
 	
-	
 	/**
-	* Adds a new child element to the end of the list of child elements
+	* Adds a new child element to the top of the list of child elements.
+	* 
+	* @param mixed $Parent.
+	* @param mixed $Data.
+	* @return mixed $Result.
 	*/
 	public function AppendTo($Parent, $Data) {
 		if (is_numeric($Parent)) $Parent = $this->GetNode($Parent);
@@ -250,9 +272,13 @@ class TreeModel extends Gdn_Model {
 		return $ResultID;
 
 	}
-	
+
 	/**
-	* Adds a new child element to the top of the list of child elements
+	* Adds a new child element to the top of the list of child elements.
+	* 
+	* @param mixed $Parent.
+	* @param mixed $Data.
+	* @return mixed $Result.
 	*/
 	public function PrependTo($Parent, $Data) {
 
@@ -282,7 +308,7 @@ class TreeModel extends Gdn_Model {
 	}
 	
 	/**
-	* Add a new element in the tree to element with number $id.
+	* Add a new element in the tree to element with number $ID.
 	*
 	* @return integer Inserted element id
 	*/
@@ -344,8 +370,10 @@ class TreeModel extends Gdn_Model {
 	
 	/**
 	* Assigns a node with all its children to another parent.
-	*
-	* @param integer $ID node ID
+	* 
+	* @param mixed $ID, id of node or node object.
+	* @param mixed $NewParentID, parent id of node or parent node object.
+	* @return mixed $Result.
 	*/
 	public function MoveAll($ID, $NewParentID, $Where = False) {
 		
@@ -423,12 +451,12 @@ class TreeModel extends Gdn_Model {
 		return $Result;
 	}
 	
-	
 	/**
 	* Change items position.
-	*
-	* @param integer $id1 first item ID
-	* @param integer $id2 second item ID
+	* 
+	* @param mixed $ID1, id of node or node object.
+	* @param mixed $ID2, id of node or node object.
+	* @return mixed $Result.
 	*/
 	public function ChangePosition($ID1, $ID2) {
 		
@@ -458,10 +486,15 @@ class TreeModel extends Gdn_Model {
 		return $Result;
 	}
 	
-	
 	/**
-	* Swapping nodes within the same level and limits of one parent with all its children: $id1 placed before or after $id2.
-	*
+	* Swapping nodes within the same level and limits of one parent with all its children: 
+	* $ID1 placed before or after $ID2.
+	* 
+	* @param mixed $ID1.
+	* @param mixed $ID2.
+	* @param mixed $Position, default after.
+	* @param mixed $Where.
+	* @return mixed $Result.
 	*/
 	public function ChangePositionAll($ID1, $ID2, $Position = 'after', $Where = False) {
 		list($LeftID1, $RightID1, $Depth1, $NodeID1) = $this->_NodeValues($ID1);
@@ -547,7 +580,9 @@ class TreeModel extends Gdn_Model {
 	
 	/**
 	* Delete element with number $id from the tree wihtout deleting it's children.
-	*
+	* 
+	* @param mixed $ID, id of node or node object.
+	* @return mixed $Result.
 	*/
 	public function Delete($ID, $Where = False) {
 		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
@@ -581,7 +616,9 @@ class TreeModel extends Gdn_Model {
 
 	/**
 	* Delete element with number $ID from the tree and all it children.
-	*
+	* 
+	* @param mixed $ID, id of node or node object.
+	* @return mixed $Result.
 	*/
 	public function DeleteAll($ID, $Where = False) {
 		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
@@ -612,10 +649,11 @@ class TreeModel extends Gdn_Model {
 		return $Result;
 	}
 	
-
 	/**
 	* Returns all elements of the tree sortet by left.
-	*
+	* 
+	* @param mixed $Fields.
+	* @return mixed $Result.
 	*/
 	public function Full($Fields = '', $Where = False) {
 		if ($Fields == '') {
@@ -634,10 +672,10 @@ class TreeModel extends Gdn_Model {
 
 	/**
 	* Returns all elements of a branch starting from an element with number $ID.
-	*
+	* 
+	* @param int $NodeID.
+	* @return Gdn_DataSet $Result.
 	*/
-	
-	
 	public function Branch($NodeID, $Fields = 'a.*', $Where = False) {
 		$NodeID = (int)$NodeID;
 		if (is_array($Where)) $this->SQL->Where($Where);
@@ -653,12 +691,15 @@ class TreeModel extends Gdn_Model {
 			->Get();
 		return $Result;
 	}
-
+	
 	/**
 	* Returns all parents of element with number $ID.
-	*
+	* 
+	* @param int $NodeID.
+	* @param mixed $Fields.
+	* @param mixed $Where.
+	* @return mixed $Result.
 	*/
-	
 	public function Parents($NodeID, $Fields = 'a.*', $Where = False) { // $Where a.
 		$NodeID = (int)$NodeID;
 		if (is_array($Where)) $this->SQL->Where($Where);
@@ -676,7 +717,10 @@ class TreeModel extends Gdn_Model {
 
 	/**
 	* Returns a slightly opened tree from an element with number $ID.
-	*
+	* 
+	* @param int $NodeID.
+	* @param mixed $Where.
+	* @return mixed $Result.
 	*/
 	public function Ajar($ID, $Where = False) {
 		$DataSet = $this->Parents($ID);
@@ -708,7 +752,10 @@ class TreeModel extends Gdn_Model {
 	}
 	
 	/**
-	* Unknown
+	* Undocumented 
+	* 
+	* @param mixed $ID.
+	* @return mixed $Result.
 	*/
 	protected function GetNodeWidth($ID) {
 		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
@@ -717,10 +764,11 @@ class TreeModel extends Gdn_Model {
 		return $Width;
 	}
 	
-	
 	/**
-	* Get all nodes without children
-	*
+	* Get all nodes without children.
+	* 
+	* @param mixed 
+	* @return mixed $Result.
 	*/
 	public function GetLeafs($Fields = '*') {
 		$Result = $this->SQL
@@ -754,7 +802,13 @@ class TreeModel extends Gdn_Model {
 		return $Result;
 	}
 	
-	/* returns true, if '$Node1' is a direct child or in the subtree of '$Node2' */
+	/**
+	* Returns true, if $Node1 is a direct child or in the subtree of $Node2.
+	* 
+	* @param mixed $Node1.
+	* @param mixed $Node2.
+	* @return mixed $Result.
+	*/
 	public function IsChild($Node1, $Node2) {
 		list($LeftID1, $RightID1, $Depth1, $NodeID1) = $this->_NodeValues($Node1);
 		list($LeftID2, $RightID2, $Depth2, $NodeID2) = $this->_NodeValues($Node2);
