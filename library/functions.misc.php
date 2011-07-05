@@ -1,4 +1,44 @@
 <?php
+if (!function_exists('SetModuleSort')) {
+	/**
+	* Function for quick modify sorting for modules in configuration file.
+	* See library/core/class.controller.php ~ L: 118
+	* If $PositionItem is False (default) $ModuleName will be added to the edn of the list.
+	* If $PositionItem is integer (positive or negative) ...
+	* If $PositionItem is string ...
+	* 
+	* @param string $ModuleSortContainer, container name.
+	* @param string $AssetName, asset name.
+	* @param string $ModuleName, module name which need to add to config.
+	* @param mixed $PositionItem.
+	* @return bool. Return FALSE on failure.
+	*/
+	function SetModuleSort($ModuleSortContainer, $AssetName, $ModuleName, $PositionItem = False) {
+		$ModuleSort = Gdn::Config('Modules');
+		$AssetSort = GetValueR("$ModuleSortContainer.$AssetName", $ModuleSort, array());
+		if (!is_array($AssetSort)) $AssetSort = array();
+		if ($PositionItem !== False) {
+			if (!is_numeric($PositionItem)) {
+				$Position = substr($PositionItem, 0, 1);
+				if (in_array($Position, array('-', '+'))) $PositionItem = substr($PositionItem, 1);
+				$PositionItem = array_search($PositionItem, $AssetSort);
+				if ($Position == '+') $PositionItem = (int)$PositionItem + 1;
+			}
+			$PositionItem = (int)$PositionItem;
+			array_splice($AssetSort, $PositionItem, 0, array($ModuleName));
+		} else array_push($AssetSort, $ModuleName);
+		
+		$AssetSort = array_unique($AssetSort);
+			
+		// Make sure that we put in config strings only.
+		$VarExport = create_function('$Value', 'return var_export(strval($Value), True);');
+		$ModuleList = implode(', ',  array_map($VarExport, $AssetSort));
+		$PhpArrayCode = "\n\$Configuration['Modules']['$ModuleSortContainer']['$AssetName'] = array($ModuleList);";
+		$ConfigFile = PATH_LOCAL_CONF . '/config.php';
+		$Result = file_put_contents($ConfigFile, $PhpArrayCode, FILE_APPEND | LOCK_EX);
+		return ($Result !== False);
+	}
+}
 
 if (!function_exists('SendEmailMessage')) {
 	/** 
