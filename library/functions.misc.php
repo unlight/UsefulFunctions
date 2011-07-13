@@ -1,4 +1,22 @@
 <?php
+if (!function_exists('AddToConfig')) {
+	/**
+	* Undocumented 
+	* 
+	* @param mixed 
+	* @return bool $Result.
+	*/
+	function AddToConfig($Name, $Value = False) {
+		$VarExport = create_function('$Value', 'return var_export(strval($Value), 1);');
+		$Keys = array_map($VarExport, explode('.', $Name));
+		$Key = implode('][', $Keys);
+		$ValueCode = var_export($Value, 1);
+		$ValueCode = "\n\$Configuration[$Key] = $ValueCode;";
+		$Result = file_put_contents(PATH_LOCAL_CONF . '/config.php', $ValueCode, FILE_APPEND | LOCK_EX);
+		return ($Result !== False);
+	}
+}
+
 if (!function_exists('SetModuleSort')) {
 	/**
 	* Function for quick modify sorting for modules in configuration file.
