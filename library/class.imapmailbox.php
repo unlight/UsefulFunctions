@@ -8,12 +8,7 @@ class ImapMailbox extends Gdn_Pluggable {
 	public $CheckResult;
 	
 	public function __construct($Host, $Options, $Login, $Password) {
-		
-		if (!extension_loaded('imap')) {
-			$Library = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? 'php_imap.dll' : 'imap.so';
-			dl($Library);
-		}
-		if(!extension_loaded('imap')) throw new Exception('Imap extension is not loaded.');
+		LoadExtension('imap', True);
 		$MailBox = '{'.$Host.':'.$Options.'}INBOX';
 		$this->Connection = imap_open($MailBox, $Login, $Password, OP_SILENT);
 		$this->IMAP2 = new Mail_IMAPv2($this->Connection);
@@ -24,6 +19,7 @@ class ImapMailbox extends Gdn_Pluggable {
 		//$this->IMAP2->setOptions('close', CL_EXPUNGE);
 		$this->IMAP2->Expunge();
 		$this->IMAP2->Close();
+		imap_errors(); // Clear error stack.
 	}
 	
 	public function MessageCount() {
