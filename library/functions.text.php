@@ -1,6 +1,39 @@
 <?php
 // …
 
+if (!function_exists('LoremIpsum')) {
+	/**
+	* Lorem Ipsum Generator. Using remote service.
+	* Undocumented.
+	* 
+	*/
+	function LoremIpsum($Options = array()) {
+		$Snoopy = Gdn::Factory('Snoopy');
+		$Defaults = array(
+			'language' => 'other',
+			'other'	=> 'russian',
+			'radio'	=> 'limit',
+			'limit' => 1000, // words
+			'num' => 1, // paragraph(s) 
+			'type' => 'plain',
+			//'download' => 'download',
+			'Rhubarb' => 'Generate'
+		);
+		$Trim = False;
+		if (GetValue('Name', $Options, False, True)) {
+			$Options['radio'] = 'limit';
+			$Options[$Options['radio']] = 1;
+			$Trim = '.';
+		}
+		$Options = array_merge($Defaults, $Options);
+		$Snoopy->Submit('http://generator.lorem-ipsum.info/lorem-ipsum-copy', $Options);
+		$Doc = PqDocument($Snoopy->results, array('FixHtml' => False));
+		$Result = Pq('#txt')->Text();
+		if ($Trim !== False) $Result = trim($Result, $Trim);
+		return $Result;
+	}
+}
+
 if (!function_exists('Markdownify')) {
 	/**
 	* Converts HTML to Markdown

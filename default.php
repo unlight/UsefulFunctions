@@ -4,7 +4,7 @@ $PluginInfo['UsefulFunctions'] = array(
 	'Name' => 'Useful Functions',
 	'Description' => 'Useful functions for plugin and application developers (ex- PluginUtils).',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.13'),
-	'Version' => '3.3.108',
+	'Version' => '3.4.109',
 	'Date' => 'Summer 2011',
 	'Author' => 'Vanilla Fan'
 );
@@ -35,7 +35,7 @@ require USEFULFUNCTIONS_LIBRARY.'/functions.render.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.sql.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.image.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.time.php';
-require USEFULFUNCTIONS_LIBRARY.'/functions.xml.php';
+require USEFULFUNCTIONS_LIBRARY.'/functions.text.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.network.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.array-object.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.string-number.php';
