@@ -116,6 +116,20 @@ if (!function_exists('mb_str_pad')) {
 	}
 }
 
+if (!function_exists('mb_ucfirst')) {
+
+	/**
+	* HP’s ucfirst function is very usefull when you want to change words 
+	* first letters to uppercase and other letters to lowercase. Currently on PHP 
+	* does not have a multibyte (UTF-8) version of ucfirst function.
+	* Credits http://petruha.net/?p=97
+	*/
+	function mb_ucfirst($String, $Encoding = 'utf-8') {
+		if (!is_null($Encoding)) mb_internal_encoding($Encoding);
+		return mb_strtoupper(mb_substr($String, 0, 1)) . mb_substr($String, 1);
+	}
+}
+
 
 if (!function_exists('NCrypt')) {
 	/**
