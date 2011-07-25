@@ -223,7 +223,7 @@ class TreeModel extends Gdn_Model {
 	public function GetParent($ID) {
 		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
 		if (!$NodeID) return False;
-		$Level = $Level - 1;
+		$Depth = $Depth - 1;
 		//$Result =& $this->CachedNodeResults[$ID];
 		$Result = $this->SQL
 			//->SelectNodeFields()
@@ -231,7 +231,7 @@ class TreeModel extends Gdn_Model {
 			->From($this->Name)
 			->Where($this->LeftKey.' <', $LeftID)
 			->Where($this->RightKey.' >', $RightID)
-			->Where($this->DepthKey, $Level)
+			->Where($this->DepthKey, $Depth)
 			->OrderBy($this->LeftKey)
 			->Get()
 			->FirstRow();
@@ -663,7 +663,6 @@ class TreeModel extends Gdn_Model {
 		} else $this->SQL->Select($Fields);
 		//if (is_array($Where)) $this->SQL->Where($Where);
 		$Result = $this->SQL
-			->Select($Fields)
 			->From($this->Name)
 			->OrderBy($this->LeftKey)
 			->Get();
