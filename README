@@ -38,6 +38,15 @@ $Configuration['Plugins']['UsefulFunctions']['Console']['Check'] = TRUE;
 $Configuration['Plugins']['UsefulFunctions']['ImPath'] = '/usr/local/bin/';
 	ImageMagick path. If you are on Windows, this value can be c:\Program Files\ImageMagick\
 	
+$Configuration['Plugins']['UsefulFunctions']['LoremIpsum']['Language'] = 'latin';
+	Lorem ipsum text language:
+	latin - Standard Lipsum 
+	noIpsum - Don't start with "Lorem Ipsum"
+	Other values:
+	greek, hindi, russian, arabic, hebrew, letzebuergesch, etc. 
+	See full list at http://generator.lorem-ipsum.info/lorem-ipsum-copy
+	
+	
 UPGRADE FROM PLUGINUTILS
 ========================
 Some old plugins require PluginUtils plugin.

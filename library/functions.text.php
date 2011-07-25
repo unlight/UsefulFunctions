@@ -7,25 +7,39 @@ if (!function_exists('LoremIpsum')) {
 	* Undocumented.
 	* 
 	*/
-	function LoremIpsum($Options = array()) {
-		$Snoopy = Gdn::Factory('Snoopy');
+	function LoremIpsum($Settings = array(), $Trim = False) {
+		$Language = C('Plugins.UsefulFunctions.LoremIpsum.Language', 'latin');
+		if (!in_array($Language, array('latin', 'noIpsum'))) {
+			$OtherValue = $Language;
+			$Language = 'other';
+		}
 		$Defaults = array(
-			'language' => 'other',
-			'other'	=> 'russian',
+			'language' => $Language, // latin (Standard Lipsum), noIpsum (Don't start with "Lorem Ipsum" )
+			'other'	=> isset($OtherValue) ? $OtherValue : 'latin',
 			'radio'	=> 'limit',
-			'limit' => 1000, // words
+			'limit' => 100, // words
 			'num' => 1, // paragraph(s) 
 			'type' => 'plain',
-			//'download' => 'download',
 			'Rhubarb' => 'Generate'
 		);
-		$Trim = False;
-		if (GetValue('Name', $Options, False, True)) {
+		
+		if (is_numeric($Settings)) {
+			// Words
 			$Options['radio'] = 'limit';
-			$Options[$Options['radio']] = 1;
-			$Trim = '.';
+			$Options['limit'] = $Settings;
+			if ($Settings == 1) $Trim = '.'; // remove dot for single word
+		} elseif (is_string($Settings) && substr($Settings, 0, 1) == 'p') {
+			// Paragraphs
+			$Paragraphs = substr($Settings, 1);
+			$Number = Clamp((int)$Paragraphs, 1, 100);
+			$Options['num'] = $Number;
+			$Options['radio'] = 'num';
+		} else {
+			$Options = $Settings;
 		}
 		$Options = array_merge($Defaults, $Options);
+
+		$Snoopy = Gdn::Factory('Snoopy');
 		$Snoopy->Submit('http://generator.lorem-ipsum.info/lorem-ipsum-copy', $Options);
 		$Doc = PqDocument($Snoopy->results, array('FixHtml' => False));
 		$Result = Pq('#txt')->Text();
