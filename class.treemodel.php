@@ -722,7 +722,10 @@ class TreeModel extends Gdn_Model {
 	* @return mixed $Result.
 	*/
 	public function Ajar($ID, $Where = False) {
-		$DataSet = $this->Parents($ID);
+		
+		if (is_object($ID)) $DataSet = $ID;
+		else $DataSet = $this->Parents($ID);
+		
 		$NumRows = $DataSet->NumRows();
 		
 		$this->SQL
