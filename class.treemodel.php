@@ -42,7 +42,7 @@ class TreeModel extends Gdn_Model {
 	*/
 	public function GetNode($ID, $ResetCache = False) {
 		$Result =& $this->CachedNodeResults[$ID];
-		if (!isset($this->CachedNodeResults[$ID]) || $ResetCache) {
+		if (!isset($Result) || $ResetCache) {
 			$Result = $this
 				->SelectNodeFields()
 				->From($this->Name)
@@ -220,11 +220,12 @@ class TreeModel extends Gdn_Model {
 	* @param mixed $ID, id of node or node object.
 	* @return mixed $Result.
 	*/
-	public function GetParent($ID) {
+	public function GetParent($ID, $Where = False) {
 		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
 		if (!$NodeID) return False;
 		$Depth = $Depth - 1;
 		//$Result =& $this->CachedNodeResults[$ID];
+		if (is_array($Where)) $this->SQL->Where($Where);
 		$Result = $this->SQL
 			//->SelectNodeFields()
 			->Select('*')
@@ -661,7 +662,7 @@ class TreeModel extends Gdn_Model {
 				->SelectNodeFields()
 				->Select('Name');
 		} else $this->SQL->Select($Fields);
-		//if (is_array($Where)) $this->SQL->Where($Where);
+		if (is_array($Where)) $this->SQL->Where($Where);
 		$Result = $this->SQL
 			->From($this->Name)
 			->OrderBy($this->LeftKey)
@@ -688,6 +689,23 @@ class TreeModel extends Gdn_Model {
 			->Where("a.{$this->RightKey} <= b.{$this->RightKey}", Null, False, False)
 			->OrderBy("a.{$this->LeftKey}")
 			->Get();
+		return $Result;
+	}
+
+	/**
+	* The path from $NodeID the root node $RootNode.
+	* 
+	*/
+	
+	public function GetPath($NodeID, $RootNode = False, $IncludeRoot = True) {
+		$Where = False;
+		if (is_numeric($RootNode) && $RootNode != 1) {
+			list($LeftID, $RightID) = $this->_NodeValues($RootNode);
+			$Op = ($IncludeRoot) ? '=' : '';
+			$Where['a.TreeLeft >'.$Op] = $LeftID;
+			$Where['a.TreeRight <'.$Op] = $RightID;
+		}
+		$Result = $this->Parents($NodeID, 'a.*', $Where);
 		return $Result;
 	}
 	
@@ -726,7 +744,8 @@ class TreeModel extends Gdn_Model {
 		if (is_object($ID)) $DataSet = $ID;
 		else $DataSet = $this->Parents($ID);
 		
-		$NumRows = $DataSet->NumRows();
+		if ($DataSet instanceof Gdn_DataSet) $NumRows = $DataSet->NumRows();
+		else $NumRows = count($DataSet);
 		
 		$this->SQL
 			->Select('a.*')
@@ -735,7 +754,8 @@ class TreeModel extends Gdn_Model {
 			->Where($this->DepthKey, 1, False, False);
 		
 		$i = 0;
-		foreach ($DataSet->ResultArray() as $Row) {
+		foreach ($DataSet as $Row) {
+			$Row = (array)$Row;
 			if ((++$i == $NumRows) && ($Row[$this->LeftKey] + 1) == $Row[$this->RightKey]) break;
 			$this->SQL
 				->OrOp()
