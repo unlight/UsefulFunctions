@@ -203,7 +203,10 @@ class TreeModel extends Gdn_Model {
 	protected function _NodeValues($Node) {
 		if (!is_object($Node)) {
 			$Node = $this->GetNode($Node);
-			if ($Node === False) throw new Exception('Empty node.');
+			if ($Node === False) {
+				trigger_error(ErrorMessage('Empty node.', __CLASS__, __FUNCTION__, VarDump(func_get_arg(0))));
+				return False;
+			}
 		}
 		$Result = array_map('intval', array(
 			$Node->{$this->LeftKey}, 

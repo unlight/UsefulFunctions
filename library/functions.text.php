@@ -14,11 +14,11 @@ if (!function_exists('LoremIpsum')) {
 			$Language = 'other';
 		}
 		$Defaults = array(
-			'language' => $Language, // latin (Standard Lipsum), noIpsum (Don't start with "Lorem Ipsum" )
+			'language' => $Language, // latin (Standard Lipsum), noIpsum (Don't start with "Lorem Ipsum")
 			'other'	=> isset($OtherValue) ? $OtherValue : 'latin',
 			'radio'	=> 'limit',
 			'limit' => 100, // words
-			'num' => 1, // paragraph(s) 
+			'num' => 1, // paragraph(s)
 			'type' => 'plain',
 			'Rhubarb' => 'Generate'
 		);
@@ -27,7 +27,7 @@ if (!function_exists('LoremIpsum')) {
 			// Words
 			$Options['radio'] = 'limit';
 			$Options['limit'] = $Settings;
-			if ($Settings == 1) $Trim = '.'; // remove dot for single word
+			if (is_int($Settings) || $Settings == 1) $Trim = '.'; // remove dot for single word
 		} elseif (is_string($Settings) && substr($Settings, 0, 1) == 'p') {
 			// Paragraphs
 			$Paragraphs = substr($Settings, 1);
