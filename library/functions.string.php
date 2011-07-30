@@ -1,5 +1,25 @@
 <?php
 
+if (!function_exists('SplitUpString')) {
+	/**
+	* SplitString v2, no regular expressions.
+	* Split string to array.
+	*/
+	function SplitUpString($String, $Sep = ',', $Functions = 'trim, filter, values') {
+		$Array = explode($Sep, $String);
+		if ($Functions) {
+			$Functions = array_map('trim', explode(',', $Functions));
+			foreach ($Functions as $F) {
+				if ($F == 'trim') $Array = array_map('trim', $Array);
+				elseif ($F == 'filter') $Array = array_filter($Array);
+				elseif ($F == 'values') $Array = array_values($Array);
+				elseif ($F == 'strtolower') $Array = array_map('strtolower', $Array);
+			}
+		}
+		return $Array;
+	}
+}
+
 if (!function_exists('StringIsNullOrEmpty')) {
 	/** 
 	* [Garden]. Checks whether or not a string is null or an empty string.
