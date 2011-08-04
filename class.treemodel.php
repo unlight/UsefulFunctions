@@ -102,6 +102,40 @@ class TreeModel extends Gdn_Model {
 		return $SideID;
 	}
 	
+	// http://klepa.co/2011/02/16/adjacency-list-nested-set-model-mptt/
+	// rebuild_tree(1,1);
+	public function RebuildTree($ParentID, $LeftID) {
+		//print "$leftn";
+		// the right value of this node is the left value + 1
+		$RightID = $LeftID + 1;
+		// get all children of this node
+		$TreeDataSet = $this->SQL
+			->From($this->Name)
+			->Select($this->PrimaryKey)
+			->Where($this->ParentKey, $ParentID)
+			->OrderBy($this->LeftKey, 'asc')
+			->Get()
+			->Result();
+		// recursive execution of this function for each
+		// child of this node
+		// $right is the current right value, which is
+		// incremented by the rebuild_tree function
+		foreach ($TreeDataSet as $Node) {
+			$RightID = $this->RebuildTree($Node->{$this->PrimaryKey}, $RightID);
+		}
+		// we've got the left value, and now that we've processed
+		// the children of this node we also know the right value
+		$this->SQL
+			->Update($this->Name)
+			->Set($this->LeftKey, $LeftID)
+			->Set($this->RightKey, $RightID)
+			->Where($this->PrimaryKey, $ParentID)
+			->Put();
+		// return the right value of this node + 1
+		return $RightID + 1;
+	}
+
+	
 	/**
 	* Set Depth for all nodes.
 	* Use after AjacencyListToNestedSets().
