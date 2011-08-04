@@ -4,7 +4,7 @@ $PluginInfo['UsefulFunctions'] = array(
 	'Name' => 'Useful Functions',
 	'Description' => 'Useful functions for plugin and application developers (ex- PluginUtils).',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.13'),
-	'Version' => '3.5.112',
+	'Version' => '3.5.113',
 	'Date' => 'Summer 2011',
 	'Author' => 'Vanilla Fan'
 );
@@ -22,9 +22,6 @@ if (class_exists('Gdn')) {
 	// Since 2.0.18 PluginNameClass must be defined
 	class UsefulFunctionsPlugin implements Gdn_IPlugin {
 	
-		public function Structure() {
-		}
-		
 		public function Setup() {
 		}
 	}

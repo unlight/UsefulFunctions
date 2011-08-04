@@ -227,7 +227,6 @@ class TreeModel extends Gdn_Model {
 		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
 		if (!$NodeID) return False;
 		$Depth = $Depth - 1;
-		//$Result =& $this->CachedNodeResults[$ID];
 		if (is_array($Where)) $this->SQL->Where($Where);
 		$Result = $this->SQL
 			//->SelectNodeFields()
@@ -654,6 +653,40 @@ class TreeModel extends Gdn_Model {
 	}
 	
 	/**
+	* Undocumented 
+	* 
+	*/
+	
+	public function GetSiblings($Fields = '', $Node, $Where = False) {
+		if (is_object($Node)) $ParentID = $Node->ParentID;
+		else $ParentID = $Node;
+		$Where[$this->ParentKey] = $ParentID;
+		$Result = $this->Full($Fields, $Where);
+		/*select c.*
+		from tree as p
+		join tree as c on (c.left > p.left and c.right < p.right and c.depth = p.dept + 1) where p.id = @parentID*/
+		
+		return $Result;
+	}
+	
+	
+	/**
+	* Undocumented
+	* 
+	*/
+	public function GetChildrens($Fields = '*', $Node, $Where = False) {
+		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($Node);
+		$DirectDescendants = GetValue('DirectDescendants', $Where, False, True);
+		if ($DirectDescendants !== False) $Where[$this->DepthKey] = $Depth + 1;
+		
+		$Where[$this->LeftKey . ' >='] = $LeftID;
+		$Where[$this->RightKey . '<='] = $RightID;
+		$Result = $this->Full($Fields, $Where);
+		
+		return $Result;
+	}
+	
+	/**
 	* Returns all elements of the tree sortet by left.
 	* 
 	* @param mixed $Fields.
@@ -700,15 +733,18 @@ class TreeModel extends Gdn_Model {
 	* 
 	*/
 	
-	public function GetPath($NodeID, $RootNode = False, $IncludeRoot = True) {
+	public function GetPath($Node, $RootNode = False, $IncludeRoot = True) {
 		$Where = False;
 		if (is_numeric($RootNode) && $RootNode != 1) {
 			list($LeftID, $RightID) = $this->_NodeValues($RootNode);
 			$Op = ($IncludeRoot) ? '=' : '';
-			$Where['a.TreeLeft >'.$Op] = $LeftID;
-			$Where['a.TreeRight <'.$Op] = $RightID;
+			$Where['TreeLeft >'.$Op] = $LeftID;
+			$Where['TreeRight <'.$Op] = $RightID;
 		}
-		$Result = $this->Parents($NodeID, 'a.*', $Where);
+		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($Node);
+		$Where['TreeLeft <='] = $LeftID;
+		$Where['TreeRight >='] = $RightID;
+		$Result = $this->Full('*', $Where);
 		return $Result;
 	}
 	
