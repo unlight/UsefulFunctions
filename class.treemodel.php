@@ -85,7 +85,7 @@ class TreeModel extends Gdn_Model {
 			->From($this->Name)
 			->Select($this->PrimaryKey)
 			->Where($this->ParentKey, $ParentID)
-			->OrderBy($this->TreeLeft, 'asc')
+			->OrderBy($this->LeftKey, 'asc')
 			->Get()
 			->Result();
 		foreach ($TreeDataSet as $Node) {
