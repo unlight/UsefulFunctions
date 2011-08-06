@@ -3,17 +3,25 @@
 if (!function_exists('SplitUpString')) {
 	/**
 	* SplitString v2, no regular expressions.
-	* Split string to array.
+	* Split string $String to array.
+	* Be default applies to array elements: trim
+	* Be default apply to array: array_filter and array_values
 	*/
-	function SplitUpString($String, $Sep = ',', $Functions = 'trim, filter, values') {
+	function SplitUpString($String, $Sep = ',', $Functions = Null) {
+		static $DefaultFunctions = 'trim filter values';
 		$Array = explode($Sep, $String);
 		if ($Functions) {
-			$Functions = array_map('trim', explode(',', $Functions));
+			$Functions = array_map('trim', explode(' ', $DefaultFunctions . ' ' . $Functions));
+			foreach ($Functions as $Key => $F) {
+				if ($F{0} == '-') unset($Functions[$Key]);
+			}
 			foreach ($Functions as $F) {
+				if (substr($F, 0, 1) == '+') substr($F, 1);
 				if ($F == 'trim') $Array = array_map('trim', $Array);
 				elseif ($F == 'filter') $Array = array_filter($Array);
 				elseif ($F == 'values') $Array = array_values($Array);
 				elseif ($F == 'strtolower') $Array = array_map('strtolower', $Array);
+				elseif ($F == 'unique') $Array = array_unique($Array);
 			}
 		}
 		return $Array;
