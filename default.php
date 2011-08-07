@@ -4,7 +4,7 @@ $PluginInfo['UsefulFunctions'] = array(
 	'Name' => 'Useful Functions',
 	'Description' => 'Useful functions for plugin and application developers (ex- PluginUtils).',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.13'),
-	'Version' => '3.5.116',
+	'Version' => '3.5.117',
 	'Date' => 'Summer 2011',
 	'Author' => 'Vanilla Fan'
 );
@@ -17,7 +17,6 @@ if (class_exists('Gdn')) {
 	Gdn::FactoryInstall('Snoopy', 'Snoopy', USEFULFUNCTIONS_VENDORS.'/Snoopy.class.php', Gdn::FactorySingleton);
 	Gdn::FactoryInstall('Mailbox', 'ImapMailbox', USEFULFUNCTIONS_LIBRARY.'/class.imapmailbox.php', Gdn::FactorySingleton);
 	Gdn::FactoryInstall('CssSpriteMap', 'CssSpriteMap', USEFULFUNCTIONS_VENDORS.'/CssSprite.php', Gdn::FactorySingleton);
-	Gdn::FactoryInstall('xHtmlFormatter', 'HTMLPurifierPlugin', PATH_PLUGINS.'/HtmlPurifier/default.php', Gdn::FactorySingleton);
 	
 	// Since 2.0.18 PluginNameClass must be defined
 	class UsefulFunctionsPlugin implements Gdn_IPlugin {
