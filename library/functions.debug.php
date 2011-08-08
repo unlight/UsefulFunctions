@@ -171,6 +171,6 @@ if (!function_exists('dplg')) {
 		}
 
 		printf("\n<span class='d'>%s</span>", $CamelizedFunction);
-		
+		if ($_GET['d'] == 's') file_put_contents('eventkey.txt', "\n$CamelizedFunction", FILE_APPEND | LOCK_EX);
 	}
 }
