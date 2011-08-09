@@ -4,7 +4,7 @@ $PluginInfo['UsefulFunctions'] = array(
 	'Name' => 'Useful Functions',
 	'Description' => 'Useful functions for plugin and application developers (ex- PluginUtils).',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.13'),
-	'Version' => '3.5.118',
+	'Version' => '3.5.119',
 	'Date' => 'Summer 2011',
 	'Author' => 'Vanilla Fan'
 );
@@ -21,11 +21,11 @@ if (class_exists('Gdn')) {
 	// Since 2.0.18 PluginNameClass must be defined
 	class UsefulFunctionsPlugin implements Gdn_IPlugin {
 		
-/*		public function Base_Render_Before() {
-			if (!($Sender->DeliveryType() == DELIVERY_TYPE_ALL && $Sender->SyndicationMethod == SYNDICATION_NONE
-			&& class_exists('PageSpeedPlugin'))) return;
-			
-		}*/
+		public function Base_Render_Before($Sender) {
+			if ($Sender->DeliveryType() != DELIVERY_TYPE_ALL) return;
+			$Options = array('path' => 'plugins/UsefulFunctions/js/noindex.js', 'sort' => 9999);
+			$Sender->Head->AddScript('plugins/UsefulFunctions/js/noindex.js', 'text/javascript', $Options);
+		}
 	
 		public function Setup() {
 		}

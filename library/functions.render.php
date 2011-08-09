@@ -2,25 +2,11 @@
 
 if (!function_exists('NoIndex')) {
 	/**
-	* This text will be hidden from  
+	* This text will be hidden from robots.
 	* 
 	*/
 	function NoIndex($String) {
-		static $DomReadyEventSet;
 		$Result = '';
-		if ($DomReadyEventSet === Null) {
-			$DomReadyEventSet = True;
-			//$Js = file_get_contents(dirname(__FILE__).'/../js/noindex.js');
-			$Js = 'if (typeof(jQuery.base64Decode) != "undefined") {
-	jQuery(function($){
-		$("input.NoIndex").each(function(Index, Element) {
-			$(Element).replaceWith( $.base64Decode(Element.value) );
-		});
-	});
-}';
-			$Result .= "<!-- This text shouldn't be indexed //-->\n";
-			$Result .= '<script type="text/javascript">'.$Js.'</script>';
-		}
 		$Result .= '<input type="hidden" value="'.base64_encode($String).'" class="NoIndex" />';
 		return $Result;
 	}
