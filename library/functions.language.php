@@ -22,6 +22,7 @@ if (!function_exists('GoogleTranslate')) {
 		$To = ArrayValue('To', $Options, $LanguageCode);
 		
 		$String = rawurlencode($Text);
+
 		if (!LoadExtension('curl')) throw new Exception('You need to load/activate the cURL extension (http://www.php.net/cURL).');
 		$Resource = curl_init();
 		$Protocol = (GetValue('HTTPS', $_SERVER) == 'on') ? 'https://' : 'http://';
@@ -33,6 +34,7 @@ if (!function_exists('GoogleTranslate')) {
 		$Body = curl_exec($Resource);
 		curl_close($Resource);
 		$TranslatedText = GetValueR('responseData.translatedText', json_decode($Body));
+		$TranslatedText = html_entity_decode($TranslatedText, ENT_QUOTES, 'utf-8');
 		return $TranslatedText;
 	}
 }
