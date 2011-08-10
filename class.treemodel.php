@@ -246,7 +246,8 @@ class TreeModel extends Gdn_Model {
 			$Node->{$this->LeftKey}, 
 			$Node->{$this->RightKey}, 
 			$Node->{$this->DepthKey}, 
-			$Node->{$this->PrimaryKey}
+			$Node->{$this->PrimaryKey},
+			$Node->{$this->ParentKey}
 		));
 		return $Result;
 	}
@@ -497,8 +498,8 @@ class TreeModel extends Gdn_Model {
 	*/
 	public function ChangePosition($ID1, $ID2) {
 		
-		list($LeftID1, $RightID1, $Depth1, $NodeID1) = $this->_NodeValues($ID1);
-		list($LeftID2, $RightID2, $Depth2, $NodeID2) = $this->_NodeValues($ID2);
+		list($LeftID1, $RightID1, $Depth1, $NodeID1, $ParentID1) = $this->_NodeValues($ID1);
+		list($LeftID2, $RightID2, $Depth2, $NodeID2, $ParentID2) = $this->_NodeValues($ID2);
 		if (!$NodeID1 || !$NodeID1) return False;
 
 		$this->Database->BeginTransaction();
@@ -518,6 +519,9 @@ class TreeModel extends Gdn_Model {
 			->Set($this->DepthKey, $Depth1)
 			->Where($this->PrimaryKey, $NodeID2, False, False)
 			->Put();
+		// Update parent keys.
+		$this->SQL->Update($this->Name)->Set($this->ParentKey, $ParentID2)->Where($this->PrimaryKey, $NodeID1)->Put();
+		$this->SQL->Update($this->Name)->Set($this->ParentKey, $ParentID1)->Where($this->PrimaryKey, $NodeID2)->Put();
 		
 		$this->Database->CommitTransaction();
 		return $Result;
