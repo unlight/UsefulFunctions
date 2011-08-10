@@ -11,11 +11,13 @@ if (!function_exists('SplitUpString')) {
 		static $DefaultFunctions = 'trim filter values';
 		$Array = explode($Sep, $String);
 		if ($Functions) {
-			$Functions = array_map('trim', explode(' ', $DefaultFunctions . ' ' . $Functions));
-			foreach ($Functions as $Key => $F) {
-				if ($F{0} == '-') unset($Functions[$Key]);
+			$List = $DefaultFunctions;
+			if (is_string($Functions)) $List .= ' ' . $Functions;
+			$Collection = array_map('trim', explode(' ', trim($List)));
+			foreach ($Collection as $Key => $F) {
+				if ($F{0} == '-') unset($Collection[$Key]);
 			}
-			foreach ($Functions as $F) {
+			foreach ($Collection as $F) {
 				if (substr($F, 0, 1) == '+') substr($F, 1);
 				if ($F == 'trim') $Array = array_map('trim', $Array);
 				elseif ($F == 'filter') $Array = array_filter($Array);
