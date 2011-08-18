@@ -730,7 +730,7 @@ class TreeModel extends Gdn_Model {
 	* @param mixed $Fields.
 	* @return mixed $Result.
 	*/
-/*	test public function GetTree($Fields = '', $Where = False) {
+	public function GetTree($Fields = '', $Where = False) {
 		$Cache = GetValue('Cache', $Where, False, True);
 		if ($Fields == '') $this->SelectNodeFields()->Select('Name');
 		else $this->SQL->Select($Fields);
@@ -739,8 +739,9 @@ class TreeModel extends Gdn_Model {
 			->From($this->Name)
 			->OrderBy($this->LeftKey)
 			->Get();
+		if ($Cache) foreach ($Result as $Data) $this->CachedNodeResults[$Data->{$this->PrimaryKey}] = $Data;
 		return $Result;
-	}*/
+	}
 	
 	/**
 	* Returns all elements of the tree sortet by left.
