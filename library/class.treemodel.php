@@ -196,7 +196,7 @@ class TreeModel extends Gdn_Model {
 			->SelectNodeFields()
 			->Select("Name")
 			->From($this->Name)
-			->Select('TreeRight - TreeLeft', '(%s) %% 2', 'M')
+			->Select("$this->RightKey - $this->LeftKey", '(%s) %% 2', 'M')
 			->Having('M', 0, False, False)
 			->GetSelect();
 		$SQL->Reset();
@@ -206,7 +206,7 @@ class TreeModel extends Gdn_Model {
 			->SelectNodeFields()
 			->Select("Name")
 			->From($this->Name)
-			->Select('TreeLeft - Depth + 2', '(%s) %% 2', 'M')
+			->Select("$this->LeftKey - $this->DepthKey + 2", '(%s) %% 2', 'M')
 			->Having('M', 0, False, False)
 			->GetSelect();
 		$SQL->Reset();
@@ -519,7 +519,7 @@ class TreeModel extends Gdn_Model {
 			->Set($this->DepthKey, $Depth1)
 			->Where($this->PrimaryKey, $NodeID2, False, False)
 			->Put();
-		// Update parent keys.
+		// Update parent keys, todo: combine to one query
 		$this->SQL->Update($this->Name)->Set($this->ParentKey, $ParentID2)->Where($this->PrimaryKey, $NodeID1)->Put();
 		$this->SQL->Update($this->Name)->Set($this->ParentKey, $ParentID1)->Where($this->PrimaryKey, $NodeID2)->Put();
 		
@@ -723,6 +723,25 @@ class TreeModel extends Gdn_Model {
 		
 		return $Result;
 	}
+	
+	
+	/**
+	* Returns all elements of the tree sortet by left.
+	* 
+	* @param mixed $Fields.
+	* @return mixed $Result.
+	*/
+/*	test public function GetTree($Fields = '', $Where = False) {
+		$Cache = GetValue('Cache', $Where, False, True);
+		if ($Fields == '') $this->SelectNodeFields()->Select('Name');
+		else $this->SQL->Select($Fields);
+		if (is_array($Where)) $this->SQL->Where($Where);
+		$Result = $this->SQL
+			->From($this->Name)
+			->OrderBy($this->LeftKey)
+			->Get();
+		return $Result;
+	}*/
 	
 	/**
 	* Returns all elements of the tree sortet by left.
