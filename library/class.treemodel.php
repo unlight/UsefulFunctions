@@ -509,6 +509,7 @@ class TreeModel extends Gdn_Model {
 			->Set($this->LeftKey, $LeftID2)
 			->Set($this->RightKey, $RightID2)
 			->Set($this->DepthKey, $Depth2)
+			->Set($this->ParentKey, $ParentID2)
 			->Where($this->PrimaryKey, $NodeID1, False, False)
 			->Put();
 	
@@ -517,11 +518,9 @@ class TreeModel extends Gdn_Model {
 			->Set($this->LeftKey, $LeftID1)
 			->Set($this->RightKey, $RightID1)
 			->Set($this->DepthKey, $Depth1)
+			->Set($this->ParentKey, $ParentID1)
 			->Where($this->PrimaryKey, $NodeID2, False, False)
 			->Put();
-		// Update parent keys, todo: combine to one query
-		$this->SQL->Update($this->Name)->Set($this->ParentKey, $ParentID2)->Where($this->PrimaryKey, $NodeID1)->Put();
-		$this->SQL->Update($this->Name)->Set($this->ParentKey, $ParentID1)->Where($this->PrimaryKey, $NodeID2)->Put();
 		
 		$this->Database->CommitTransaction();
 		return $Result;
