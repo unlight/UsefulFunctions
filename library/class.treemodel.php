@@ -725,15 +725,14 @@ class TreeModel extends Gdn_Model {
 	
 	
 	/**
-	* Returns all elements of the tree sortet by left.
+	* Returns all elements of the tree sorted by left.
 	* 
-	* @param mixed $Fields.
-	* @return mixed $Result.
+	* @param mixed $Where		Where condition and/or options.
+	* @return mixed $Result		Dataset collection.
 	*/
-	public function GetTree($Fields = '', $Where = False) {
+	public function Get($Where = False) {
 		$Cache = GetValue('Cache', $Where, False, True);
-		if ($Fields == '') $this->SelectNodeFields()->Select('Name');
-		else $this->SQL->Select($Fields);
+		$this->SQL->Select('*');
 		if (is_array($Where)) $this->SQL->Where($Where);
 		$Result = $this->SQL
 			->From($this->Name)
@@ -744,7 +743,7 @@ class TreeModel extends Gdn_Model {
 	}
 	
 	/**
-	* Returns all elements of the tree sortet by left.
+	* Returns all elements of the tree sorted by left.
 	* 
 	* @param mixed $Fields.
 	* @return mixed $Result.
