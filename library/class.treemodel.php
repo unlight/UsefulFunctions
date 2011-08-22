@@ -696,7 +696,7 @@ class TreeModel extends Gdn_Model {
 	
 	public function GetSiblings($Fields = '', $Node, $Where = False) {
 		if (is_object($Node)) $ParentID = $Node->ParentID;
-		else $ParentID = $Node;
+		else $ParentID = $Node; // If $Node is numeric 
 		$Where[$this->ParentKey] = $ParentID;
 		$Result = $this->Full($Fields, $Where);
 		/*select c.*
