@@ -352,6 +352,7 @@ class TreeModel extends Gdn_Model {
 	*/
 	public function InsertNode($ID, $Data) {
 		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
+		if (!$NodeID) return False;
 		$Data = (array)$Data;
 		$Data[$this->LeftKey] = $RightID;
 		$Data[$this->RightKey] = $RightID + 1;
@@ -372,6 +373,10 @@ class TreeModel extends Gdn_Model {
 	
 		$ResultID = $this->SQL->Insert($this->Name, $Data);
 		$this->Database->CommitTransaction();
+		
+		// All left and right keys are changed, reset cache.
+		$this->CachedNodeResults = array();
+		
 		return $ResultID;
 	}
 	
@@ -403,6 +408,7 @@ class TreeModel extends Gdn_Model {
 
 		$ResultID = $this->SQL->Insert($this->Name, $Data);
 		$this->Database->CommitTransaction();
+		$this->CachedNodeResults = array();
 		return $ResultID;
 	}
 	
@@ -485,6 +491,7 @@ class TreeModel extends Gdn_Model {
 			->Put();
 		
 		$this->Database->CommitTransaction();
+		$this->CachedNodeResults = array();
 		
 		return $Result;
 	}
@@ -523,6 +530,7 @@ class TreeModel extends Gdn_Model {
 			->Put();
 		
 		$this->Database->CommitTransaction();
+		$this->CachedNodeResults = array();
 		return $Result;
 	}
 	
@@ -615,6 +623,8 @@ class TreeModel extends Gdn_Model {
 			->Where($WhereCondition, Null, False, False)
 			->Put();
 		
+		$this->CachedNodeResults = array();
+		
 		return $Result;
 	}
 	
@@ -651,6 +661,7 @@ class TreeModel extends Gdn_Model {
 			->Where($this->RightKey .' >', $LeftID, False, False)
 			->Put();
 		$this->Database->CommitTransaction();
+		$this->CachedNodeResults = array();
 		return $Result;
 	}
 
@@ -686,6 +697,7 @@ class TreeModel extends Gdn_Model {
 			->Put();
 			
 		$this->Database->CommitTransaction();
+		$this->CachedNodeResults = array();
 		return $Result;
 	}
 	
