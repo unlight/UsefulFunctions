@@ -70,6 +70,11 @@ if (!function_exists('LoadPhpQuery')) {
 	}
 }
 
+/*if (!function_exists('PhpQueryLite')) {
+	function PhpQueryLite($Document, $Options = False) {
+	}
+}*/
+
 if (!function_exists('PqDocument')) {
 	/**
 	* Creates phpQuery document from string or file.
