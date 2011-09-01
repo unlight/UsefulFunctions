@@ -190,3 +190,64 @@ if (!function_exists('GroupArrayByKey')) {
 	}
 }
 
+// returns <a href="[img]"><img src="[thumb]"/></a>
+if (!function_exists('ThumbnailImage')) {
+	function ThumbnailImage($Data, $Attributes = False) {
+		
+		if (Debug()) Deprecated(__FUNCTION__, 'Thumbnail');
+
+		$Width = ArrayValue('width', $Attributes, '');
+		$Height = ArrayValue('height', $Attributes, '');
+
+		if(Is_Array($Data)) {
+			// group, todo
+			// <ul><li><a></a></li>
+		}
+
+		$Prefix = substr($Data, 0, 7);
+		//if(In_Array($Prefix, array('http://', 'https:/'))) {}
+		//$bLocalImage = False;
+
+		if ($Prefix != 'http://') {
+			//$bLocalImage = True;
+			$IncomingImage = $Data;
+			$ImageFindPaths[] = 'uploads'.DS.$Data;
+			$ImageFindPaths[] = $Data;
+			foreach($ImageFindPaths as $File) {
+				if(file_exists($File) && is_file($File)) {
+					$IncomingImage = $File;
+					break;
+				}
+			}
+		} else {
+			$IncomingImage = $Data;
+		}
+
+		$CacheDirectory = 'uploads/cached';
+		if (!is_writable($CacheDirectory)) {
+			mkdir($CacheDirectory, 0777, True);
+			if (!is_writable($CacheDirectory)) {
+				$ErrorMessage = ErrorMessage(sprintf(T('Directory (%s) is not writable.'), $CacheDirectory), 'PHP', __FUNCTION__);
+				trigger_error($ErrorMessage, E_USER_ERROR);
+				return '';
+			}
+		}
+
+		$Name = CleanupString(pathinfo($IncomingImage, PATHINFO_FILENAME) . ' '.$Width.' '.$Height);
+		$Extension = FileExtension($IncomingImage);
+		$Target = $CacheDirectory. DS . $Name . '.' . $Extension;
+
+		if (!file_exists($Target)) {
+			Gdn_UploadImage::SaveImageAs($IncomingImage, $Target, $Height, $Width);
+		}
+
+		$Target = str_replace(DS, '/', $Target);
+		if (!array_key_exists('alt', $Attributes)) $Attributes['alt'] = pathinfo($Name, PATHINFO_FILENAME);
+
+		List($Width, $Height, $Type) = GetImageSize($IncomingImage);
+		$Attributes['alt'] .= sprintf(' (%d×%d)', $Width, $Height);
+		$Image = Img($Target, $Attributes);
+
+		return Anchor($Image, Url($IncomingImage), '', '', True);
+	}
+}
