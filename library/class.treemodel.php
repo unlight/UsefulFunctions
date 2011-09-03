@@ -200,7 +200,7 @@ class TreeModel extends Gdn_Model {
 			->Having('M', 0, False, False)
 			->GetSelect();
 		$SQL->Reset();
-		// 5.If the level of the node is an odd number then the left key is always an odd number, the same thing for even numbers;
+		// 5. If the level of the node is an odd number then the left key is always an odd number, the same thing for even numbers;
 		$SQL->Reset();
 		$CorruptedSql[] = $this
 			->SelectNodeFields()
