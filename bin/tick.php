@@ -16,6 +16,7 @@ $Ticks = array(60 => 'Minute', 3600 => 'Hour', 86400 => 'Day');
 $Matches = array('Minutes' => 'i', 'Hours' => 'H', 'Day' => 'j', 'Month' => 'n');
 
 $Events = array();
+$Exception = Null;
 $LastYearSeconds = 0;
 
 do {
@@ -24,13 +25,20 @@ do {
 	
 	foreach ($Matches as $Name => $Token) {
 		$Event = PrefixString('Match', $Event . '_' . date($Token) . '_' . $Name);
-		$PluginManager->CallEventHandlers($Handler, 'Tick', $Event);
+		try {
+			$PluginManager->CallEventHandlers($Handler, 'Tick', $Event);
+		} catch(Exception $Exception) {
+		}
 		Console::Message('Tick: %s', $Event);
 		$Events[] = $Event;
 	}
 	
 	$Event = $Events[1].'_'.date('l');
-	$PluginManager->CallEventHandlers($Handler, 'Tick', $Event);
+	try {
+		$PluginManager->CallEventHandlers($Handler, 'Tick', $Event);
+	} catch(Exception $Exception) {
+	}
+	
 	Console::Message('Tick: %s', $Event);
 	$Events[] = $Event;
 	
@@ -45,8 +53,11 @@ do {
 			if ($YearSeconds % $Second == 0 && ($YearSeconds / $Second) % $i == 0) {
 				$Event = 'Every_'.$i.'_'.$Name.$Suffix;
 				$Events[] = $Event;
-				// TODO: FIX ME, chain break if error, maybe use try/catch here?
-				$PluginManager->CallEventHandlers($Handler, 'Tick', $Event);
+				try {
+					$PluginManager->CallEventHandlers($Handler, 'Tick', $Event);
+				} catch(Exception $Exception) {
+					
+				} 
 				Console::Message('Tick: %s', $Event);
 			}
 		}
@@ -62,11 +73,10 @@ do {
 	
 } while ($bLoop);
 
+if ($Exception) throw $Exception;
 
 $Database = Gdn::Database();
 if ($Database != Null) $Database->CloseConnection();
-exit();
-
 
 
 /* Example:
