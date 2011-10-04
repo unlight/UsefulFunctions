@@ -797,26 +797,6 @@ class TreeModel extends Gdn_Model {
 	}
 
 	/**
-	* The path from $NodeID the root node $RootNode.
-	* 
-	*/
-	
-	public function GetPath($Node, $RootNode = False, $IncludeRoot = True) {
-		$Where = False;
-		if (is_numeric($RootNode) && $RootNode != 1) {
-			list($LeftID, $RightID) = $this->_NodeValues($RootNode);
-			$Op = ($IncludeRoot) ? '=' : '';
-			$Where['TreeLeft >'.$Op] = $LeftID;
-			$Where['TreeRight <'.$Op] = $RightID;
-		}
-		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($Node);
-		$Where['TreeLeft <='] = $LeftID;
-		$Where['TreeRight >='] = $RightID;
-		$Result = $this->Full('*', $Where);
-		return $Result;
-	}
-	
-	/**
 	* Returns all parents of element with number $ID.
 	* 
 	* @param int $NodeID.

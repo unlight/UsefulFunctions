@@ -25,7 +25,8 @@ if (!function_exists('GoogleTranslate')) {
 
 		if (!LoadExtension('curl')) throw new Exception('You need to load/activate the cURL extension (http://www.php.net/cURL).');
 		$Resource = curl_init();
-		$Protocol = (GetValue('HTTPS', $_SERVER) == 'on') ? 'https://' : 'http://';
+		$HTTPS = GetValue('HTTPS', $_SERVER, '');
+		$Protocol =  (strlen($HTTPS) || GetValue('SERVER_PORT', $_SERVER) == 443) ? 'https://' : 'http://';
 		$Host = GetValue('HTTP_HOST', $_SERVER, 'google.com');
 		$Referer = $Protocol.$Host;
 		curl_setopt($Resource, CURLOPT_URL, "http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q={$String}&langpair={$From}%7C{$To}");
