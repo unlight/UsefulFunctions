@@ -4,16 +4,16 @@ $PluginInfo['UsefulFunctions'] = array(
 	'Name' => 'Useful Functions',
 	'Description' => 'Useful functions for plugin and application developers (ex- PluginUtils).',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.13'),
-	'Version' => '3.6.126',
-	'Date' => 'Summer 2011',
+	'Version' => '3.6.128',
+	'Date' => 'Winter 2010',
+	'Updated' => 'Autumn 2011',
 	'Author' => 'Vanilla Fan'
 );
 
 define('USEFULFUNCTIONS_LIBRARY', dirname(__FILE__).'/library');
 define('USEFULFUNCTIONS_VENDORS', dirname(__FILE__).'/vendors');
 
-if (class_exists('Gdn')) {
-	Gdn::FactoryInstall('Zip', 'PclZip', PATH_LIBRARY.'/vendors/pclzip/pclzip.lib.php', Gdn::FactoryInstance);
+if (class_exists('Gdn', False)) {
 	Gdn::FactoryInstall('Snoopy', 'Snoopy', USEFULFUNCTIONS_VENDORS.'/Snoopy.class.php', Gdn::FactorySingleton);
 	Gdn::FactoryInstall('Mailbox', 'ImapMailbox', USEFULFUNCTIONS_LIBRARY.'/class.imapmailbox.php', Gdn::FactorySingleton);
 	Gdn::FactoryInstall('CssSpriteMap', 'CssSpriteMap', USEFULFUNCTIONS_VENDORS.'/CssSprite.php', Gdn::FactorySingleton);
@@ -23,8 +23,8 @@ if (class_exists('Gdn')) {
 		
 		public function Base_Render_Before($Sender) {
 			if ($Sender->DeliveryType() != DELIVERY_TYPE_ALL) return;
-			$Options = array('path' => 'plugins/UsefulFunctions/js/noindex.js', 'sort' => 9999);
-			$Sender->Head->AddScript('plugins/UsefulFunctions/js/noindex.js', 'text/javascript', $Options);
+			$Sender->Head->AddScript('plugins/UsefulFunctions/js/noindex.js', 'text/javascript', array('path' => 'plugins/UsefulFunctions/js/noindex.js', 'sort' => 9999));
+			//if (Debug()) $Sender->Head->AddScript('plugins/UsefulFunctions/js/var_dump.js', 'text/javascript', array('path' => 'plugins/UsefulFunctions/js/var_dump.js'));
 		}
 	
 		public function Setup() {

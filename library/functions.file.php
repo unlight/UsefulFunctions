@@ -1,9 +1,31 @@
 <?php
 
-/**
-* 
-*/
+if (!function_exists('GetCachedData')) {
+	/**
+	* Get cached data. 
+	* 
+	* @param string $Name. 
+	* @param mixed $Function callback.
+	* @return mixed $Data.
+	*/
+	function GetCachedData($Name, $Function) {
+		if (!is_callable($Function)) throw new Exception("Function ($Function) is not callable.");
+		$FilePath = PATH_CACHE . '/' . pathinfo($Name, PATHINFO_FILENAME) . '.php';
+		if (!file_exists($FilePath)) {
+			$Data = call_user_func($Function);
+			$Contents = "<?php (!defined('APPLICATION')) exit(); \n\$Data = " . var_export($Data, True) . ';';
+			file_put_contents($FilePath, $Contents);
+		} else {
+			include $FilePath;
+		}
+		return $Data;
+	}
+}
+
 if (!function_exists('CompileFile')) {
+	/**
+	* 
+	*/
 	function CompileFile($File = Null, $bSave = False) {
 		static $RequiredFiles = array();
 		if (is_null($File)){
@@ -92,7 +114,14 @@ if (!function_exists('Crc32File')) {
 }
 
 /**
+* Generate unique pathname for uploaded file.
 * 
+* @param string $TargetFolder. 
+* @param string $Name name of file (or basename without extension). 
+* @param string $Extension. 
+* @param string $TempFile uploaded file.
+* @param bool $bForceOverwriteExisting force overwrite file.
+* @return mixed $TargetFile.
 */
 if (!function_exists('GenerateCleanTargetName')) {
 	function GenerateCleanTargetName($TargetFolder, $Name, $Extension = '', $TempFile = False, $bForceOverwriteExisting = False) {
@@ -102,7 +131,6 @@ if (!function_exists('GenerateCleanTargetName')) {
 		}
 		$Extension = Gdn_Format::Clean($Extension);
 		$BaseName = Gdn_Format::Clean($Name);
-
 		// check for file with same name
 		$TestName = $BaseName;
 		$TargetFile = $TargetFolder . DS . $TestName . '.' . $Extension;
@@ -110,13 +138,16 @@ if (!function_exists('GenerateCleanTargetName')) {
 		$IsSameFile = ($TempFile != False && file_exists($TempFile) && Crc32File($TempFile) == Crc32File($TargetFile));
 		if ($IsSameFile || $bForceOverwriteExisting) return $TargetFile;
 		$Count = 0;
+		$NameSuffix = '';
 		do {
-			$TestName = $BaseName.'-'.strtolower(RandomString(rand(1, 5)));
-			$TargetFile = $TargetFolder . DS . $TestName . '.' . $Extension;
-			// make sure that iteration will end
+			//if (++$Count > 100) $NameSuffix = mt_rand(100, 9999);
 			if (++$Count > 250) throw new Exception('Cannot generate unique name for file.');
-		} while (file_exists($TargetFile));
-
+			// make sure that iteration will end
+			$TargetFile = $TargetFolder . '/' . $TestName . $NameSuffix . '.' . $Extension;
+			$FileExists = file_exists($TargetFile);
+			if ($FileExists && file_exists($TempFile) && md5_file($TargetFile) == md5_file($TempFile)) break;
+			$NameSuffix = '-' . $Count;
+		} while ($FileExists);
 		return $TargetFile;
 	}
 }

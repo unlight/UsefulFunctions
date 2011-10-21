@@ -88,22 +88,19 @@ if (!function_exists('Video')) {
 }
 
 
-
-/**
-* Parse a selector of the form #foo.bar.baz into constituent ID and classes.
-* An array argument will be returned unchanged.
-* php-helpers by Jason Frame [jason@onehackoranother.com]
-* If second argument is array result array merging with it and returning as string.
-*/
-
 if (!function_exists('Attr')) {
+	/**
+	* Parse a selector of the form #foo.bar.baz into constituent ID and classes.
+	* An array argument will be returned unchanged.
+	* php-helpers by Jason Frame [jason@onehackoranother.com]
+	* If second argument is array result array merging with it and returning as string.
+	*/
 	function Attr($Selector, $Attributes = False) {
 		$Result = array();
 		preg_match('/^(#([\w-]+))?((\.[\w-]+)*)$/', $Selector, $Matches);
         if (!empty($Matches[2])) $Result['id'] = $Matches[2];
         if (!empty($Matches[3])) $Result['class'] = trim(str_replace('.', ' ', $Matches[3]));
 		if (is_array($Attributes)) {
-			// TODO: Check + operator here
 			$Result = array_merge($Attributes, $Result);
 			$Result = Attribute($Result);
 		}

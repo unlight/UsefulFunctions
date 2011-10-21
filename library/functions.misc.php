@@ -12,7 +12,7 @@ if (!function_exists('AddToConfig')) {
 		$Key = implode('][', $Keys);
 		$ValueCode = var_export($Value, 1);
 		$ValueCode = "\n\$Configuration[$Key] = $ValueCode;";
-		$Result = file_put_contents(PATH_LOCAL_CONF . '/config.php', $ValueCode, FILE_APPEND | LOCK_EX);
+		$Result = file_put_contents(PATH_CONF . '/config.php', $ValueCode, FILE_APPEND | LOCK_EX);
 		return ($Result !== False);
 	}
 }
@@ -52,7 +52,7 @@ if (!function_exists('SetModuleSort')) {
 		$VarExport = create_function('$Value', 'return var_export(strval($Value), True);');
 		$ModuleList = implode(', ',  array_map($VarExport, $AssetSort));
 		$PhpArrayCode = "\n\$Configuration['Modules']['$ModuleSortContainer']['$AssetName'] = array($ModuleList);";
-		$ConfigFile = PATH_LOCAL_CONF . '/config.php';
+		$ConfigFile = PATH_CONF . '/config.php';
 		$Result = file_put_contents($ConfigFile, $PhpArrayCode, FILE_APPEND | LOCK_EX);
 		return ($Result !== False);
 	}

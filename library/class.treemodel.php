@@ -201,7 +201,6 @@ class TreeModel extends Gdn_Model {
 			->GetSelect();
 		$SQL->Reset();
 		// 5. If the level of the node is an odd number then the left key is always an odd number, the same thing for even numbers;
-		$SQL->Reset();
 		$CorruptedSql[] = $this
 			->SelectNodeFields()
 			->Select("Name")
@@ -728,8 +727,12 @@ class TreeModel extends Gdn_Model {
 		$DirectDescendants = GetValue('DirectDescendants', $Where, False, True);
 		if ($DirectDescendants !== False) $Where[$this->DepthKey] = $Depth + 1;
 		
-		$Where[$this->LeftKey . ' >='] = $LeftID;
-		$Where[$this->RightKey . '<='] = $RightID;
+		$IncludeSelf = GetValue('IncludeSelf', $Where, False, True);
+		$OperatorSuffix = ($IncludeSelf) ? '=' : '';
+		
+		$Where[$this->LeftKey . ' >'.$OperatorSuffix] = $LeftID;
+		$Where[$this->RightKey . '<'.$OperatorSuffix] = $RightID;
+
 		$Result = $this->Full($Fields, $Where);
 		
 		return $Result;
