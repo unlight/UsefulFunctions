@@ -6,7 +6,7 @@
 */
 if (!function_exists('GetIpAddress')) {
 	function GetIpAddress($NumericFormat = True) {
-		if (Debug()) trigger_error(sprintf('%s is deprecated, use RealIpAddress() instead.', __FUNCTION__), E_USER_DEPRECATED);
+		if (function_exists('Debug') && Debug()) trigger_error(sprintf('%s is deprecated, use RealIpAddress() instead.', __FUNCTION__), E_USER_DEPRECATED);
 		$Ip = False;
 		foreach(array('HTTP_CLIENT_IP','HTTP_X_FORWARDED_FOR','HTTP_X_FORWARDED','HTTP_X_CLUSTER_CLIENT_IP','HTTP_FORWARDED_FOR','HTTP_FORWARDED','REMOTE_ADDR') as $Key) {
 			if (isset($_SERVER[$Key])) {
@@ -21,7 +21,7 @@ if (!function_exists('GetIpAddress')) {
 
 if (!function_exists('GetRealIpAddress')) {
 	function GetRealIpAddress($bIPv4Format = False) {
-		if (Debug()) trigger_error(sprintf('%s is deprecated, use RealIpAddress() instead.', __FUNCTION__), E_USER_DEPRECATED);
+		if (function_exists('Debug') && Debug()) trigger_error(sprintf('%s is deprecated, use RealIpAddress() instead.', __FUNCTION__), E_USER_DEPRECATED);
 		// Use GetIpAddress() instead
 		if (!empty($_SERVER['HTTP_CLIENT_IP'])) $Ip = $_SERVER['HTTP_CLIENT_IP'];
 		elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) $Ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
@@ -37,7 +37,7 @@ if (!function_exists('GetRealIpAddress')) {
 
 if (!function_exists('FormatTextAsRow')) {
 	function FormatTextAsRow($Array, $MaxLengthArray) {
-		if (Debug()) 
+		if (function_exists('Debug') && Debug()) 
 			trigger_error('FormatTextAsRow() is deprecated. Use TextDataGrid() instead.');
 		$Result = '';
 		$Array = array_values($Array);
@@ -63,7 +63,7 @@ if (!function_exists('FormatTextAsRow')) {
 
 if (!function_exists('FormatTextAsTable')) {
 	function FormatTextAsTable($Headers, $DataArray, $Options = False) { // very slooooow
-		if (Debug()) trigger_error('FormatTextAsTable() is deprecated. Use TextDataGrid() instead.');
+		if (function_exists('Debug') && Debug()) trigger_error('FormatTextAsTable() is deprecated. Use TextDataGrid() instead.');
 		$bHeaderLength = '';
 		$Length = count($Headers);
 		$MaxLengthArray = array_fill(0, $Length, 0);
@@ -89,7 +89,7 @@ if (!function_exists('FormatTextAsTable')) {
 if (!function_exists('SmallImage')) {
 	function SmallImage($Source, $Attributes = array()) {
 		
-		if (Debug()) 
+		if (function_exists('Debug') && Debug()) 
 			trigger_error('SmallImage() is deprecated. Use Thumbnail().', E_USER_DEPRECATED);
 		
 		$Width = ArrayValue('width', $Attributes, '');
@@ -127,7 +127,7 @@ if (!function_exists('SmallImage')) {
 
 if (!function_exists('BunchCollection')) {
 	function BunchCollection($Collection, $Key) {
-		if (Debug()) 
+		if (function_exists('Debug') && Debug()) 
 			trigger_error('BunchCollection() is deprecated. Use GroupByKey().', E_USER_DEPRECATED);
 	}
 }
@@ -169,7 +169,7 @@ if(!function_exists('ConsolidateDataSetValues')) {
 
 if (!function_exists('GroupArrayByKey')) {
 	function GroupArrayByKey($Array, $Key, $ValueKey = '', $AssociativeArrayValueKey = '', $DefaultValue = False) {
-		if (Debug()) 
+		if (function_exists('Debug') && Debug()) 
 			trigger_error('GroupArrayByKey() is deprecated. Use GroupByKey() instead.', E_USER_DEPRECATED);
 		$Return = array();
 		foreach($Array as $Index => $AssociativeArray){
@@ -194,7 +194,7 @@ if (!function_exists('GroupArrayByKey')) {
 if (!function_exists('ThumbnailImage')) {
 	function ThumbnailImage($Data, $Attributes = False) {
 		
-		if (Debug()) Deprecated(__FUNCTION__, 'Thumbnail');
+		if (function_exists('Debug') && Debug()) Deprecated(__FUNCTION__, 'Thumbnail');
 
 		$Width = ArrayValue('width', $Attributes, '');
 		$Height = ArrayValue('height', $Attributes, '');
