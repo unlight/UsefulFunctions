@@ -4,7 +4,7 @@ $PluginInfo['UsefulFunctions'] = array(
 	'Name' => 'Useful Functions',
 	'Description' => 'Useful functions for plugin and application developers (ex- PluginUtils).',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.13'),
-	'Version' => '3.6.128',
+	'Version' => '3.7.2',
 	'Date' => 'Winter 2010',
 	'Updated' => 'Autumn 2011',
 	'Author' => 'Vanilla Fan'
@@ -18,19 +18,16 @@ if (class_exists('Gdn', False)) {
 	Gdn::FactoryInstall('Mailbox', 'ImapMailbox', USEFULFUNCTIONS_LIBRARY.'/class.imapmailbox.php', Gdn::FactorySingleton);
 	Gdn::FactoryInstall('CssSpriteMap', 'CssSpriteMap', USEFULFUNCTIONS_VENDORS.'/CssSprite.php', Gdn::FactorySingleton);
 	
-	// Since 2.0.18 PluginNameClass must be defined
 	class UsefulFunctionsPlugin implements Gdn_IPlugin {
 		
 		public function Base_Render_Before($Sender) {
 			if ($Sender->DeliveryType() != DELIVERY_TYPE_ALL) return;
 			$Sender->Head->AddScript('plugins/UsefulFunctions/js/noindex.js', 'text/javascript', array('path' => 'plugins/UsefulFunctions/js/noindex.js', 'sort' => 9999));
-			//if (Debug()) $Sender->Head->AddScript('plugins/UsefulFunctions/js/var_dump.js', 'text/javascript', array('path' => 'plugins/UsefulFunctions/js/var_dump.js'));
 		}
 	
 		public function Setup() {
 		}
 	}
-	
 }
 
 require USEFULFUNCTIONS_LIBRARY.'/functions.render.php';
