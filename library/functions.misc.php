@@ -97,7 +97,7 @@ if (!function_exists('EmailRecipient')) {
 		} elseif (is_object($Mixed)) {
 			if ($Mixed instanceof Gdn_DataSet) return EmailRecipient($Mixed->Result());
 			$Result['Email'] = $Mixed->Email;
-			$Result['Name'] = (property_exists($Mixed, 'Name')) ? $Mixed->Name : '';
+			$Result['Name'] = (property_exists($Mixed, 'Name')) ? $Mixed['Name'] : '';
 			if ($CoerceArray) $Result = array($Result);
 			return $Result;
 		}
@@ -109,7 +109,12 @@ if (!function_exists('SendEmailMessage')) {
 	/** 
 	* Send email message.
 	*/
-	function SendEmailMessage($Options) {
+	function SendEmailMessage() {
+		$Arguments = func_get_args();
+		$Options = array_pop($Arguments);
+		if ($Arguments) $Message = array_pop($Arguments);
+		if ($Arguments) $Subject = array_pop($Arguments);
+		if ($Arguments) $To = array_pop($Arguments);
 		
 		static $Defaults = array (
 			'To' => '',
@@ -142,7 +147,8 @@ if (!function_exists('SendEmailMessage')) {
 		$Options = array_merge($Defaults, (array)$Options);
 		extract($Options, EXTR_SKIP);
 		
-		$PhpMailer = new PhpMailer($ThrowExceptions);
+		$PhpMailer = new PhpMailer();
+		$PhpMailer->ThrowExceptions($ThrowExceptions);
 		
 		$PhpMailer->Priority = $Priority;
 		$PhpMailer->ContentType = $ContentType;
