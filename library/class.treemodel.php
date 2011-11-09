@@ -201,7 +201,6 @@ class TreeModel extends Gdn_Model {
 			->GetSelect();
 		$SQL->Reset();
 		// 5. If the level of the node is an odd number then the left key is always an odd number, the same thing for even numbers;
-		$SQL->Reset();
 		$CorruptedSql[] = $this
 			->SelectNodeFields()
 			->Select("Name")
@@ -710,11 +709,10 @@ class TreeModel extends Gdn_Model {
 		if (is_object($Node)) $ParentID = $Node->ParentID;
 		else $ParentID = $Node; // If $Node is numeric 
 		$Where[$this->ParentKey] = $ParentID;
+		if (GetValue('WithNoChildrens', $Where, False, True)) {
+			$this->SQL->Where("($this->RightKey - $this->LeftKey)", 1, False, False);
+		}
 		$Result = $this->Full($Fields, $Where);
-		/*select c.*
-		from tree as p
-		join tree as c on (c.left > p.left and c.right < p.right and c.depth = p.dept + 1) where p.id = @parentID*/
-		
 		return $Result;
 	}
 	
@@ -728,8 +726,12 @@ class TreeModel extends Gdn_Model {
 		$DirectDescendants = GetValue('DirectDescendants', $Where, False, True);
 		if ($DirectDescendants !== False) $Where[$this->DepthKey] = $Depth + 1;
 		
-		$Where[$this->LeftKey . ' >='] = $LeftID;
-		$Where[$this->RightKey . '<='] = $RightID;
+		$IncludeSelf = GetValue('IncludeSelf', $Where, False, True);
+		$OperatorSuffix = ($IncludeSelf) ? '=' : '';
+		
+		$Where[$this->LeftKey . ' >'.$OperatorSuffix] = $LeftID;
+		$Where[$this->RightKey . '<'.$OperatorSuffix] = $RightID;
+
 		$Result = $this->Full($Fields, $Where);
 		
 		return $Result;
@@ -797,26 +799,6 @@ class TreeModel extends Gdn_Model {
 	}
 
 	/**
-	* The path from $NodeID the root node $RootNode.
-	* 
-	*/
-	
-	public function GetPath($Node, $RootNode = False, $IncludeRoot = True) {
-		$Where = False;
-		if (is_numeric($RootNode) && $RootNode != 1) {
-			list($LeftID, $RightID) = $this->_NodeValues($RootNode);
-			$Op = ($IncludeRoot) ? '=' : '';
-			$Where['TreeLeft >'.$Op] = $LeftID;
-			$Where['TreeRight <'.$Op] = $RightID;
-		}
-		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($Node);
-		$Where['TreeLeft <='] = $LeftID;
-		$Where['TreeRight >='] = $RightID;
-		$Result = $this->Full('*', $Where);
-		return $Result;
-	}
-	
-	/**
 	* Returns all parents of element with number $ID.
 	* 
 	* @param int $NodeID.
@@ -848,7 +830,8 @@ class TreeModel extends Gdn_Model {
 	*/
 	public function Ajar($ID, $Where = False) {
 		
-		if (is_object($ID)) $DataSet = $ID;
+		if ($ID instanceof Gdn_DataSet) $DataSet = $ID;
+		elseif ($ID instanceof StdClass) $DataSet = $this->Parents($ID->SectionID);
 		else $DataSet = $this->Parents($ID);
 		
 		if ($DataSet instanceof Gdn_DataSet) $NumRows = $DataSet->NumRows();

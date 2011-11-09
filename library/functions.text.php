@@ -48,18 +48,19 @@ if (!function_exists('LoremIpsum')) {
 	}
 }
 
-if (!function_exists('Markdownify')) {
-	/**
-	* Converts HTML to Markdown
-	*/ 
-	function Markdownify($Html) {
-		$Html = Gdn_Format::To($Html, 'xHtml');
-		$Snoopy = Gdn::Factory('Snoopy');
-		$Vars = array('input' => $Html, 'keepHTML' => 1);
-		$Snoopy->Submit('http://milianw.de/projects/markdownify/demo.php', $Vars);
-		$Doc = PqDocument($Snoopy->results);
-		$Code = Pq('pre > code:eq(0)')->Text();
-		$Result = $Code;
+if (!function_exists('HtmlToMarkdown')) {
+	function HtmlToMarkdown($Html, $FormatHtml = False) {
+		if (class_exists('HTML_Parser', False)) {
+			define('HTML2MD_HEADER_STYLE', 'ATX');
+			define('HTML2MD_SUPPRESS_ERRORS', False);
+			require_once USEFULFUNCTIONS_VENDORS . '/html2markdown.php';
+		}
+		if ($FormatHtml === True) {
+			$HtmlFormatter = Gdn::Factory('HtmlFormatter');
+			if ($HtmlFormatter) $Html = $HtmlFormatter->Format($Html);
+		}
+		$HtmlParser = new HTML_Parser($Html);
+		$Result = $HtmlParser->get_markdown();
 		return $Result;
 	}
 }

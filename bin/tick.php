@@ -27,6 +27,7 @@ do {
 		$Event = PrefixString('Match', $Event . '_' . date($Token) . '_' . $Name);
 		try {
 			$PluginManager->CallEventHandlers($Handler, 'Tick', $Event);
+			//K('#'.$Event, (int)K('#'.$Event) + 1);
 		} catch(Exception $Exception) {
 		}
 		Console::Message('Tick: %s', $Event);
@@ -36,6 +37,7 @@ do {
 	$Event = $Events[1].'_'.date('l');
 	try {
 		$PluginManager->CallEventHandlers($Handler, 'Tick', $Event);
+		//K('#'.$Event, (int)K('#'.$Event) + 1);
 	} catch(Exception $Exception) {
 	}
 	
@@ -55,6 +57,7 @@ do {
 				$Events[] = $Event;
 				try {
 					$PluginManager->CallEventHandlers($Handler, 'Tick', $Event);
+					//K('#'.$Event, (int)K('#'.$Event) + 1);
 				} catch(Exception $Exception) {
 					
 				} 
@@ -62,6 +65,8 @@ do {
 			}
 		}
 	}
+	
+	if ($Exception) throw $Exception;
 	
 	if ($bLoop != False) {
 		$LastYearSeconds = $YearSeconds;
@@ -72,8 +77,6 @@ do {
 	}
 	
 } while ($bLoop);
-
-if ($Exception) throw $Exception;
 
 $Database = Gdn::Database();
 if ($Database != Null) $Database->CloseConnection();
