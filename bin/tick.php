@@ -5,7 +5,7 @@
 require dirname(__FILE__) . '/../bootstrap.console.php';
 $bLoop = Console::Argument('loop', False) !== False;
 
-ini_set('memory_limit', '256M');
+ini_set('memory_limit', '512M');
 
 $Handler = new StdClass();
 $Handler->Returns = array();

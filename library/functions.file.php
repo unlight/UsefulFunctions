@@ -8,12 +8,16 @@ if (!function_exists('GetCachedData')) {
 	* @param mixed $Function callback.
 	* @return mixed $Data.
 	*/
-	function GetCachedData($Name, $Function) {
+	function GetCachedData($Name, $Function, $NoCache = False) {
 		if (!is_callable($Function)) throw new Exception("Function ($Function) is not callable.");
 		$FilePath = PATH_CACHE . '/' . pathinfo($Name, PATHINFO_FILENAME) . '.php';
+		if ($NoCache === True) {
+			if (file_exists($FilePath)) unlink($FilePath);
+			return call_user_func($Function);
+		}
 		if (!file_exists($FilePath)) {
 			$Data = call_user_func($Function);
-			$Contents = "<?php (!defined('APPLICATION')) exit(); \n\$Data = " . var_export($Data, True) . ';';
+			$Contents = "<?php if(!defined('APPLICATION')) exit(); \n\$Data = " . var_export($Data, True) . ';';
 			file_put_contents($FilePath, $Contents);
 		} else {
 			include $FilePath;

@@ -16,65 +16,46 @@ class TreeModel extends Gdn_Model {
 	protected $RightKey = 'TreeRight';
 	protected $DepthKey = 'Depth';
 	protected $ParentKey = 'ParentID';
-	protected $CachedNodeResults;
+	protected $CachedNodeResults = array();
+	
+	/**
+	* Takes max value of $ExternalRowID or possible NextID of primary key
+	* and sets it as auto_increment value.
+	* 
+	* @return NULL.
+	*/
+	public function AutoIncrement($ExternalRowID) {
+		$AutoIncrementValue = max($ExternalRowID, $this->GetMaxID() + 1);
+		$Px = $this->SQL->Database->DatabasePrefix;
+		$this->SQL->Query("ALTER TABLE {$Px}{$this->Name} auto_increment = {$AutoIncrementValue}");
+	}
+	
 	
 	/**
 	* Undocumented 
 	* 
-	* @return object $Root.
-	*/
-	public function GetRoot() {
-		$Root = $this
-			->SelectNodeFields()
-			->From($this->Name)
-			->Where($this->PrimaryKey, 1, False, False)
-			->Get()
-			->FirstRow();
-		return $Root;
-	}
-	
-	/**
-	* Receives left, right and level for node with number $ID.
-	* 
-	* @param int $ID.
-	* @param mixed $ResetCache.
 	* @return mixed $Result.
 	*/
-	public function GetNode($ID, $ResetCache = False) {
-		$Result =& $this->CachedNodeResults[$ID];
-		if (!isset($Result) || $ResetCache) {
-			$Result = $this
-				->SelectNodeFields()
-				->From($this->Name)
-				->Where($this->PrimaryKey, $ID)
-				->Get()
-				->FirstRow();
-		}
-		return $Result;
+	public function GetMaxID() {
+		$MaxID = $this->SQL
+			->Select($this->PrimaryKey, 'max', 'MaxID')
+			->From($this->Name)
+			->Get()
+			->FirstRow()
+			->MaxID;
+		return $MaxID;
 	}
 	
 	/**
 	* Sets initial parameters of a tree and creates root of tree
-	* ATTENTION, all previous values in table are destroyed.
+	* ATTENTION, all previous values in table will be destroyed.
 	*/
 	public function Clear($Set = Null) {
 		$this->SQL->Truncate($this->Name);
-		//$this->Delete(); // why need this?
 		if (is_array($Set)) $this->SQL->Insert($this->Name, $Set);
 	}
 	
 	
-	protected function SelectNodeFields($TableAlias = '') {
-		if ($TableAlias != '') $TableAlias .= '.';
-		$this->SQL
-			->Select($TableAlias.$this->LeftKey)
-			->Select($TableAlias.$this->RightKey)
-			->Select($TableAlias.$this->DepthKey)
-			->Select($TableAlias.$this->PrimaryKey)
-			->Select($TableAlias.$this->ParentKey);
-		return $this->SQL;
-	}
-
 	/** Converts from the lists of the adjacency to nested sets
 	* @param id
 	* @param identifier of the first free value
@@ -91,6 +72,7 @@ class TreeModel extends Gdn_Model {
 		foreach ($TreeDataSet as $Node) {
 			$NodeID = $Node->{$this->PrimaryKey};
 			$RightID = $this->AjacencyListToNestedSets($NodeID, $SideID + 1);
+			// TODO: Update Depth here
 			$this->SQL
 				->Update($this->Name)
 				->Set($this->LeftKey, $SideID)
@@ -102,13 +84,18 @@ class TreeModel extends Gdn_Model {
 		return $SideID;
 	}
 	
-	// http://klepa.co/2011/02/16/adjacency-list-nested-set-model-mptt/
-	// rebuild_tree(1,1);
+	/**
+	* Script for building/re-building nested set/tree from adjacency list model. 
+	* http://klepa.co/2011/02/16/adjacency-list-nested-set-model-mptt/
+	* 
+	* @param int $ParentID 
+	* @param int $LeftID 
+	* @return mixed $SideID.
+	*/
 	public function RebuildTree($ParentID, $LeftID) {
-		//print "$leftn";
-		// the right value of this node is the left value + 1
+		// The right value of this node is the left value + 1
 		$RightID = $LeftID + 1;
-		// get all children of this node
+		// Get all children of this node
 		$TreeDataSet = $this->SQL
 			->From($this->Name)
 			->Select($this->PrimaryKey)
@@ -116,22 +103,19 @@ class TreeModel extends Gdn_Model {
 			->OrderBy($this->LeftKey, 'asc')
 			->Get()
 			->Result();
-		// recursive execution of this function for each
-		// child of this node
-		// $right is the current right value, which is
-		// incremented by the rebuild_tree function
+		// Recursive execution of this function for each child of this node
+		// $RightID is the current right value, which is incremented by the rebuild_tree function
 		foreach ($TreeDataSet as $Node) {
 			$RightID = $this->RebuildTree($Node->{$this->PrimaryKey}, $RightID);
 		}
-		// we've got the left value, and now that we've processed
-		// the children of this node we also know the right value
+		// We've got the left value, and now that we've processed the children of this node we also know the right value
 		$this->SQL
 			->Update($this->Name)
 			->Set($this->LeftKey, $LeftID)
 			->Set($this->RightKey, $RightID)
 			->Where($this->PrimaryKey, $ParentID)
 			->Put();
-		// return the right value of this node + 1
+		// Return the right value of this node + 1
 		return $RightID + 1;
 	}
 
@@ -159,7 +143,13 @@ class TreeModel extends Gdn_Model {
 		$this->SQL->Query($Query);
 	}
 	
-	// TODO: MAKE STATIC (need make static $this->PrimaryKey)
+	/**
+	* Undocumented 
+	* 
+	* @param string $ValueField 
+	* @param DataSet $ValueField 
+	* @return array $Result.
+	*/
 	public function DropDownArray($ValueField, $DataSet) {
 		$Result = array();
 		foreach ($DataSet as $Node) {
@@ -172,68 +162,31 @@ class TreeModel extends Gdn_Model {
 		return $Result;
 	}
 	
+	
 	/**
-	* Get corrupted nodes of tree.
+	* Undocumented 
 	* 
+	* @param mixed 
 	* @return mixed $Result.
 	*/
-	public function GetCorruptedRows() {
-		$SQL = Gdn::SQL();
-		// 1. Left key is always less than the right
-		$CorruptedSql[] = $this
-			->SelectNodeFields()
-			->Select("Name, 'Dummy' as M")
-			->From($this->Name)
-			->Where($this->LeftKey . '>=', $this->RightKey, False, False)
-			->GetSelect();
-		$SQL->Reset();
-		// TODO: 2. The least left key is always 1
-		// TODO: 3. The greatest right key is always equal to doubled number of nodes
-		
-		// 4. The difference between right and left key is always the odd number
-		// N % 2, use %% because called as $Field = sprintf($Function, $Field); Prevents error printf(): Too few arguments.
-		$CorruptedSql[] = $this
-			->SelectNodeFields()
-			->Select("Name")
-			->From($this->Name)
-			->Select("$this->RightKey - $this->LeftKey", '(%s) %% 2', 'M')
-			->Having('M', 0, False, False)
-			->GetSelect();
-		$SQL->Reset();
-		// 5. If the level of the node is an odd number then the left key is always an odd number, the same thing for even numbers;
-		$CorruptedSql[] = $this
-			->SelectNodeFields()
-			->Select("Name")
-			->From($this->Name)
-			->Select("$this->LeftKey - $this->DepthKey + 2", '(%s) %% 2', 'M')
-			->Having('M', 0, False, False)
-			->GetSelect();
-		$SQL->Reset();
-		
-		// 6. The left and right keys are always unique
-		$CorruptedSql[] = $this
-			->SelectNodeFields('t1')
-			->Select('t1.Name')
-			->From(array($this->Name .' t1', $this->Name .' t2', $this->Name .' t3'))
-			->Select('t1.'.$this->PrimaryKey, 'count', 'Rep')
-			->Where("t1.$this->LeftKey <> t2.$this->LeftKey", Null, False, False)
-			->Where("t1.$this->LeftKey <> t2.$this->RightKey", Null, False, False)
-			->Where("t1.$this->RightKey <> t2.$this->LeftKey", Null, False, False)
-			->Where("t1.$this->RightKey <> t2.$this->RightKey", Null, False, False)
-			->GroupBy('t1.'.$this->PrimaryKey)
-			->Having("max(t3.$this->RightKey) <>", "sqrt(4 * Rep + 1) + 1", False, False)
-			->GetSelect();
-		$SQL->Reset();
-		
-		$Table = implode("\nunion all\n", $CorruptedSql);
-		$SqlQuery = "select * from ($Table) as t group by t.$this->PrimaryKey";
-		$Result = $SQL->Query($SqlQuery);
-	
-		return $Result;
+	protected function SelectNodeFields($TableAlias = '') {
+		if ($TableAlias != '') $TableAlias .= '.';
+		$this->SQL
+			->Select($TableAlias.$this->LeftKey)
+			->Select($TableAlias.$this->RightKey)
+			->Select($TableAlias.$this->DepthKey)
+			->Select($TableAlias.$this->PrimaryKey)
+			->Select($TableAlias.$this->ParentKey);
+		return $this->SQL;
 	}
-	
-	// TODO: MAKE IT STATIC
-	protected function _NodeValues($Node) {
+
+	/**
+	* Undocumented 
+	* 
+	* @param mixed 
+	* @return mixed $Result.
+	*/
+	protected function NodeValues($Node) {
 		if (!is_object($Node)) {
 			$Node = $this->GetNode($Node);
 			if ($Node === False) {
@@ -252,30 +205,6 @@ class TreeModel extends Gdn_Model {
 	}
 	
 	/**
-	* Receives parent left, right and level for unit with number $ID.
-	* 
-	* @param mixed $ID, id of node or node object.
-	* @return mixed $Result.
-	*/
-	public function GetParent($ID, $Where = False) {
-		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
-		if (!$NodeID) return False;
-		$Depth = $Depth - 1;
-		if (is_array($Where)) $this->SQL->Where($Where);
-		$Result = $this->SQL
-			//->SelectNodeFields()
-			->Select('*')
-			->From($this->Name)
-			->Where($this->LeftKey.' <', $LeftID)
-			->Where($this->RightKey.' >', $RightID)
-			->Where($this->DepthKey, $Depth)
-			->OrderBy($this->LeftKey)
-			->Get()
-			->FirstRow();
-		return $Result;
-	}
-	
-	/**
 	* Adds a new child element to the top of the list of child elements.
 	* 
 	* @param mixed $Parent.
@@ -284,7 +213,7 @@ class TreeModel extends Gdn_Model {
 	*/
 	public function AppendTo($Parent, $Data) {
 		if (is_numeric($Parent)) $Parent = $this->GetNode($Parent);
-		list($ParentLeftID, $ParentRightID, $ParentDepth, $ParentID) = $this->_NodeValues($Parent);
+		list($ParentLeftID, $ParentRightID, $ParentDepth, $ParentID) = $this->NodeValues($Parent);
 		
 		SetValue($this->LeftKey, $Data, $ParentRightID);
 		SetValue($this->RightKey, $Data, $ParentLeftID + 1);
@@ -319,7 +248,7 @@ class TreeModel extends Gdn_Model {
 	*/
 	public function PrependTo($Parent, $Data) {
 
-		list($ParentLeftID, $ParentRightID, $ParentDepth, $ParentID) = $this->_NodeValues($Parent);
+		list($ParentLeftID, $ParentRightID, $ParentDepth, $ParentID) = $this->NodeValues($Parent);
 		
 		SetValue($this->LeftKey, $Data, $ParentLeftID + 1);
 		SetValue($this->RightKey, $Data, $ParentLeftID + 2);
@@ -345,12 +274,15 @@ class TreeModel extends Gdn_Model {
 	}
 	
 	/**
-	* Add a new element in the tree to element with number $ID.
+	* Add a new node in the tree to parent $Node.
 	*
-	* @return integer Inserted element id
+	*
+	* @param $Node 
+	* @param $Data
+	* @return integer Inserted node id
 	*/
-	public function InsertNode($ID, $Data) {
-		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
+	public function InsertNode($Node, $Data) {
+		list($LeftID, $RightID, $Depth, $NodeID) = $this->NodeValues($Node);
 		if (!$NodeID) return False;
 		$Data = (array)$Data;
 		$Data[$this->LeftKey] = $RightID;
@@ -382,13 +314,13 @@ class TreeModel extends Gdn_Model {
 	
 	
 	/**
-	* Add a new element in the tree near element with number id.
+	* Add a new node in the tree near $Node.
 	*
-	* @param integer $ID Number of a parental element
-	* @return integer Inserted element id
+	* @param integer|object $Node 	Parent node object or ID of parent node.
+	* @return integer Inserted node id
 	*/
-	public function InsertNear($ID, $Data) {
-		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
+	public function InsertNear($Node, $Data) {
+		list($LeftID, $RightID, $Depth, $NodeID) = $this->NodeValues($Node);
 		if (!$NodeID) return False;
 		$Data = (array)$Data;
 		
@@ -414,14 +346,14 @@ class TreeModel extends Gdn_Model {
 	/**
 	* Assigns a node with all its children to another parent.
 	* 
-	* @param mixed $ID, id of node or node object.
-	* @param mixed $NewParentID, parent id of node or parent node object.
+	* @param mixed $Node, id of node or node object.
+	* @param mixed $NewParent, parent id of node or parent node object.
 	* @return mixed $Result.
 	*/
-	public function MoveAll($ID, $NewParentID, $Where = False) {
+	public function MoveAll($Node, $NewParent, $Where = False) {
 		
-		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
-		list($ParentLeftID, $ParentRightID, $ParentDepth, $ParentNodeID) = $this->_NodeValues($NewParentID);
+		list($LeftID, $RightID, $Depth, $NodeID) = $this->NodeValues($Node);
+		list($ParentLeftID, $ParentRightID, $ParentDepth, $ParentNodeID) = $this->NodeValues($NewParent);
 		
 		if ($NodeID == $ParentNodeID 
 			|| $LeftID == $ParentLeftID 
@@ -504,8 +436,8 @@ class TreeModel extends Gdn_Model {
 	*/
 	public function ChangePosition($ID1, $ID2) {
 		
-		list($LeftID1, $RightID1, $Depth1, $NodeID1, $ParentID1) = $this->_NodeValues($ID1);
-		list($LeftID2, $RightID2, $Depth2, $NodeID2, $ParentID2) = $this->_NodeValues($ID2);
+		list($LeftID1, $RightID1, $Depth1, $NodeID1, $ParentID1) = $this->NodeValues($ID1);
+		list($LeftID2, $RightID2, $Depth2, $NodeID2, $ParentID2) = $this->NodeValues($ID2);
 		if (!$NodeID1 || !$NodeID1) return False;
 
 		$this->Database->BeginTransaction();
@@ -544,9 +476,9 @@ class TreeModel extends Gdn_Model {
 	* @return mixed $Result.
 	*/
 	public function ChangePositionAll($ID1, $ID2, $Position = 'after', $Where = False) {
-		list($LeftID1, $RightID1, $Depth1, $NodeID1) = $this->_NodeValues($ID1);
+		list($LeftID1, $RightID1, $Depth1, $NodeID1) = $this->NodeValues($ID1);
 		if (!$NodeID1) return False;
-		list($LeftID2, $RightID2, $Depth2, $NodeID2) = $this->_NodeValues($ID2);
+		list($LeftID2, $RightID2, $Depth2, $NodeID2) = $this->NodeValues($ID2);
 		if (!$NodeID2) return False;
 
 		if ($Depth1 != $Depth2) {
@@ -628,13 +560,13 @@ class TreeModel extends Gdn_Model {
 	}
 	
 	/**
-	* Delete element with number $id from the tree wihtout deleting it's children.
+	* Delete $Node from the tree without deleting it's children.
 	* 
-	* @param mixed $ID, id of node or node object.
+	* @param mixed $Node, id of node or node object.
 	* @return mixed $Result.
 	*/
-	public function Delete($ID, $Where = False) {
-		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
+	public function Delete($Node, $Where = False) {
+		list($LeftID, $RightID, $Depth, $NodeID) = $this->NodeValues($Node);
 		if (!$NodeID) return False;
 		
 		$this->Database->BeginTransaction();
@@ -665,13 +597,13 @@ class TreeModel extends Gdn_Model {
 	}
 
 	/**
-	* Delete element with number $ID from the tree and all it children.
+	* Delete node $Node from the tree and all it children.
 	* 
-	* @param mixed $ID, id of node or node object.
+	* @param mixed $Node, id of node or node object.
 	* @return mixed $Result.
 	*/
-	public function DeleteAll($ID, $Where = False) {
-		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
+	public function DeleteAll($Node, $Where = False) {
+		list($LeftID, $RightID, $Depth, $NodeID) = $this->NodeValues($Node);
 		if (!$NodeID) return False;
 		$this->Database->BeginTransaction();
 		
@@ -701,90 +633,16 @@ class TreeModel extends Gdn_Model {
 	}
 	
 	/**
-	* Undocumented 
-	* 
-	*/
-	
-	public function GetSiblings($Fields = '', $Node, $Where = False) {
-		if (is_object($Node)) $ParentID = $Node->ParentID;
-		else $ParentID = $Node; // If $Node is numeric 
-		$Where[$this->ParentKey] = $ParentID;
-		if (GetValue('WithNoChildrens', $Where, False, True)) {
-			$this->SQL->Where("($this->RightKey - $this->LeftKey)", 1, False, False);
-		}
-		$Result = $this->Full($Fields, $Where);
-		return $Result;
-	}
-	
-	
-	/**
-	* Undocumented
-	* 
-	*/
-	public function GetChildrens($Fields = '*', $Node, $Where = False) {
-		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($Node);
-		$DirectDescendants = GetValue('DirectDescendants', $Where, False, True);
-		if ($DirectDescendants !== False) $Where[$this->DepthKey] = $Depth + 1;
-		
-		$IncludeSelf = GetValue('IncludeSelf', $Where, False, True);
-		$OperatorSuffix = ($IncludeSelf) ? '=' : '';
-		
-		$Where[$this->LeftKey . ' >'.$OperatorSuffix] = $LeftID;
-		$Where[$this->RightKey . '<'.$OperatorSuffix] = $RightID;
-
-		$Result = $this->Full($Fields, $Where);
-		
-		return $Result;
-	}
-	
-	
-	/**
-	* Returns all elements of the tree sorted by left.
-	* 
-	* @param mixed $Where		Where condition and/or options.
-	* @return mixed $Result		Dataset collection.
-	*/
-	public function Get($Where = False) {
-		$Cache = GetValue('Cache', $Where, False, True);
-		$this->SQL->Select('*');
-		if (is_array($Where)) $this->SQL->Where($Where);
-		$Result = $this->SQL
-			->From($this->Name)
-			->OrderBy($this->LeftKey)
-			->Get();
-		if ($Cache) foreach ($Result as $Data) $this->CachedNodeResults[$Data->{$this->PrimaryKey}] = $Data;
-		return $Result;
-	}
-	
-	/**
-	* Returns all elements of the tree sorted by left.
-	* 
-	* @param mixed $Fields.
-	* @return mixed $Result.
-	*/
-	public function Full($Fields = '', $Where = False) {
-		if ($Fields == '') {
-			$this
-				->SelectNodeFields()
-				->Select('Name');
-		} else $this->SQL->Select($Fields);
-		if (is_array($Where)) $this->SQL->Where($Where);
-		$Result = $this->SQL
-			->From($this->Name)
-			->OrderBy($this->LeftKey)
-			->Get();
-		return $Result;
-	}
-
-	/**
-	* Returns all elements of a branch starting from an element with number $ID.
+	* Returns all elements of a branch starting from $NodeID.
 	* 
 	* @param int $NodeID.
+	* @param mixed $Conditions	Where conditions and/or options.
 	* @return Gdn_DataSet $Result.
 	*/
-	public function Branch($NodeID, $Fields = 'a.*', $Where = False) {
+	public function Branch($NodeID, $Conditions = False) {
 		$NodeID = (int)$NodeID;
-		if (is_array($Where)) $this->SQL->Where($Where);
+		$Fields = GetValue('Fields', $Conditions, 'a.*', True);
+		if (is_array($Conditions)) $this->SQL->Where($Conditions);
 		$Result = $this->SQL
 			->Select($Fields)
 			->From($this->Name . ' a')
@@ -799,16 +657,16 @@ class TreeModel extends Gdn_Model {
 	}
 
 	/**
-	* Returns all parents of element with number $ID.
+	* Returns all parents of node $NodeID.
 	* 
 	* @param int $NodeID.
-	* @param mixed $Fields.
-	* @param mixed $Where.
+	* @param mixed $Conditions.
 	* @return mixed $Result.
 	*/
-	public function Parents($NodeID, $Fields = 'a.*', $Where = False) { // $Where a.
+	public function Parents($NodeID, $Conditions = False) {
 		$NodeID = (int)$NodeID;
-		if (is_array($Where)) $this->SQL->Where($Where);
+		$Fields = GetValue('Fields', $Conditions, 'a.*', True);
+		if (is_array($Conditions)) $this->SQL->Where($Conditions);
 		$Result = $this->SQL
 			->Select($Fields)
 			->From($this->Name . ' a')
@@ -822,17 +680,17 @@ class TreeModel extends Gdn_Model {
 	}
 
 	/**
-	* Returns a slightly opened tree from an element with number $ID.
+	* Returns a slightly opened tree from a $Node.
 	* 
-	* @param int $NodeID.
+	* @param mixed $Node.
 	* @param mixed $Where.
 	* @return mixed $Result.
 	*/
-	public function Ajar($ID, $Where = False) {
+	public function Ajar($Node, $Where = False) {
 		
-		if ($ID instanceof Gdn_DataSet) $DataSet = $ID;
-		elseif ($ID instanceof StdClass) $DataSet = $this->Parents($ID->SectionID);
-		else $DataSet = $this->Parents($ID);
+		if ($Node instanceof Gdn_DataSet) $DataSet = $Node; // Parents
+		elseif ($Node instanceof StdClass) $DataSet = $this->Parents($Node->{$this->PrimaryKey});
+		else $DataSet = $this->Parents($Node); // Integer
 		
 		if ($DataSet instanceof Gdn_DataSet) $NumRows = $DataSet->NumRows();
 		else $NumRows = count($DataSet);
@@ -864,52 +722,225 @@ class TreeModel extends Gdn_Model {
 	}
 	
 	/**
-	* Undocumented 
+	* Gets parent node of $Node.
 	* 
-	* @param mixed $ID.
+	* @param mixed $Node, id of node or node object.
 	* @return mixed $Result.
 	*/
-	protected function GetNodeWidth($ID) {
-		list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
-		// (rgt - lft) + 1)
+	public function GetParent($Node, $Conditions = False) {
+		list($LeftID, $RightID, $Depth, $NodeID) = $this->NodeValues($Node);
+		if (!$NodeID) return False;
+		$Conditions[$this->LeftKey.' <'] = $LeftID;
+		$Conditions[$this->RightKey.' >'] = $RightID;
+		$Conditions[$this->DepthKey] = $Depth - 1;
+		$Conditions['CacheNodes'] = True;
+		$Result = $this->GetNodes($Conditions);
+		return $Result;
+	}
+	
+	
+	/**
+	* Get siblings of $Node using ParentID.
+	* 
+	* @param mixed $Node
+	* @param array $Conditions
+	* @return mixed $Result		Dataset collection.
+	*/
+	public function GetSiblings($Node, $Conditions = False) {
+		if (is_object($Node)) $ParentID = $Node->ParentID;
+		else $ParentID = $Node; // if $Node is numeric 
+		$Conditions[$this->ParentKey] = $ParentID;
+		$Result = $this->GetNodes($Conditions);
+		return $Result;
+	}
+	
+	/**
+	* Gets children nodes of $Node.
+	* 
+	* @param mixed $Node
+	* @param mixed $Conditions
+	* @return mixed $Result		Dataset collection.
+	*/
+	
+	public function GetChildren($Node, $Conditions = False) {
+		list($LeftID, $RightID, $Depth, $NodeID) = $this->NodeValues($Node);
+
+		$DirectDescendants = GetValue('DirectDescendants', $Conditions, False, True);
+		if ($DirectDescendants !== False) $Conditions[$this->DepthKey] = $Depth + 1;
+		
+		$IncludeSelf = GetValue('IncludeSelf', $Conditions, False, True);
+		$OperatorSuffix = ($IncludeSelf) ? '=' : '';
+		
+		$Conditions[$this->LeftKey . ' >'.$OperatorSuffix] = $LeftID;
+		$Conditions[$this->RightKey . '<'.$OperatorSuffix] = $RightID;
+		$Result = $this->GetNodes($Conditions);
+		return $Result;
+	}
+	
+	/**
+	* Returns all elements of the tree sorted by left.
+	* Where options:
+	* 	DirectDescendants
+	* 	WithNoChildrens
+	* 	
+	* @param mixed $Conditions	Where conditions and/or options.
+	* @return mixed $Result		Dataset collection.
+	*/
+	public function GetNodes($Conditions = False) {
+		$CacheNodes = GetValue('CacheNodes', $Conditions, False, True);
+		$Fields = GetValue('Fields', $Conditions, '*', True);
+		
+		if (GetValue('WithNoChildrens', $Conditions, False, True)) 
+			$this->SQL->Where("($this->RightKey - $this->LeftKey)", 1, False, False);
+		if (GetValue('IncludeRoot', $Conditions, True, True) == False) 
+			$Conditions["{$this->PrimaryKey} <>"] = 1;
+		
+		if (is_array($Conditions)) $this->SQL->Where($Conditions);
+		$Result = $this->SQL
+			->Select($Fields)
+			->From($this->Name)
+			->OrderBy($this->LeftKey)
+			->Get();
+		if ($CacheNodes) foreach ($Result as $Data) $this->CachedNodeResults[$Data->{$this->PrimaryKey}] = $Data;
+		return $Result;
+	}
+	
+	
+	/**
+	* Receives left, right and level for node with number $NodeID.
+	* 
+	* @param int $NodeID.
+	* @param array $Conditions.
+	*	ResetCache
+	* @return mixed $Result.
+	*/
+	public function GetNode($NodeID, $Conditions = False) {
+		if (!is_numeric($NodeID)) trigger_error(sprintf("Not numeric NodeID (%s)", VarDump($NodeID)), E_USER_ERROR);
+		$Result =& $this->CachedNodeResults[$NodeID];
+		$ResetCache = GetValue('ResetCache', $Conditions, False, True);
+		if ($ResetCache) $Result = Null;
+		if ($Result === Null) {
+			$Conditions[$this->PrimaryKey] = $NodeID;
+			$Conditions['CacheNodes'] = True;
+			$this->GetNodes($Conditions);
+			// If still null set to false because node with $NodeID is not exists.
+			if (is_null($Result)) $Result = False;
+		}
+		return $Result;
+	}
+	
+	/**
+	* Returns root; 
+	* 
+	* @return object $Root.
+	*/
+	public function GetRoot() {
+		$Result = $this->GetNode(1);
+		return $Result;
+	}
+
+	/**
+	* Get all nodes without children.
+	* 
+	* @param mixed $Conditions. 
+	* @return mixed $Result.
+	*/
+	public function GetLeafs($Conditions = False) {
+		$this->SQL->Where($this->RightKey, $this->LeftKey .'+1', False);
+		$Result = $this->GetNodes($Conditions);
+		return $Result;
+	}
+	
+	/**
+	* Undocumented 
+	* 
+	* @param mixed $Node.
+	* @return mixed $Result.
+	*/
+	protected function GetNodeWidth($Node) {
+		list($LeftID, $RightID, $Depth, $NodeID) = $this->NodeValues($Node);
 		$Width = ($RightID - $LeftID) + 1;
 		return $Width;
 	}
 	
+	
 	/**
-	* Get all nodes without children.
+	* Get corrupted nodes of tree.
 	* 
-	* @param mixed 
 	* @return mixed $Result.
 	*/
-	public function GetLeafs($Fields = '*') {
-		$Result = $this->SQL
-			->Select($Fields)
+	public function GetCorruptedRows() {
+		$SQL = Gdn::SQL();
+		// 1. Left key is always less than the right
+		$CorruptedSql[] = $this
+			->SelectNodeFields()
+			->Select("Name, 'Dummy' as M")
 			->From($this->Name)
-			->Where($this->RightKey, $this->LeftKey .'+1', False)
-			->Get();
+			->Where($this->LeftKey . '>=', $this->RightKey, False, False)
+			->GetSelect();
+		$SQL->Reset();
+		// TODO: 2. The least left key is always 1
+		// TODO: 3. The greatest right key is always equal to doubled number of nodes
+		
+		// 4. The difference between right and left key is always the odd number
+		// N % 2, use %% because called as $Field = sprintf($Function, $Field); Prevents error printf(): Too few arguments.
+		$CorruptedSql[] = $this
+			->SelectNodeFields()
+			->Select("Name")
+			->From($this->Name)
+			->Select("$this->RightKey - $this->LeftKey", '(%s) %% 2', 'M')
+			->Having('M', 0, False, False)
+			->GetSelect();
+		$SQL->Reset();
+		// 5. If the level of the node is an odd number then the left key is always an odd number, the same thing for even numbers;
+		$CorruptedSql[] = $this
+			->SelectNodeFields()
+			->Select("Name")
+			->From($this->Name)
+			->Select("$this->LeftKey - $this->DepthKey + 2", '(%s) %% 2', 'M')
+			->Having('M', 0, False, False)
+			->GetSelect();
+		$SQL->Reset();
+		
+		// 6. The left and right keys are always unique
+		$CorruptedSql[] = $this
+			->SelectNodeFields('t1')
+			->Select('t1.Name')
+			->From(array($this->Name .' t1', $this->Name .' t2', $this->Name .' t3'))
+			->Select('t1.'.$this->PrimaryKey, 'count', 'Rep')
+			->Where("t1.$this->LeftKey <> t2.$this->LeftKey", Null, False, False)
+			->Where("t1.$this->LeftKey <> t2.$this->RightKey", Null, False, False)
+			->Where("t1.$this->RightKey <> t2.$this->LeftKey", Null, False, False)
+			->Where("t1.$this->RightKey <> t2.$this->RightKey", Null, False, False)
+			->GroupBy('t1.'.$this->PrimaryKey)
+			->Having("max(t3.$this->RightKey) <>", "sqrt(4 * Rep + 1) + 1", False, False)
+			->GetSelect();
+		$SQL->Reset();
+		
+		$Table = implode("\nunion all\n", $CorruptedSql);
+		$SqlQuery = "select * from ($Table) as t group by t.$this->PrimaryKey";
+		$Result = $SQL->Query($SqlQuery);
+	
 		return $Result;
 	}
-
 	
 	
 	# Part of Nested Set Tree Library by Rolf Brugger
 	# http://www.edutech.ch/contribution/nstrees
 	
-	public function HasChildren($ID) {
-		list($LeftID, $RightID) = $this->_NodeValues($ID);
+	public function HasChildren($Node) {
+		list($LeftID, $RightID) = $this->NodeValues($Node);
 		$Result = (($RightID - $LeftID) > 1);
 		return $Result;
 	}
 	
-	public function IsRoot($ID) {
-		//list($LeftID, $RightID, $Depth, $NodeID) = $this->_NodeValues($ID);
-		list($LeftID) = $this->_NodeValues($ID);
+	public function IsRoot($Node) {
+		list($LeftID) = $this->NodeValues($Node);
 		return ($LeftID == 1);
 	}
 	
 	public function IsLeaf($Node) {
-		list($LeftID, $RightID) = $this->_NodeValues($Node);
+		list($LeftID, $RightID) = $this->NodeValues($Node);
 		$Result = (($RightID - $LeftID) == 1);
 		return $Result;
 	}
@@ -922,10 +953,29 @@ class TreeModel extends Gdn_Model {
 	* @return mixed $Result.
 	*/
 	public function IsChild($Node1, $Node2) {
-		list($LeftID1, $RightID1, $Depth1, $NodeID1) = $this->_NodeValues($Node1);
-		list($LeftID2, $RightID2, $Depth2, $NodeID2) = $this->_NodeValues($Node2);
+		list($LeftID1, $RightID1, $Depth1, $NodeID1) = $this->NodeValues($Node1);
+		list($LeftID2, $RightID2, $Depth2, $NodeID2) = $this->NodeValues($Node2);
 		$Result = (($LeftID1 > $LeftID2) && $RightID1 < $RightID2);
 		return $Result;
+	}
+	
+	
+	// DEPRECATED
+	
+	public function GetChildrens($Node, $Where = False) {
+		if (Debug()) trigger_error('Function renamed to GetChildren().');
+		return $this->GetChildren($Node, $Where);
+	}
+	
+	protected function _NodeValues($Node) {
+		if (Debug()) trigger_error('Function renamed to NodeValues().');
+		return $this->NodeValues($Node);
+	}
+	
+	public function Full($Fields = '', $Where = False) {
+		if (Debug()) Deprecated('Full', 'GetNodes');
+		if ($Fields) $Where['Fields'] = $Fields;
+		return $this->GetNodes($Where);
 	}
 	
 }

@@ -1,5 +1,23 @@
 <?php
 
+if (!function_exists('LastJsonErrorMessage')) {
+	function LastJsonErrorMessage() {
+		if (!function_exists('json_last_error')) return;
+		$Error = json_last_error();
+		$Message = '';
+		switch ($Error) {
+			case JSON_ERROR_NONE: break; // No errors
+			case JSON_ERROR_DEPTH: $Message = 'Maximum stack depth exceeded'; break;
+			case JSON_ERROR_STATE_MISMATCH: $Message = 'Underflow or the modes mismatch'; break;
+			case JSON_ERROR_CTRL_CHAR: $Message = 'Unexpected control character found'; break;
+			case JSON_ERROR_SYNTAX: $Message = 'Syntax error, malformed JSON'; break;
+			case JSON_ERROR_UTF8: $Message = 'Malformed UTF-8 characters, possibly incorrectly encoded'; break;
+			default: $Message = 'Unknown error';
+		}
+		if ($Message) return $Message;
+	}
+}
+
 if (!function_exists('Deprecated')) {
 	/**
 	* Mark a function deprecated (Garden)
@@ -132,7 +150,8 @@ if (!function_exists('d')) {
 			}
 			$String = ob_get_contents();
 			@ob_end_clean();
-			$Encoding = Gdn::Config('Plugins.UsefulFunctions.Console.MessageEnconding');
+			$Encoding = 'cp866';
+			if (class_exists('Gdn')) $Encoding = Gdn::Config('Plugins.UsefulFunctions.Console.MessageEnconding');
 			$String = preg_replace("/\=\>\n +/s", '=> ', $String);
 			if ($Encoding && $Encoding != 'utf-8') $String = mb_convert_encoding($String, $Encoding, 'utf-8');
 			echo $String;

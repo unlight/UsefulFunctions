@@ -123,6 +123,7 @@ if (!function_exists('Thumbnail')) {
 		$Options['Options'] = "-thumbnail {$Geometry} {$ImageQuality}";
 		$Options['TargetFolder'] = $TargetFolder;
 
+		if (substr($Source, 0, 9) == '/uploads/') $Source = substr($Source, 1);
 		$ResultImage = ConvertImage($Source, $Options);
 		
 		if (ArrayValue('OutOriginalImageSize', $Attributes, False, True)) {

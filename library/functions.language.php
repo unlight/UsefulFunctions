@@ -22,6 +22,7 @@ if (!function_exists('GoogleTranslate')) {
 		$To = ArrayValue('To', $Options, $LanguageCode);
 		
 		$String = rawurlencode($Text);
+		$Result = False;
 
 		if (!LoadExtension('curl')) throw new Exception('You need to load/activate the cURL extension (http://www.php.net/cURL).');
 		$Resource = curl_init();
@@ -29,14 +30,27 @@ if (!function_exists('GoogleTranslate')) {
 		$Protocol =  (strlen($HTTPS) || GetValue('SERVER_PORT', $_SERVER) == 443) ? 'https://' : 'http://';
 		$Host = GetValue('HTTP_HOST', $_SERVER, 'google.com');
 		$Referer = $Protocol.$Host;
-		curl_setopt($Resource, CURLOPT_URL, "http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q={$String}&langpair={$From}%7C{$To}");
+		curl_setopt($Resource, CURLOPT_URL, "http://translate.google.com/translate_a/t?client=t&text={$String}&sl={$From}&tl={$To}&ie=UTF-8");
 		curl_setopt($Resource, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($Resource, CURLOPT_REFERER, $Referer);
 		$Body = curl_exec($Resource);
+		// Detect response encoding.
+		$ContentType = curl_getinfo($Resource, CURLINFO_CONTENT_TYPE);
+		if ($ContentType) {
+			preg_match('/charset\=(.+)/', $ContentType, $Match);
+			$Charset = $Match[1];
+			if ($Charset) $Body = mb_convert_encoding($Body, 'utf-8', $Charset);
+		}
 		curl_close($Resource);
-		$TranslatedText = GetValueR('responseData.translatedText', json_decode($Body));
-		$TranslatedText = html_entity_decode($TranslatedText, ENT_QUOTES, 'utf-8');
-		return $TranslatedText;
+		$Pos = strpos($Body, ']]');
+		if ($Pos !== False) {
+			$Body = substr($Body, 1, $Pos + 1);
+			$Json = json_decode($Body);
+			if ($ErrorMessage = LastJsonErrorMessage()) trigger_error($ErrorMessage);
+			$Result = GetValueR('0.0', $Json);
+			$Result = html_entity_decode($Result, ENT_QUOTES, 'utf-8');
+		}
+		return $Result;
 	}
 }
 

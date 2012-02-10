@@ -91,7 +91,7 @@ if (!function_exists('EmailRecipient')) {
 				if ($CoerceArray) $Result = array($Result);
 				return $Result;
 			} elseif (array_key_exists(0, $Mixed)) {
-				foreach ($Mixed as $S) $Result[] = EmailRecipient($S);
+				foreach ($Mixed as $S) $Result = array_merge($Result, EmailRecipient($S, True));
 				return $Result;
 			}
 		} elseif (is_object($Mixed)) {
@@ -118,9 +118,12 @@ if (!function_exists('SendEmailMessage')) {
 			'SingleTo' => True,
 			'Subject' => '',
 			'Charset' => 'utf-8',
+			'WordWrap' => 0,
 			'ContentType' => 'text/plain',
 			'Encoding' => '8bit',
 			'Message' => '',
+			'bHtml' => False,
+			'BaseDirectory' => Null,
 			'Attachment' => '',
 			'Attachments' => array(),
 			'FromEmail' => '',
@@ -147,6 +150,7 @@ if (!function_exists('SendEmailMessage')) {
 		$PhpMailer->Priority = $Priority;
 		$PhpMailer->ContentType = $ContentType;
 		$PhpMailer->CharSet = $Charset;
+		$PhpMailer->WordWrap = $WordWrap;
 		$PhpMailer->SingleTo = $SingleTo;
 		
 		if (!$From) {
@@ -163,7 +167,12 @@ if (!function_exists('SendEmailMessage')) {
 		if ($ConfirmReadingTo) $PhpMailer->ConfirmReadingTo = $ConfirmReadingTo;
 		
 		$PhpMailer->Subject = $Subject;
-		$PhpMailer->Body = $Message;
+		if ($bHtml) {
+			if ($BaseDirectory == Null) $BaseDirectory = '.';
+			$PhpMailer->MsgHtml($Message, $BaseDirectory);
+		} else {
+			$PhpMailer->Body = $Message;
+		}
 		
 		if ($Attachment) foreach ((array)$Attachment as $File) $PhpMailer->AddAttachment($File);
 

@@ -1,4 +1,115 @@
-<?php
+<?php // …
+
+if (!function_exists('SearchAnyWhere')) {
+	function SearchAnyWhere($Options = False) {
+		$SQL = Gdn::SQL();
+		if (GetValue('Structure', $Options)) {
+			$Database = Gdn::Database();
+			$Construct = $Database->Structure();
+			$Px = $Database->DatabasePrefix;
+			$PxLength = strlen($Px);
+			$DatabaseName = C('Database.Name');
+			//$GetAllColumnsQuery = "select TABLE_NAME, COLUMN_NAME, DATA_TYPE from information_schema.COLUMNS where TABLE_SCHEMA = '{$Px}{$DatabaseName}'";
+			$GetAllColumnsQuery = "select TABLE_NAME, COLUMN_NAME, DATA_TYPE from information_schema.COLUMNS where TABLE_SCHEMA = '{$Px}{$DatabaseName}' and DATA_TYPE in ('char', 'varchar', 'tinytext', 'text', 'mediumtext', 'longtext')";
+			$CurrentUser = $SQL->Query("select current_user() as RowValue")->Value('RowValue');
+			$CurrentUser = explode('@', $CurrentUser);
+			$Definer = "`{$CurrentUser[0]}`@`{$CurrentUser[1]}`";
+			$Code = <<<CODE
+create definer=$Definer procedure `SearchAnyWhere`(in `What` varchar(50))
+    reads sql data
+begin
+
+declare Done int default False;
+declare TableName, ColumnName, DataType, Dummy varchar(80);
+declare FieldValue varchar(255);
+declare GetAllColumns cursor for {$GetAllColumnsQuery};
+declare continue handler for not found set Done = True;
+
+set @PxLength = $PxLength;
+set @SelectAll = Null;
+
+open GetAllColumns;
+ReadLoop: loop
+	fetch GetAllColumns into TableName, ColumnName, DataType;
+	set TableName = substr(TableName, @PxLength+1);
+	if Done then leave ReadLoop;
+	end if;
+	set @SelectSql = concat('select "', TableName, '" as TableName, "', ColumnName, '" as ColumnName, `', ColumnName, '` as RowValue from ', TableName, ' where `', ColumnName, '` like "%', What, '%"');
+	set @SelectAll = concat_ws(' union all ', @SelectAll, @SelectSql);
+end loop;
+close GetAllColumns;
+#select @SelectAll;
+prepare St from @SelectAll;
+execute St;
+
+end
+CODE;
+			try {
+				$ProcedureCode = $Database->Query("show create procedure SearchAnyWhere")->Value('Create Procedure');
+			} catch (Exception $Ex) {
+				$ProcedureCode = '';
+			}
+			if (strtolower($ProcedureCode) != strtolower($Code)) {
+				$Construct->Query("drop procedure if exists `SearchAnyWhere`");
+				$Construct->Query($Code);
+			}
+		} else {
+			if (strlen($Options) > 0) return $SQL->Query("call SearchAnyWhere('{$Options}')");
+		}
+
+	}
+}
+
+if (!function_exists('DatabasePrefix')) {
+	/**
+	* Set or setore database prefix (default empty).
+	* Allow use SqlDriver class for building queries for other databases.
+	* https://github.com/vanillaforums/Garden/pull/1266/files
+	* 
+	* @param mixed $Px		New prefix
+	* @return NULL.
+	*/
+	function DatabasePrefix($Px = '') {
+		static $ConfigDatabasePrefix;
+		static $Count = 0;
+		$Count++;
+		$Database = Gdn::Database();
+		if ($ConfigDatabasePrefix === Null) $ConfigDatabasePrefix = $Database->DatabasePrefix;
+		if ($Count & 1) $Database->DatabasePrefix = $Px;
+		else $Database->DatabasePrefix = $ConfigDatabasePrefix;
+	}
+}
+
+if (!function_exists('MaxAutoIncrement')) {
+	/**
+	* Get max AUTO_INCREMENT from $Tables.
+	* $Tables is null means all tables.
+	* 
+	* @param mixed $Tables
+	* @return mixed $Result.
+	*/
+	function MaxAutoIncrement($Tables = Null, $Options = False) {
+		if (is_string($Tables)) $Tables = SplitUpString($Tables, ',', 'trim');
+		$SQL = Gdn::SQL();
+		if (!is_null($Tables)) {
+			$Px = $SQL->Database->DatabasePrefix;
+			$Tables = array_map(create_function('$S', "return '$Px'.\$S;"), $Tables);
+			$SQL->WhereIn('TABLE_NAME', $Tables);
+		}
+		DatabasePrefix();
+		$Select = $SQL
+			->Select('AUTO_INCREMENT', 'max', 'MaxAutoIncrement')
+			->From('information_schema.TABLES i')
+			->Where('TABLE_SCHEMA', C('Database.Name'))
+			->GetSelect();
+		DatabasePrefix();
+		$Select = $SQL->ApplyParameters($Select);
+		$SQL->Reset();
+		if (GetValue('GetQuery', $Options)) return $Select;
+		$Result = $SQL->Query($Select)->Value('MaxAutoIncrement');
+		return $Result;
+	}
+}
 
 /** 
 BEGIN
@@ -161,7 +272,7 @@ if (!function_exists('K')) {
 				Gdn::Structure()
 					->Table('Data')
 					->Column('Name', 'varchar(200)', False, 'unique')
-					->Column('Value', 'text')
+					->Column('Value', 'mediumtext')
 					->Set(False, False);
 				$DataTableCreated = True;
 				SaveToConfig('Plugins.UsefulFunctions.DataTableCreated', $DataTableCreated);
@@ -228,5 +339,3 @@ if (!function_exists('K')) {
 		}
 	}
 }
-
-// utf-8 mark …

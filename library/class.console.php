@@ -4,52 +4,38 @@
 
 class Console extends Gdn_Pluggable {
 	
-	public static function ErrorHandler($Error, $Message = '', $File = '', $Line = '') {
-		
-		if (error_reporting() == 0) return False;
-		
-		$Object = 'PHP';
-		$Method = 'Function';
-		
-		if (is_object($Error)) {
-			$Info = False;
-			foreach ($Error->GetTrace() as $Info) break;
-			$Method = ArrayValue('function', $Info, $Method);
-			$Object = ArrayValue('class', $Info, $Object);
-			$Message = $Error->GetMessage();
-			$File = $Error->GetFile();
-			$Line = $Error->GetLine();
-			$Error = -1;
+	public static function InitializeErrorHandler() {
+		set_exception_handler(array('Console', 'ExceptionHandler'));
+		set_error_handler(array('Console', 'ErrorHandler'), E_ALL);
+	}
+	
+	public static function ErrorHandler($No, $Message, $File, $Line, $Globals = Null) {
+		$Code = 0;
+		throw new ErrorException($Message, $Code, $No, $File, $Line);
+	}
+	
+	public static function ExceptionHandler($Exception) {
+		$Message = $Exception->GetMessage();
+		$File = $Exception->GetFile();
+		$Line = $Exception->GetLine();
+		echo "Error: $Message\n";
+		echo $Exception->GetTraceAsString() . "\n";
+		echo "$File\n";
+		$FileArray = file($File);
+		array_unshift($FileArray, '');
+		for ($LengthAfter = $Line + 3, $i = $Line - 2; $i < $LengthAfter; $i++) {
+			$FileLine =& $FileArray[$i];
+			if ($FileLine !== Null) {
+				$Px = '    ';
+				if ($i == $Line) {
+					$FileLine = substr($FileLine, 0, -1) . " // <-- HERE!\n";
+					$Px = '>>> ';
+				}
+				echo "{$Px}$i: {$FileLine}";
+			}
 		}
-		
-		$File = str_replace(PATH_ROOT.DS, '', $File);
-		
-		switch ($Error) {
-			case E_NOTICE: $Code = 'NOTICE'; break;
-			case E_WARNING: $Code = 'WARNING'; break;
-			case -1: $Code = 'UNCAUGHT EXCEPTION'; break;
-			default: $Code = 'ERROR';
-		}
-		
-		$Message = strip_tags($Message);
-		self::Message('%s: %s in %s on line %s', $Code, $Message, $File, $Line);
-		self::Message($Message);
-		LogMessage($File, $Line, $Object, $Method, $Message, $Code);
-		
-		// send error to email
-		$To = Gdn::Config('Plugins.UsefulFunctions.Console.ErrorsEmailToAddress');
-		if (self::Check() && $To != False) {
-			$Text = sprintf(Gdn::Translate('Error in console script %1$s %2$s %3$s %4$s'), $Code, $Message, $File, $Line);
-			if (!class_exists('Gdn_Email')) return error_log("Error ($Code)", 1, $To, $Text);
-			$Email = new Gdn_Email();
-			$Email
-				->To($To)
-				->Message($Text)
-				->Subject("Error ($Code)")
-				->Send('ErrorInConsoleScript');
-		}
-		
-		exit();
+		LogException($Exception);
+		die();
 	}
 	
 	public static function CheckColorSupport() {
@@ -171,16 +157,7 @@ class Console extends Gdn_Pluggable {
 		}
 		fwrite(STDOUT, "\n");
 	}
-	
-	/*public static function Admin() {
-		$Session = Gdn::Session();
-		$User = new StdClass();
-		$User->Admin = 1;
-		$User->UserID = 1;
-		TouchValue('User', $User, False);
-		TouchValue('UserID', $Session, 0);
-	}*/
-	
+
 }
 
 

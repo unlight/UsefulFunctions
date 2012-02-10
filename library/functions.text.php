@@ -48,14 +48,31 @@ if (!function_exists('LoremIpsum')) {
 	}
 }
 
+if (!function_exists('RemoteHtmlToMarkdown')) {
+	function RemoteHtmlToMarkdown($Html, $FormatHtml = False) {
+		$Snoopy = Gdn::Factory('Snoopy');
+		$Vars = array('html' => $Html, 'submit' => 1);
+		$Snoopy->Submit('http://modnerd.com/html2markdown/', $Vars);
+		$Doc = PqDocument($Snoopy->results, array('FixHtml' => False));
+		$Result = Pq('#markdown')->Val();
+		$Result = htmlspecialchars_decode($Result, ENT_QUOTES);
+		// I don't have a clue why need do htmlspecialchars_decode second time
+		$Result = htmlspecialchars_decode($Result, ENT_QUOTES);
+		$Result = str_replace('&#xD;', "\r", $Result);
+		$Result = trim($Result);
+		return $Result;
+	}
+}
+
 if (!function_exists('HtmlToMarkdown')) {
 	function HtmlToMarkdown($Html, $FormatHtml = False) {
-		if (class_exists('HTML_Parser', False)) {
+		if (!class_exists('HTML_Parser', False)) {
 			define('HTML2MD_HEADER_STYLE', 'ATX');
-			define('HTML2MD_SUPPRESS_ERRORS', False);
+			define('HTML2MD_SUPPRESS_ERRORS', True);
+			define('HTML2MD_NEWLINE', "\n");
 			require_once USEFULFUNCTIONS_VENDORS . '/html2markdown.php';
 		}
-		if ($FormatHtml === True) {
+		if ($FormatHtml) {
 			$HtmlFormatter = Gdn::Factory('HtmlFormatter');
 			if ($HtmlFormatter) $Html = $HtmlFormatter->Format($Html);
 		}

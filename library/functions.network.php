@@ -1,5 +1,51 @@
 <?php
 
+if (!function_exists('ClientRequest')) {
+	/**
+	* Perform client request to server.
+	* Options: see here http://www.php.net/manual/en/function.curl-setopt.php
+	* Bool options: 
+	* 	ReturnTransfer, Post, FollowLocation, Header
+	* Integer options: 
+	* 	ConnectTimeout, Timeout, Timeout_Ms
+	* Other options: 
+	* 	Url, Cookie, CookieFile, CustomRequest, PostFields, Referer, UserAgent, UserPwd
+	* 
+	* @param mixed $Url or array $Options.
+	* @return mixed $Result.
+	*/
+	function ClientRequest($Url, $Options = False) {
+		static $Connections = array();
+		if (!is_array($Url)) $Options['Url'] = $Url;
+		
+		$Url = GetValue('Url', $Options, False, True);
+		$GetInfo = GetValue('GetInfo', $Options, False, True);
+		TouchValue('ReturnTransfer', $Options, True);
+		
+		if (!array_key_exists($Url, $Connections)) $Connections[$Url] = curl_init($Url); 
+		$Connection =& $Connections[$Url];
+		
+		foreach ($Options as $Option => $Value) {
+			$Constant = 'CURLOPT_' . strtoupper($Option);
+			if (!defined($Constant)) trigger_error('cURL. Unknown option: ' . $Constant);
+			curl_setopt($Connection, constant($Constant), $Value);
+		}
+
+		$Result = curl_exec($Connection);
+		if ($Result === False) {
+			$ErrorMessage = curl_error($Connection);
+			trigger_error($ErrorMessage);
+			return False;
+		}
+		if ($GetInfo) {
+			$Result = array('Result' => $Result);
+			$Result['Info'] = curl_getinfo($Connection);
+		}
+		return $Result;
+	}
+
+}
+
 if (!function_exists('RealIpAddress')) {
 	/**
 	* Gets/converts IP-address (numeric format/dot format).

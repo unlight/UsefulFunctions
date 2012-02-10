@@ -1,5 +1,19 @@
 <?php
 
+if (!function_exists('RandRange')) {
+	/**
+	* Return a random number within the given range. 
+	* 
+	* @param coerce mixed $Min
+	* @param coerce float $Max 
+	* @return float $Result.
+	*/ 
+	function RandRange($Min, $Max) {
+		$RandomFloat = rand() / getrandmax();
+		return $Min + ($Max - $Min) * $RandomFloat;
+	}
+}
+
 if (!function_exists('Clamp')) {
 	/**
 	* Returns the first number clamped to the interval from A to B.
