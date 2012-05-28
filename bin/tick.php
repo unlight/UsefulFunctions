@@ -116,6 +116,9 @@ class ExamplePlugin implements Gdn_IPlugin {
 	public function Tick_Match_57_Minutes_10_Hours_1_Day_Handler() {
 	}
 	
+	public function Tick_Match_57_Minutes_11_Hours_2_Day_Handler() {
+	}
+	
 	public function Tick_Match_57_Minutes_10_Hours_1_Day_7_Month_Handler() {
 	}
 	

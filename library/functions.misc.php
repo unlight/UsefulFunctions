@@ -164,6 +164,7 @@ if (!function_exists('SendEmailMessage')) {
 		$PhpMailer->FromName = $From['Name'];
 		
 		if ($Sender) $PhpMailer->Sender = $Sender;
+		else $PhpMailer->Sender = $PhpMailer->From;
 		if ($ConfirmReadingTo) $PhpMailer->ConfirmReadingTo = $ConfirmReadingTo;
 		
 		$PhpMailer->Subject = $Subject;

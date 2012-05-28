@@ -183,7 +183,8 @@ class Dumphper
 						elseif (DPHP_USE_ACCESSIBLE)
 						{
 							$value->setAccessible(true);
-							self::_dump($value->getValue($source), $parents);
+							$tmp = $value->getValue($source);
+							self::_dump($tmp, $parents);
 						}
 						/** in case of PHP 5.2.x+ **/
 						elseif ($value->isStatic())
