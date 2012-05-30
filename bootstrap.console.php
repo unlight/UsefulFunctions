@@ -1,5 +1,5 @@
 <?php
-error_reporting(E_ALL);
+error_reporting(E_ALL & ~E_STRICT);
 ini_set('html_errors', 0);
 ini_set('display_errors', 1);
 ini_set('track_errors', 1);
@@ -15,7 +15,10 @@ require_once PATH_ROOT.'/bootstrap.php';
 if (!defined('USEFULFUNCTIONS_LIBRARY')) define('USEFULFUNCTIONS_LIBRARY', dirname(__FILE__).'/library');
 require_once USEFULFUNCTIONS_LIBRARY.'/class.console.php';
 
-if(!Console::Check() && C('Plugins.UsefulFunctions.Console.Check', True)) die('Please, run script from command line!');
+if (!Console::Check() && C('Plugins.UsefulFunctions.Console.Check', True)) {
+	trigger_error('Please, run script from command line!', E_USER_ERROR);
+	return 1;
+}
 //Console::InitializeErrorHandler();
 
 if (PHP_SAPI == 'cli') {
@@ -23,6 +26,6 @@ if (PHP_SAPI == 'cli') {
 	$_GET['DeliveryType'] = 'VIEW';
 }
 
-$Host = GetValue(1, explode('//', Gdn::Config('Garden.Domain')));
+$Domain = explode('//', Gdn::Config('Garden.Domain'));
+$Host = GetValue(1, $Domain);
 Gdn::Request()->RequestHost($Host);
-

@@ -5,7 +5,7 @@ $PluginInfo['UsefulFunctions'] = array(
 	'Name' => 'Useful Functions',
 	'Description' => 'Useful functions for plugin and application developers (ex- PluginUtils).',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.18'),
-	'Version' => '3.11.1',
+	'Version' => '3.12.1',
 	'Date' => 'Winter 2010',
 	'Updated' => 'Autumn 2011',
 	'Author' => 'Vanilla Fan'
@@ -20,7 +20,14 @@ if (class_exists('Gdn', False)) {
 	Gdn::FactoryInstall('CssSpriteMap', 'CssSpriteMap', USEFULFUNCTIONS_VENDORS.'/CssSprite.php', Gdn::FactorySingleton);
 	
 	class UsefulFunctionsPlugin implements Gdn_IPlugin {
-		
+
+		public function PluginController_TimerTick_Create($Sender) {
+			// Assume that $Sender->RequestArgs is empty.
+			$SecretKey = GetIncomingValue('SecretKey');
+			include dirname(__FILE__) . '/bin/tick.php';
+		}
+
+
 /*		public function Base_Render_Before($Sender) {
 			if ($Sender->DeliveryType() != DELIVERY_TYPE_ALL) return;
 			//$Sender->Head->AddScript('plugins/UsefulFunctions/js/noindex.js', 'text/javascript', array('path' => 'plugins/UsefulFunctions/js/noindex.js', 'sort' => 9999));
