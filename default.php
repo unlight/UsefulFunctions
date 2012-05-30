@@ -8,7 +8,8 @@ $PluginInfo['UsefulFunctions'] = array(
 	'Version' => '3.12.1',
 	'Date' => 'Winter 2010',
 	'Updated' => 'Autumn 2011',
-	'Author' => 'Vanilla Fan'
+	'Author' => 'Vanilla Fan',
+	'SettingsUrl' => '/settings/usefulfunctions'
 );
 
 define('USEFULFUNCTIONS_LIBRARY', dirname(__FILE__).'/library');
@@ -23,8 +24,37 @@ if (class_exists('Gdn', False)) {
 
 		public function PluginController_TimerTick_Create($Sender) {
 			// Assume that $Sender->RequestArgs is empty.
-			$SecretKey = GetIncomingValue('SecretKey');
-			include dirname(__FILE__) . '/bin/tick.php';
+			$Token = GetIncomingValue('TimerTickToken', RandomString(5));
+			if ($Token == C('Plugins.UsefulFunctions.TimerTick.SecretKey', RandomString(8))) {
+				require dirname(__FILE__) . '/bin/tick.php';
+			}
+		}
+
+		public function SettingsController_UsefulFunctions_Create($Sender) {
+			$Sender->Permission('Garden.Plugins.Manage');
+			$Sender->AddSideMenu();
+			$Sender->Title('UsefulFunctions Settings');
+		
+			$Validation = new Gdn_Validation();
+			$Validation->ApplyRule('Plugins.UsefulFunctions.TimerTick.SecretKey', array('Required'));
+			$ConfigurationModel = new Gdn_ConfigurationModel($Validation);
+			$Sender->Form->SetModel($ConfigurationModel);
+			$ConfigurationModel->SetField(array(
+				'Plugins.UsefulFunctions.TimerTick.SecretKey',
+			));
+		
+			if ($Sender->Form->AuthenticatedPostBack()) {
+				//$FormValues = $Sender->Form->FormValues();
+				$Saved = $Sender->Form->Save();
+				if ($Saved) {
+					$Sender->InformMessage(T('Saved'), array('Sprite' => 'Check', 'CssClass' => 'Dismissable AutoDismiss'));
+				}
+			} else {
+				$Sender->Form->SetData($ConfigurationModel->Data);
+			}
+
+			$Sender->View = dirname(__FILE__) . '/views/settings.php';
+			$Sender->Render();
 		}
 
 
@@ -33,6 +63,8 @@ if (class_exists('Gdn', False)) {
 			//$Sender->Head->AddScript('plugins/UsefulFunctions/js/noindex.js', 'text/javascript', array('path' => 'plugins/UsefulFunctions/js/noindex.js', 'sort' => 9999));
 			//if (Debug()) $Sender->Head->AddScript('plugins/UsefulFunctions/js/var_dump.js', 'text/javascript', array('path' => 'plugins/UsefulFunctions/js/var_dump.js'));
 		}*/
+
+
 		
 		public function Structure() {
 			SearchAnyWhere(array('Structure' => True));
