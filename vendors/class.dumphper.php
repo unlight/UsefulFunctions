@@ -19,9 +19,13 @@ class Dumphper
 	static $objects = array();
 	static $calls = 0;
 	static $depth = 0;
+	static $objectStorage;
 	
 	static function dump(&$source)
 	{
+		if (class_exists('SplObjectStorage')) {
+			self::$objectStorage = new SplObjectStorage();
+		}
 		self::$depth = 0;
 		self::drawStyles();
 		//$s = microtime(true);
@@ -229,9 +233,17 @@ class Dumphper
 	
 	static function isRecursiveObject(&$source, &$parents)
 	{
-		if ( in_array($source, $parents, true) )
-			return true;
-		$parents[] = &$source;
+		if (self::$objectStorage) {
+			if (self::$objectStorage->contains($source)) {
+				return true;
+			}
+			self::$objectStorage->attach($source);
+		} else {
+			if ( in_array($source, $parents, true) ) {
+				return true;
+			}
+			$parents[] = &$source;
+		}
 		return false;
 	}
 	
