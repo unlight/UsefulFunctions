@@ -117,7 +117,13 @@ if (!function_exists('PqDocument')) {
 		if (ArrayValue('FixHtml', $Options, True)) {
 			$HtmlFormatter = Gdn::Factory('HtmlFormatter');
 			if ($HtmlFormatter) $Document = $HtmlFormatter->Format($Document);
+		} elseif (ArrayValue('Body', $Options, False)) {
+			$BodyPos1 = strpos($Document, '<body');
+			$EndTag = '</body>';
+			$BodyPos2 = strrpos($Document, $EndTag);
+			$Document = substr($Document, $BodyPos1, strlen($Document) - $BodyPos1 - strlen($EndTag));
 		}
+
 		return phpQuery::newDocumentXHTML($Document);
 	}
 }
