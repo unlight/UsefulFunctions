@@ -27,7 +27,15 @@ if (!function_exists('ClientRequest')) {
 		
 		foreach ($Options as $Option => $Value) {
 			$Constant = 'CURLOPT_' . strtoupper($Option);
-			if (!defined($Constant)) trigger_error('cURL. Unknown option: ' . $Constant);
+			if (!defined($Constant)) {
+				$InfoConstant = 'CURLINFO_' . strtoupper($Option);
+				if (!defined($InfoConstant)) {
+					trigger_error("cURL. Unknown option: $Constant ($InfoConstant)");
+				} else {
+					$Constant = $InfoConstant;
+				}
+
+			}
 			curl_setopt($Connection, constant($Constant), $Value);
 		}
 

@@ -58,7 +58,7 @@ if (!function_exists('LingvoTranslate')) {
 	function LingvoTranslate($Word, $Options = array()) {
 		LoadPhpQuery();
 		static $Result, $LanguageCode;
-		if(is_null($LanguageCode)) $LanguageCode = LocaleLanguageCode();
+		if (is_null($LanguageCode)) $LanguageCode = LocaleLanguageCode();
 		$ResetCache = ArrayValue('ResetCache', $Options, False);
 		$From = ArrayValue('From', $Options, $LanguageCode);
 		$To = ArrayValue('To', $Options, $LanguageCode);

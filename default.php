@@ -5,7 +5,7 @@ $PluginInfo['UsefulFunctions'] = array(
 	'Name' => 'Useful Functions',
 	'Description' => 'Useful functions for plugin and application developers (ex- PluginUtils).',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.18'),
-	'Version' => '3.12.1',
+	'Version' => '3.13.1',
 	'Date' => 'Winter 2010',
 	'Updated' => 'Autumn 2011',
 	'Author' => 'Vanilla Fan',
@@ -91,5 +91,6 @@ require USEFULFUNCTIONS_LIBRARY.'/functions.debug.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.misc.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.geo.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.deprecated.php';
+require USEFULFUNCTIONS_VENDORS.'/XML2Array.php';
 
 
