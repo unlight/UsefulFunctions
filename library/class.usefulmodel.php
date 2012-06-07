@@ -21,6 +21,25 @@ abstract class UsefulModel extends Gdn_Model {
 		return $this->Alias;
 	}
 
+	/**
+	* Undocumented 
+	* 
+	*/
+	public static function SetNullValues(&$Fields, $Nulls = array('')) {
+		if (!is_array($Nulls)) $Nulls = array_slice(func_get_args(), 1);
+		foreach ($Fields as &$Value) {
+			if (is_scalar($Value) && in_array($Value, $Nulls, True)) $Value = NULL;
+		}
+		return $Fields;
+	}
+
+	// public function Save($Fields, $Settings = False) {
+	// 	$Fields = self::SetNullValues($Fields);
+	// 	$Result = parent::Save($Fields, $Settings);
+	// 	return $Result;
+	// }
+	
+
 	public function GetNames($Collection, $Options = False) {
 		$Field = GetValue('Field', $Options, 'Name');
 		$NameField = ArrayValue('NameField', $Options, 'Name');
