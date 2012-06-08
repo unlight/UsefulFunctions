@@ -16,11 +16,18 @@ if (!function_exists('ClientRequest')) {
 	*/
 	function ClientRequest($Url, $Options = False) {
 		static $Connections = array();
-		if (!is_array($Url)) $Options['Url'] = $Url;
-		
+		if (func_num_args() == 1) {
+			$Options = $Url;
+		}
+		if (is_string($Options)) {
+			$Options['Url'] = $Options;
+		}
+
 		$Url = GetValue('Url', $Options, False, True);
 		$GetInfo = GetValue('GetInfo', $Options, False, True);
 		TouchValue('ReturnTransfer', $Options, True);
+		//TouchValue('ConnectTimeout', $Options, 30);
+		//TouchValue('Timeout', $Options, 5);
 		
 		if (!array_key_exists($Url, $Connections)) $Connections[$Url] = curl_init($Url); 
 		$Connection =& $Connections[$Url];
@@ -38,7 +45,6 @@ if (!function_exists('ClientRequest')) {
 			}
 			curl_setopt($Connection, constant($Constant), $Value);
 		}
-
 		$Result = curl_exec($Connection);
 		if ($Result === False) {
 			$ErrorMessage = curl_error($Connection);

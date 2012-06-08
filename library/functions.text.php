@@ -104,11 +104,25 @@ if (!function_exists('PqDocument')) {
 	* 
 	* @param mixed $Document, string, file or url.
 	* @return PhpQueryDocument object.
-	*/ 
+	*/
 	function PqDocument($Document, $Options = False) {
 		if (!function_exists('Pq')) require_once USEFULFUNCTIONS_VENDORS.'/phpQuery.php';
+		$Cache = GetValue('Cache', $Options);
+		if ($Cache) {
+			if (!is_bool($Cache)) {
+				$Name = Crc32Value($Options);
+			} else {
+				$Name = Crc32Value($Document, $Options);
+			}
+			$CacheFile = PATH_CACHE . '/' . $Name . '.php';
+			if (file_exists($CacheFile)) {
+				include $CacheFile;
+				return phpQuery::newDocumentXHTML($Data['Document']);
+			}
+		}
+	
 		if (strpos($Document, '<') === False) {
-			if (is_file($Document) || (substr($Document, 0, 7) == 'http://')) {
+			if (is_file($Document) || substr($Document, 0, 7) == 'http://') {
 				$Document = file_get_contents($Document);
 			}
 		}
@@ -122,6 +136,12 @@ if (!function_exists('PqDocument')) {
 			$EndTag = '</body>';
 			$BodyPos2 = strrpos($Document, $EndTag);
 			$Document = substr($Document, $BodyPos1, strlen($Document) - $BodyPos1 - strlen($EndTag));
+		}
+
+		if ($Cache) {
+			$Data = array('Document' => $Document);
+			$Contents = "<?php if(!defined('APPLICATION')) exit(); \n\$Data = " . var_export($Data, True) . ';';
+			file_put_contents($CacheFile, $Contents);
 		}
 
 		return phpQuery::newDocumentXHTML($Document);
