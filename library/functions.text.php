@@ -109,15 +109,30 @@ if (!function_exists('PqDocument')) {
 		if (!function_exists('Pq')) require_once USEFULFUNCTIONS_VENDORS.'/phpQuery.php';
 		$Cache = GetValue('Cache', $Options);
 		if ($Cache) {
-			if (!is_bool($Cache)) {
-				$Name = Crc32Value($Options);
-			} else {
-				$Name = Crc32Value($Document, $Options);
+			$Name = Crc32Value($Options);
+			if ($Cache === True) {
+				$Name = Crc32Value($Document, $Name);
 			}
-			$CacheFile = PATH_CACHE . '/' . $Name . '.php';
+			$CacheDirectory = PATH_CACHE . '/PqDocument';
+			if (!is_dir($CacheDirectory)) {
+				mkdir($CacheDirectory, 0777, True);
+			}
+			$CacheFile = $CacheDirectory . DS . $Name . '.php';
 			if (file_exists($CacheFile)) {
-				include $CacheFile;
-				return phpQuery::newDocumentXHTML($Data['Document']);
+				$IncludeCache = True;
+				if (is_numeric($Cache)) {
+					$Created = filemtime($CacheFile);
+					$LifeTime = time() - $Created;
+					if ($LifeTime > $Cache) {
+						// Cache expired.
+						$IncludeCache = False;
+					}
+				}
+
+				if ($IncludeCache) {
+					$Document = include $CacheFile;
+					return phpQuery::newDocumentXHTML($Document);
+				}
 			}
 		}
 	
@@ -135,15 +150,21 @@ if (!function_exists('PqDocument')) {
 			$BodyPos1 = strpos($Document, '<body');
 			$EndTag = '</body>';
 			$BodyPos2 = strrpos($Document, $EndTag);
-			$Document = substr($Document, $BodyPos1, strlen($Document) - $BodyPos1 - strlen($EndTag));
+			if ($BodyPos1 !== False) {
+				if ($BodyPos2 === False) {
+					$Document = substr($Document, $BodyPos1);
+				} else {
+					$Document = substr($Document, $BodyPos1, strlen($Document) - $BodyPos1 - strlen($EndTag));
+				}
+			}
+			
 		}
 
 		if ($Cache) {
-			$Data = array('Document' => $Document);
-			$Contents = "<?php if(!defined('APPLICATION')) exit(); \n\$Data = " . var_export($Data, True) . ';';
+			$Contents = "<?php if(!defined('APPLICATION')) exit(); \nreturn " . var_export($Document, True) . ';';
 			file_put_contents($CacheFile, $Contents);
 		}
-
+		
 		return phpQuery::newDocumentXHTML($Document);
 	}
 }

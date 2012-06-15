@@ -16,14 +16,38 @@ if (!function_exists('ClientRequest')) {
 	*/
 	function ClientRequest($Url, $Options = False) {
 		static $Connections = array();
-		if (func_num_args() == 1) {
+		$NumArgs = func_num_args();
+		if ($NumArgs == 1) {
 			$Options = $Url;
+			if (is_string($Options)) $Options = array('Url' => $Options);
+		} else {
+			$Options['Url'] = $Url;
 		}
-		if (is_string($Options)) {
-			$Options['Url'] = $Options;
+
+		$Cache = GetValue('Cache', $Options, False, True);
+		if ($Cache !== False) {
+			$Crc = sprintf('%u', crc32(serialize($Options)));
+			$CacheDirectory = PATH_CACHE . DS . 'client-request';
+			$CacheFile = $CacheDirectory . DS . $Crc . '.php';
+			if (file_exists($CacheFile)) {
+				$IncludeCache = True;
+				if (is_int($Cache)) {
+					$LifeTime = time() - filemtime($CacheFile);
+					$Expired = ($LifeTime > $Cache);
+					if ($Expired) {
+						$IncludeCache = False;
+					}
+				}
+				if ($IncludeCache) {
+					$Result = include $CacheFile;
+					return $Result;
+				}
+			}
 		}
 
 		$Url = GetValue('Url', $Options, False, True);
+		$ConvertEncoding = GetValue('ConvertEncoding', $Options, False, True);
+
 		$GetInfo = GetValue('GetInfo', $Options, False, True);
 		TouchValue('ReturnTransfer', $Options, True);
 		//TouchValue('ConnectTimeout', $Options, 30);
@@ -45,16 +69,41 @@ if (!function_exists('ClientRequest')) {
 			}
 			curl_setopt($Connection, constant($Constant), $Value);
 		}
+
 		$Result = curl_exec($Connection);
 		if ($Result === False) {
 			$ErrorMessage = curl_error($Connection);
 			trigger_error($ErrorMessage);
 			return False;
 		}
-		if ($GetInfo) {
+
+		if ($GetInfo || $ConvertEncoding) {
 			$Result = array('Result' => $Result);
 			$Result['Info'] = curl_getinfo($Connection);
 		}
+
+		if ($ConvertEncoding) {
+			list($MimeType, $DirtyCharsetInfo) = explode(';', $Result['Info']['content_type']);
+			$Result['MimeType'] = $MimeType;
+			preg_match('/charset=(.+)/', $DirtyCharsetInfo, $Match);
+			$Charset = strtolower($Match[1]);
+			if ($Charset != 'utf-8') {
+				$Result['Result'] = mb_convert_encoding($Result['Result'], 'utf-8', $Charset);
+			}
+
+			if (!$GetInfo) {
+				$Result = $Result['Result'];
+			}
+		}
+
+		if ($Cache !== False) {
+			if (!is_dir($CacheDirectory)) {
+				mkdir($CacheDirectory, 0777, True);
+			}
+			$Contents = "<?php if (!defined('APPLICATION')) exit(); \nreturn " . var_export($Result, True) . ';';
+			file_put_contents($CacheFile, $Contents);
+		}
+
 		return $Result;
 	}
 

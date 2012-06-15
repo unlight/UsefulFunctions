@@ -4,6 +4,19 @@ abstract class UsefulModel extends Gdn_Model {
 
 	protected $Alias;
 
+	public function SaveMetaData($RowID, $OtherTable, $Values) {
+		$TableName = $this->Name . $OtherTable;
+		$OtherField = $OtherTable . 'ID';
+		$Where = array($this->PrimaryKey => $RowID);
+		$SQL = Gdn::SQL();
+		$DataInsert = array();
+		foreach ($Values as $Value) {
+			$DataInsert[] = array_merge($Where, array($OtherField => $Value));
+		}
+		$this->SQL->Where($Where)->Delete($TableName);
+		return $SQL->Insert($TableName, $DataInsert);
+	}
+
 	protected function GetAlias() {
 		if ($this->Alias === Null) {
 			$ClassName = get_class($this);	
