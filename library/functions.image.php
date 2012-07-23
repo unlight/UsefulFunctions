@@ -47,18 +47,23 @@ area@ 	Resize image to have specified area in pixels. Aspect ratio is preserved.
 
 if (!function_exists('ConvertImage')) {
 	function ConvertImage($Source, $Options = Null) {
-	
+		$Info = array(
+			'Source' => $Source
+		);
 		if (is_string($Options)) $Options = array('Options' => $Options);
 		$TargetFolder = GetValue('TargetFolder', $Options, 'uploads/cached', True);
 		$Options = GetValue('Options', $Options);
+		$Extension = GetValue('Extension', $Options);
 		
 		$Filename = CleanupString(pathinfo($Source, 8)).'-'.Crc32Value($Source, $Options);
-		$Extension = CleanupString(pathinfo($Source, 4));
+		if ($Extension === False) {
+			$Extension = CleanupString(pathinfo($Source, 4));	
+		}
 		$ResultImage = $TargetFolder.DS.$Filename.'.'.$Extension;
 		
 		if (!file_exists($ResultImage)) {
 			$Source = GetImageSource($Source);
-			ImageMagick('convert', $Source, $Options, $ResultImage);
+			ImageMagick('convert', $Source, $Options, $ResultImage, $Info);
 		}
 		
 		return $ResultImage;

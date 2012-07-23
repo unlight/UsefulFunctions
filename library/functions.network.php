@@ -73,6 +73,7 @@ if (!function_exists('ClientRequest')) {
 		$Result = curl_exec($Connection);
 		if ($Result === False) {
 			$ErrorMessage = curl_error($Connection);
+			//$ErrorNo = curl_errno($Connection);
 			trigger_error($ErrorMessage);
 			return False;
 		}

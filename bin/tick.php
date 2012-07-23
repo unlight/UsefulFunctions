@@ -2,6 +2,19 @@
 # Add this line to cron task file, 'crontab -e'
 # */5 * * * *  /usr/local/bin/php -q /path/to/plugins/UsefulFunctions/bin/tick.php
 
+$InTickFile = dirname(__FILE__) . '/.tick';
+
+if (file_exists($InTickFile)) {
+	$ModificationTime = filemtime($InTickFile);
+	if (strtotime('55 minutes ago') > $ModificationTime) {
+		unlink($InTickFile);
+	} else {
+		return;
+	}
+}
+
+touch($InTickFile);
+
 require dirname(__FILE__) . '/../bootstrap.console.php';
 $bLoop = Console::Argument('loop', False) !== False;
 
@@ -80,6 +93,8 @@ do {
 
 $Database = Gdn::Database();
 if ($Database != Null) $Database->CloseConnection();
+
+unlink($InTickFile);
 
 
 /* Example:

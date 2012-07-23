@@ -1,8 +1,8 @@
 <?php
 
 if (!function_exists('LastJsonErrorMessage')) {
-	function LastJsonErrorMessage() {
-		if (!function_exists('json_last_error')) return;
+	function LastJsonErrorMessage($Default = Null) {
+		if (!function_exists('json_last_error')) return $Default;
 		$Error = json_last_error();
 		$Message = '';
 		switch ($Error) {
@@ -135,7 +135,7 @@ if (!function_exists('d')) {
 			if (!headers_sent()) header('Content-Type: text/html; charset=utf-8');
 			if ($bSetStyle) {
 				$bSetStyle = False;
-				echo "<style type='text/css'>.dumphper span{font-size:13px !important;font-family:'Arial' !important;}</style>\n";
+				echo "<style type='text/css'>.dumphper span{font-size:14px !important;font-family:'Arial' !important;}</style>\n";
 			}
 			foreach ($Args as $A) {
 				if (is_string($A) && defined('CP1251')) $A = ConvertEncoding($A);

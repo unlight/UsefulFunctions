@@ -10,7 +10,7 @@ if (!function_exists('SearchAnyWhere')) {
 			$PxLength = strlen($Px);
 			$DatabaseName = C('Database.Name');
 			//$GetAllColumnsQuery = "select TABLE_NAME, COLUMN_NAME, DATA_TYPE from information_schema.COLUMNS where TABLE_SCHEMA = '{$Px}{$DatabaseName}'";
-			$GetAllColumnsQuery = "select TABLE_NAME, COLUMN_NAME, DATA_TYPE from information_schema.COLUMNS where TABLE_SCHEMA = '{$Px}{$DatabaseName}' and DATA_TYPE in ('char', 'varchar', 'tinytext', 'text', 'mediumtext', 'longtext')";
+			$GetAllColumnsQuery = "select TABLE_NAME, COLUMN_NAME, DATA_TYPE from information_schema.COLUMNS where TABLE_SCHEMA = '{$Px}{$DatabaseName}' and DATA_TYPE in ('char', 'varchar', 'tinytext', 'text', 'mediumtext', 'longtext', 'int', 'mediumint', 'smallint')";
 			$CurrentUser = $SQL->Query("select current_user() as RowValue")->Value('RowValue');
 			$CurrentUser = explode('@', $CurrentUser);
 			$Definer = "`{$CurrentUser[0]}`@`{$CurrentUser[1]}`";

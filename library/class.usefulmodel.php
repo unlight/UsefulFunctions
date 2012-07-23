@@ -4,6 +4,14 @@ abstract class UsefulModel extends Gdn_Model {
 
 	protected $Alias;
 
+	public function GetIDs($IDs) {
+		$Alias = $this->GetAlias();
+		$this->SQL
+			->WhereIn("$Alias.{$this->PrimaryKey}", $IDs);
+		$Result = $this->Get();
+		return $Result;
+	}
+
 	public function SaveMetaData($RowID, $OtherTable, $Values) {
 		$TableName = $this->Name . $OtherTable;
 		$OtherField = $OtherTable . 'ID';
@@ -32,6 +40,12 @@ abstract class UsefulModel extends Gdn_Model {
 			$this->Alias = strtolower($this->Alias);
 		}
 		return $this->Alias;
+	}
+
+	public function Save($Fields, $Settings = False) {
+		self::SetNullValues($Fields);
+		$RowID = parent::Save($Fields, $Settings);
+		return $RowID;
 	}
 
 	/**
@@ -88,7 +102,7 @@ abstract class UsefulModel extends Gdn_Model {
 		return $ConsolidatedResult;
 	}
 
-	public function Get($Conditions = False, $Offset = False, $Limit = False, $OrderBy = False, $OrderDirection = False) {
+	public function Get($Conditions = False, $Offset = False, $Limit = False, $OrderBy = False, $OrderDirection = 'desc') {
 		$bCountQuery = GetValue('bCountQuery', $Conditions, False, True);
 		$SelectFields = GetValue('SelectFields', $Conditions, False, True);
 		$SQL = $this->SQL;
