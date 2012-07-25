@@ -71,6 +71,9 @@ if (class_exists('Gdn', False)) {
 		}
 	
 		public function Setup() {
+			if (!is_dir('uploads/cached')) {
+				mkdir('uploads/cached', 0777, True);	
+			}
 		}
 	}
 }
