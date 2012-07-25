@@ -24,6 +24,8 @@ if (!function_exists('ClientRequest')) {
 			$Options['Url'] = $Url;
 		}
 
+		$NewOptions = $Options;
+
 		$Cache = GetValue('Cache', $Options, False, True);
 		if ($Cache !== False) {
 			$Crc = sprintf('%u', crc32(serialize($Options)));
@@ -47,7 +49,8 @@ if (!function_exists('ClientRequest')) {
 
 		$Url = GetValue('Url', $Options, False, True);
 		$ConvertEncoding = GetValue('ConvertEncoding', $Options, False, True);
-
+		$Header = GetValue('Header', $Options);
+		$FollowLocation = GetValue('FollowLocation', $Options);
 		$GetInfo = GetValue('GetInfo', $Options, False, True);
 		TouchValue('ReturnTransfer', $Options, True);
 		//TouchValue('ConnectTimeout', $Options, 30);
@@ -78,9 +81,46 @@ if (!function_exists('ClientRequest')) {
 			return False;
 		}
 
-		if ($GetInfo || $ConvertEncoding) {
+		if ($Header != False) {
+			$ResponseLines = explode("\n", trim($Result));
+			$Status = array_shift($ResponseLines);
+			$Response = array();
+			$Response['HTTP'] = trim($Status);
+			$Response['StatusCode'] = array_pop(array_slice(explode(' ', trim($Status)), 1, 1));
+			for ($Count = count($ResponseLines), $i = 0; $i < $Count; $i++) {
+				$Line = trim($ResponseLines[$i]);
+				unset($ResponseLines[$i]);
+				if ($Line === '') break;
+				$Line = explode(':', $Line);
+				$Key = trim(array_shift($Line));
+				$Value = trim(implode(':', $Line));
+				if (!isset($Response[$Key])) {
+					$Response[$Key] = $Value;
+				} else {
+					if (!is_array($Response[$Key])) $Response[$Key] = array($Response[$Key]);
+					$Response[$Key][] = $Value;
+				}
+			}
+			$Result = implode("\n", $ResponseLines);
+			unset($ResponseLines);
+		}
+
+		if ($GetInfo || $ConvertEncoding || $Header) {
 			$Result = array('Result' => $Result);
 			$Result['Info'] = curl_getinfo($Connection);
+			if ($Header) {
+				$Result['Headers'] = $Response;
+			}
+		}
+
+		if ($FollowLocation != False) {
+			$Code = GetValueR('Info.http_code', $Result);
+			if (in_array($Code, array(301, 302))) {
+				$Location = GetValueR('Info.redirect_url');
+				if ($Location === False) $Location = GetValueR('Headers.Location', $Result);
+				$NewOptions['Url'] = $Location;
+				return ClientRequest($NewOptions);
+			}
 		}
 
 		if ($ConvertEncoding) {
