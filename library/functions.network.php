@@ -137,6 +137,14 @@ if (!function_exists('ClientRequest')) {
 			}
 		}
 
+		if (isset($Result['Info'])) {
+			$Tmp = explode(':', $Result['Info']['content_type']);
+			$Type = trim(array_shift($Tmp));
+			if (substr($Type, -4) == 'json') {
+				$Result['Json'] = json_decode($Result['Result']);
+			}
+		}
+
 		if ($Cache !== False) {
 			if (!is_dir($CacheDirectory)) {
 				mkdir($CacheDirectory, 0777, True);
