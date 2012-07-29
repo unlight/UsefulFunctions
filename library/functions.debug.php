@@ -1,5 +1,12 @@
 <?php
 
+if (!function_exists('VarType')) {
+	function VarType($Value) {
+		if (is_object($Value)) return get_class($Value);
+		return gettype($Value);
+	}
+}
+
 if (!function_exists('LastJsonErrorMessage')) {
 	function LastJsonErrorMessage($Default = Null) {
 		if (!function_exists('json_last_error')) return $Default;
