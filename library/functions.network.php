@@ -16,6 +16,7 @@ if (!function_exists('ClientRequest')) {
 	*/
 	function ClientRequest($Url, $Options = False) {
 		static $Connections = array();
+		static $ManualFollowLocation;
 		$NumArgs = func_num_args();
 		if ($NumArgs == 1) {
 			$Options = $Url;
@@ -51,6 +52,14 @@ if (!function_exists('ClientRequest')) {
 		$ConvertEncoding = GetValue('ConvertEncoding', $Options, False, True);
 		$Header = GetValue('Header', $Options);
 		$FollowLocation = GetValue('FollowLocation', $Options);
+		if ($FollowLocation) {
+			if ($ManualFollowLocation === Null) {
+				$ManualFollowLocation = (array_filter(array_map('ini_get', array('safe_mode', 'open_basedir'))) > 0);
+			}
+			if ($ManualFollowLocation) {
+				unset($Options['FollowLocation']);
+			}
+		}
 		$GetInfo = GetValue('GetInfo', $Options, False, True);
 		TouchValue('ReturnTransfer', $Options, True);
 		//TouchValue('ConnectTimeout', $Options, 30);
@@ -113,10 +122,10 @@ if (!function_exists('ClientRequest')) {
 			}
 		}
 
-		if ($FollowLocation != False) {
+		if ($FollowLocation != False && $ManualFollowLocation) {
 			$Code = GetValueR('Info.http_code', $Result);
 			if (in_array($Code, array(301, 302))) {
-				$Location = GetValueR('Info.redirect_url');
+				$Location = GetValueR('Info.redirect_url', $Result);
 				if ($Location === False) $Location = GetValueR('Headers.Location', $Result);
 				$NewOptions['Url'] = $Location;
 				return ClientRequest($NewOptions);
