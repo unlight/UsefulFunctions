@@ -133,11 +133,11 @@ if (!function_exists('ClientRequest')) {
 		}
 
 		if ($ConvertEncoding) {
-			list($MimeType, $DirtyCharsetInfo) = explode(';', $Result['Info']['content_type']);
+			list($MimeType, $DirtyCharsetInfo) = array_pad(explode(';', $Result['Info']['content_type']), 2, Null);
 			$Result['MimeType'] = $MimeType;
 			preg_match('/charset=(.+)/', $DirtyCharsetInfo, $Match);
-			$Charset = strtolower($Match[1]);
-			if ($Charset != 'utf-8') {
+			$Charset = strtolower(GetValue(1, $Match));
+			if ($Charset && $Charset != 'utf-8') {
 				$Result['Result'] = mb_convert_encoding($Result['Result'], 'utf-8', $Charset);
 			}
 
