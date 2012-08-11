@@ -52,12 +52,12 @@ if (!function_exists('ConvertImage')) {
 		);
 		if (is_string($Options)) $Options = array('Options' => $Options);
 		$TargetFolder = GetValue('TargetFolder', $Options, 'uploads/cached', True);
-		$Options = GetValue('Options', $Options);
 		$Extension = GetValue('Extension', $Options);
+		$Options = GetValue('Options', $Options);
 		
 		$Filename = CleanupString(pathinfo($Source, 8)).'-'.Crc32Value($Source, $Options);
 		if ($Extension === False) {
-			$Extension = CleanupString(pathinfo($Source, 4));	
+			$Extension = CleanupString(pathinfo($Source, 4));
 		}
 		$ResultImage = $TargetFolder.DS.$Filename.'.'.$Extension;
 		
