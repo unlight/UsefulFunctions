@@ -10,7 +10,7 @@
 * 
 */
 
-class TreeModel extends Gdn_Model {
+class TreeModel extends UsefulModel {
 	
 	protected $LeftKey = 'TreeLeft';
 	protected $RightKey = 'TreeRight';
@@ -959,16 +959,15 @@ class TreeModel extends Gdn_Model {
 		return $Result;
 	}
 	
-	
 	// DEPRECATED
 	
 	public function GetChildrens($Node, $Where = False) {
-		if (Debug()) trigger_error('Function renamed to GetChildren().');
+		if (Debug()) Deprecated('GetChildrens', 'GetChildren');
 		return $this->GetChildren($Node, $Where);
 	}
 	
 	protected function _NodeValues($Node) {
-		if (Debug()) trigger_error('Function renamed to NodeValues().');
+		if (Debug()) trigger_error('Function renamed to NodeValues().', E_USER_DEPRECATED);
 		return $this->NodeValues($Node);
 	}
 	
@@ -979,7 +978,3 @@ class TreeModel extends Gdn_Model {
 	}
 	
 }
-
-
-
-
