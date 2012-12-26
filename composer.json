@@ -1,0 +1,10 @@
+{
+    "name": "iamthes/useful-functions",
+    "description": "Useful functions.",
+    "version": "3.14.0",
+    "autoload": {
+        "files": ["autoload.php"]
+    },
+    "require": {
+    }
+}
