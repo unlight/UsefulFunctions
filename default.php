@@ -5,7 +5,7 @@ $PluginInfo['UsefulFunctions'] = array(
 	'Name' => 'Useful Functions',
 	'Description' => 'Useful functions for plugin and application developers (ex- PluginUtils).',
 	'RequiredApplications' => array('Dashboard' => '>=2.0.18'),
-	'Version' => '3.13.10',
+	'Version' => '3.14.0',
 	'Date' => 'Winter 2010',
 	'Updated' => 'Autumn 2011',
 	'Author' => 'Vanilla Fan',
@@ -78,7 +78,7 @@ if (class_exists('Gdn', False)) {
 	}
 }
 
-require USEFULFUNCTIONS_LIBRARY.'/functions.render.php';
+require USEFULFUNCTIONS_LIBRARY.'/functions.output.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.sql.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.image.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.time.php';

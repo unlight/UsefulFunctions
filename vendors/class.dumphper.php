@@ -11,7 +11,7 @@ class Dumphper
 {
 	/** config **/
 	
-	static $encoding = 'UTF-8';  /** Text encoding, needed to escape stings **/
+	static $encoding = 'utf-8';  /** Text encoding, needed to escape stings **/
 	static $escape_keys = false; /** Should array keys be escaped (slow) **/
 	static $max_showw_depth = 8; /** Defines how many nested levels will be expanded by default **/
 	
@@ -66,7 +66,7 @@ class Dumphper
 	
 	static function escape(&$source)
 	{
-		return ( is_string($source) ? ( $source ? htmlentities($source, ENT_QUOTES, self::$encoding) : '&nbsp;') : $source );
+		return ( is_string($source) ? ( $source ? htmlentities($source) : '&nbsp;') : $source );
 	}
 	
 	static function drawScalar(&$source, &$escape = true)
@@ -164,6 +164,28 @@ class Dumphper
 				$class = $sClass;
 			while ( is_object($class) )
 			{
+				if (!property_exists($source, '*_methods') && !($source instanceof Closure)) {
+					$reflectionClass = new ReflectionClass($source);
+					$methods = $reflectionClass->getMethods();
+					$methodsList = array();
+					foreach ($methods as $reflectionMethod) {
+						if ($reflectionMethod->isPublic()) {
+							$methodString = $reflectionMethod->name;
+							$Parameters = $reflectionMethod->getParameters();
+							if (count($Parameters) > 0) {
+								$argList = array();
+								foreach ($Parameters as $p) {
+									$argList[] = '$' . $p;
+								}
+								$argList = implode(', ', $argList);
+								$methodString .= "($argList)";
+							}
+							$methodsList[] = $methodString;
+						}
+					}
+					//var_dump($methodsList);die;
+					$source->{"*_methods"} = $methodsList;
+				}
 				$properties = $class->getProperties();
 				if ($class->name != $className && count($properties))
 				{
@@ -213,6 +235,7 @@ class Dumphper
 	
 	static function isRecursiveArray(&$source, &$parents)
 	{
+		return false;
 		if ( count($parents) > 0 )
 		{
 			$uKey = uniqid('array', true);
