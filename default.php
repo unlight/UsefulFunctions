@@ -78,7 +78,7 @@ if (class_exists('Gdn', False)) {
 	}
 }
 
-require USEFULFUNCTIONS_LIBRARY.'/functions.render.php';
+require USEFULFUNCTIONS_LIBRARY.'/functions.output.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.sql.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.image.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.time.php';
