@@ -1,10 +1,6 @@
 <?php
 
 /**
- * Modified by S.
- */
-
-/**
  * General functions
  *
  * @author Mark O'Sullivan <markm@vanillaforums.com>
@@ -1440,7 +1436,7 @@ if (!function_exists('GetValueR')) {
       for($i = 0; $i < count($Path); ++$i) {
          $SubKey = $Path[$i];
 
-         if(is_array($Value) && isset($Value[$SubKey])) {
+         if((is_array($Value) || $Value instanceof ArrayAccess) && isset($Value[$SubKey])) {
             $Value = $Value[$SubKey];
          } elseif(is_object($Value) && isset($Value->$SubKey)) {
             $Value = $Value->$SubKey;
