@@ -139,13 +139,32 @@ if (!function_exists('d')) {
 		$Args = func_get_args();
 		if (count($Args) == 0 && $bExit) $bExit = False;
 		if (PHP_SAPI != 'cli') {
-			if (!headers_sent()) header('Content-Type: text/html; charset=utf-8');
+			if (!headers_sent()) {
+				if (defined('CP1251')) {
+					header('Content-Type: text/html; charset=windows-1251');
+				} else {
+					header('Content-Type: text/html; charset=utf-8');
+				}
+			}
 			if ($bSetStyle) {
 				$bSetStyle = False;
 				echo "<style type='text/css'>.dumphper span{font-size:14px !important;font-family:'Arial' !important;}</style>\n";
 			}
+			if (defined('CP1251')) {
+				echo '<pre style="font-size:14px">';
+				$Count = 0;
+				foreach ($Args as $A) {
+					$String = VarDump($A);
+					$String = preg_replace("/\=\>\n +/s", '=> ', $String);
+					echo str_repeat("*", ++$Count) . ' ';
+					echo $String;
+				}
+				die();
+			}
+			//var_dump($Args);
 			foreach ($Args as $A) {
-				if (is_string($A) && defined('CP1251')) $A = ConvertEncoding($A);
+				//var_dump($A);die;
+				if (is_string($A) && defined('CP1251')) $A = mb_convert_encoding($A, 'utf-8', 'windows-1251');
 				Dumphper::dump($A);
 			}
 		} else {
@@ -158,14 +177,16 @@ if (!function_exists('d')) {
 			$String = ob_get_contents();
 			@ob_end_clean();
 			$Encoding = 'cp866';
-			if (class_exists('Gdn')) $Encoding = Gdn::Config('Plugins.UsefulFunctions.Console.MessageEnconding');
+			if (class_exists('Gdn', FALSE)) $Encoding = Gdn::Config('Plugins.UsefulFunctions.Console.MessageEnconding');
 			$String = preg_replace("/\=\>\n +/s", '=> ', $String);
 			if ($Encoding && $Encoding != 'utf-8') $String = mb_convert_encoding($String, $Encoding, 'utf-8');
 			echo $String;
 		}
-		if (class_exists('Gdn')) {
-			$Database = Gdn::Database();
-			if ($Database != Null) $Database->CloseConnection();
+		if (class_exists('Gdn', FALSE)) {
+			if (method_exists('Gdn', 'Database')) {
+				$Database = Gdn::Database();
+				if ($Database != Null) $Database->CloseConnection();
+			}
 		}
 		if ($bExit) exit();
 	}
