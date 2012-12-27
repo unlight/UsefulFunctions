@@ -35,11 +35,29 @@ if (!function_exists('StaticRequest')) {
 	}
 }
 
+if (!function_exists('IsPostBack')) {
+	function IsPostBack() {
+		return strcasecmp(StaticRequest('RequestMethod'), 'post') == 0;
+	}
+}
+
 if (!function_exists('GetWebRoot')) {
 	function GetWebRoot($WithDomain = FALSE) {
 		$Result = StaticRequest('BasePath');
 		if ($WithDomain) {
 			$Result = StaticRequest('SchemeAndHttpHost') . $Result;
+		}
+		return $Result;
+	}
+}
+
+if (!function_exists('GetUrl')) {
+	function GetUrl($Path = '', $WithDomain = FALSE) {
+		if ($Path == '') $Path = StaticRequest('PathInfo');
+		if ($WithDomain) {
+			$Result = StaticRequest('UriForPath', $Path);
+		} else {
+			$Result = StaticRequest('BaseUrl') . $Path;
 		}
 		return $Result;
 	}
@@ -334,4 +352,71 @@ if (!function_exists('GetUrlencodedPrefix')) {
 
 		return false;
 	}
+}
+
+if (!function_exists('GetPathInfo')) {
+	/**
+	 * Prepares the path info.
+	 *
+	 * @return string path info
+	 */
+	function GetPathInfo()
+	{
+		$baseUrl = GetBaseUrl();
+
+		if (null === ($requestUri = GetRequestUri())) {
+			return '/';
+		}
+
+		$pathInfo = '/';
+
+		// Remove the query string from REQUEST_URI
+		if ($pos = strpos($requestUri, '?')) {
+			$requestUri = substr($requestUri, 0, $pos);
+		}
+
+		if ((null !== $baseUrl) && (false === ($pathInfo = substr($requestUri, strlen($baseUrl))))) {
+			// If substr() returns false then PATH_INFO is set to an empty string
+			return '/';
+		} elseif (null === $baseUrl) {
+			return $requestUri;
+		}
+
+		return (string) $pathInfo;
+	}
+}
+
+
+if (!function_exists('GetMethod')) {
+    /**
+     * Gets the request "intended" method.
+     *
+     * If the X-HTTP-Method-Override header is set, and if the method is a POST,
+     * then it is used to determine the "real" intended HTTP method.
+     *
+     * The _method request parameter can also be used to determine the HTTP method,
+     * but only if enableHttpMethodParameterOverride() has been called.
+     *
+     * The method is always an uppercased string.
+     *
+     * @return string The request method
+     *
+     * @api
+     *
+     * @see getRealMethod
+     */
+    function GetMethod()
+    {
+        $method = strtoupper(GetValue('REQUEST_METHOD', $_SERVER, 'GET'));
+
+        if ('POST' === $method) {
+            if (GetValue('X-HTTP-METHOD-OVERRIDE', $_SERVER)) {
+            	$method = GetValue('X-HTTP-METHOD-OVERRIDE', $_SERVER);
+                $method = strtoupper($method);
+            }
+        }
+
+        return $method;
+    }
+    
 }
