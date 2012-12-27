@@ -21,6 +21,9 @@ if (!function_exists('StaticRequest')) {
 				$Args = func_get_args();
 				$Env = 'Get' . array_shift($Args);
 				if (!function_exists($Env)) {
+					if ('GetRequestMethod' == $Env) {
+						d(debug_backtrace());
+					}
 					trigger_error("Function ($Env) does not exsts.");
 					return FALSE;
 				}
@@ -37,7 +40,7 @@ if (!function_exists('StaticRequest')) {
 
 if (!function_exists('IsPostBack')) {
 	function IsPostBack() {
-		return strcasecmp(StaticRequest('RequestMethod'), 'post') == 0;
+		return strcasecmp(StaticRequest('Method'), 'post') == 0;
 	}
 }
 
