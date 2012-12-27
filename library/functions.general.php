@@ -252,7 +252,7 @@ if (!function_exists('Asset')) {
       if (substr($Destination, 0, 7) == 'http://' || substr($Destination, 0, 8) == 'https://') {
          $Result = $Destination;
       } else {
-         $Parts = array(Gdn_Url::WebRoot($WithDomain), $Destination);
+         $Parts = array(StaticRequest('WebRoot', $WithDomain), $Destination);
          if (!$WithDomain)
             array_unshift($Parts, '/');
             
@@ -2222,7 +2222,7 @@ if (!function_exists('ProxyRequest')) {
          
          curl_close($Handler);
       } else if (function_exists('fsockopen')) {
-         $Referer = Gdn_Url::WebRoot(TRUE);
+         $Referer = StaticRequest('WebRoot', TRUE);
       
          // Make the request
          $Pointer = @fsockopen($Host, $Port, $ErrorNumber, $Error, $Timeout);
@@ -2684,7 +2684,7 @@ if (!function_exists('SmartAsset')) {
       if (substr($Destination, 0, 7) == 'http://' || substr($Destination, 0, 8) == 'https://') {
          $Result = $Destination;
       } else {
-         $Parts = array(Gdn_Url::WebRoot($WithDomain), $Destination);
+         $Parts = array(StaticRequest('WebRoot', $WithDomain), $Destination);
          if (!$WithDomain)
             array_unshift($Parts, '/');
             
