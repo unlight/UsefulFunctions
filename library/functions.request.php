@@ -21,9 +21,6 @@ if (!function_exists('StaticRequest')) {
 				$Args = func_get_args();
 				$Env = 'Get' . array_shift($Args);
 				if (!function_exists($Env)) {
-					if ('GetRequestMethod' == $Env) {
-						d(debug_backtrace());
-					}
 					trigger_error("Function ($Env) does not exsts.");
 					return FALSE;
 				}
@@ -422,4 +419,20 @@ if (!function_exists('GetMethod')) {
         return $method;
     }
     
+}
+
+if (!function_exists('GetUriForPath')) {
+    /**
+     * Generates a normalized URI for the given path.
+     *
+     * @param string $path A path to use instead of the current one
+     *
+     * @return string The normalized URI for the path
+     *
+     * @api
+     */
+    function GetUriForPath($path)
+    {
+        return StaticRequest('SchemeAndHttpHost') . StaticRequest('BaseUrl') . $path;
+    }
 }
