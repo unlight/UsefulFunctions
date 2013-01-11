@@ -30,7 +30,7 @@ if (!function_exists('ClientRequest')) {
 		$Cache = GetValue('Cache', $Options, False, True);
 		if ($Cache !== False) {
 			$Crc = sprintf('%u', crc32(serialize($Options)));
-			$CacheDirectory = PATH_CACHE . DS . 'client-request';
+			$CacheDirectory = PATH_CACHE . '/client-request';
 			$CacheFile = $CacheDirectory . DS . $Crc . '.php';
 			if (file_exists($CacheFile)) {
 				$IncludeCache = True;

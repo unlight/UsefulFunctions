@@ -22,3 +22,18 @@ if (!function_exists('FormatForm')) {
 		return htmlspecialchars($Mixed, ENT_QUOTES, 'utf-8');
 	}
 }
+
+if (!function_exists('FormatText')) {
+	/**
+	* Takes a mixed variable, formats it for display on the screen as plain text.
+	*
+	* @param mixed $Mixed An object, array, or string to be formatted.
+	* @return mixed
+	*/
+	function FormatText($Mixed, $AddBreaks = FALSE) {
+		$Charset = 'utf-8';
+		$Result = htmlspecialchars(strip_tags(preg_replace('`<br\s?/?>`', "\n", html_entity_decode($Mixed, ENT_QUOTES, $Charset))), ENT_NOQUOTES, $Charset);
+		if ($AddBreaks) $Result = nl2br(trim($Result));
+		return $Result;
+	}
+}

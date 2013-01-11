@@ -3,6 +3,7 @@ error_reporting(E_ALL & ~E_STRICT);
 ini_set('html_errors', 0);
 ini_set('display_errors', 1);
 ini_set('track_errors', 1);
+ini_set('max_execution_time', 0);
 
 if (!defined('APPLICATION')) define('APPLICATION', 'Garden');
 if (!defined('APPLICATION_VERSION')) define('APPLICATION_VERSION', '1.0');

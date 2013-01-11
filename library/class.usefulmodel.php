@@ -60,13 +60,6 @@ abstract class UsefulModel extends Gdn_Model {
 		return $Fields;
 	}
 
-	// public function Save($Fields, $Settings = False) {
-	// 	$Fields = self::SetNullValues($Fields);
-	// 	$Result = parent::Save($Fields, $Settings);
-	// 	return $Result;
-	// }
-	
-
 	public function GetNames($Collection, $Options = False) {
 		$Field = GetValue('Field', $Options, 'Name');
 		$NameField = ArrayValue('NameField', $Options, 'Name');

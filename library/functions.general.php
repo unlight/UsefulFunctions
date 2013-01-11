@@ -252,7 +252,7 @@ if (!function_exists('Asset')) {
       if (substr($Destination, 0, 7) == 'http://' || substr($Destination, 0, 8) == 'https://') {
          $Result = $Destination;
       } else {
-         $Parts = array(Gdn_Url::WebRoot($WithDomain), $Destination);
+         $Parts = array(StaticRequest('WebRoot', $WithDomain), $Destination);
          if (!$WithDomain)
             array_unshift($Parts, '/');
             
@@ -1191,8 +1191,8 @@ if (!function_exists('ForceSSL')) {
     */
    function ForceSSL() {
       if (C('Garden.AllowSSL')) {
-         if (Gdn::Request()->Scheme() != 'https')
-            Redirect(Gdn::Request()->Url('', TRUE, TRUE));
+         if (StaticRequest('Scheme') != 'https')
+            Redirect(GetUrl('', TRUE, TRUE));
       }
    }
 }
@@ -1205,8 +1205,8 @@ if (!function_exists('ForceNoSSL')) {
     * work.
     */
    function ForceNoSSL() {
-      if (Gdn::Request()->Scheme() != 'http')
-         Redirect(Gdn::Request()->Url('', TRUE, FALSE));
+      if (StaticRequest('Scheme') != 'http')
+         Redirect(GetUrl('', TRUE, FALSE));
    }
 }
 
@@ -2222,7 +2222,7 @@ if (!function_exists('ProxyRequest')) {
          
          curl_close($Handler);
       } else if (function_exists('fsockopen')) {
-         $Referer = Gdn_Url::WebRoot(TRUE);
+         $Referer = StaticRequest('WebRoot', TRUE);
       
          // Make the request
          $Pointer = @fsockopen($Host, $Port, $ErrorNumber, $Error, $Timeout);
@@ -2684,7 +2684,7 @@ if (!function_exists('SmartAsset')) {
       if (substr($Destination, 0, 7) == 'http://' || substr($Destination, 0, 8) == 'https://') {
          $Result = $Destination;
       } else {
-         $Parts = array(Gdn_Url::WebRoot($WithDomain), $Destination);
+         $Parts = array(StaticRequest('WebRoot', $WithDomain), $Destination);
          if (!$WithDomain)
             array_unshift($Parts, '/');
             
@@ -2887,7 +2887,7 @@ if (!function_exists('TrueStripSlashes')) {
 // Takes a route and prepends the web root (expects "/controller/action/params" as $Destination)
 if (!function_exists('Url')) {   
    function Url($Path = '', $WithDomain = FALSE, $RemoveSyndication = FALSE) {
-      $Result = Gdn::Request()->Url($Path, $WithDomain);
+      $Result = GetUrl($Path, $WithDomain);
       return $Result;
    }
 }

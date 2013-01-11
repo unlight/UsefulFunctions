@@ -1,4 +1,18 @@
 <?php
+if (!function_exists('SuffixString')) {
+	/**
+	 * Takes a string $S, and suffixes it with $Suffix unless it is already suffixed that way.
+	 * @param string $S
+	 * @return string $Result
+	 */
+	function SuffixString($S, $Suffix) {
+		$Length = strlen($Suffix);
+		if (substr($S, -$Length) != $Suffix) {
+			$S .= $Suffix;
+		}
+		return $S;
+	}
+}
 
 if (!function_exists('SplitUpString')) {
 	/**
