@@ -1,5 +1,29 @@
 <?php
 
+if (!function_exists('ExtractZip')) {
+	function ExtractZip($ZipFile, $Directory = NULL) {
+		if ($Directory === NULL) {
+			$Directory = dirname($ZipFile);
+		}
+		if (class_exists('ZipArchive')) {
+			$Zip = new ZipArchive();
+			$Zip->Open($ZipFile);
+			$Result = $Zip->ExtractTo($Directory);
+			$Zip->Close();
+			return $Result;
+		} else {
+			$Command = '/usr/local/bin/unzip';
+			if (PHP_OS == 'WINNT') $Command = 'unzip';
+			$Exec = "$Command -oX $ZipFile -d $Directory";
+			$Result = exec($Exec, $Out, $ReturnCode);
+			if ($ReturnCode === 0) {
+				return TRUE;
+			}
+		}
+		return FALSE;
+	}
+}
+
 if (!function_exists('GetCachedData')) {
 	/**
 	* Get cached data. 
