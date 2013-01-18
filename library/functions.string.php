@@ -1,4 +1,15 @@
 <?php
+
+if (!function_exists('ucrc')) {
+	/**
+	* Calculates unsigned crc32 hash.
+	*/ 
+	function ucrc($string) {
+		$crc = sprintf('%u', crc32($string));
+		return $crc;
+	}
+}
+
 if (!function_exists('SuffixString')) {
 	/**
 	 * Takes a string $S, and suffixes it with $Suffix unless it is already suffixed that way.
