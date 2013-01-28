@@ -1,5 +1,19 @@
 <?php
 
+if (!function_exists('MinifyJavasript')) {
+	function MinifyJavasript($FilePath) {
+		$Result = ClientRequest(array(
+			'Url' => 'http://marijnhaverbeke.nl/uglifyjs',
+			'PostFields' => array(
+				'code_url' => '',
+				'download' => '',
+				'js_code' => file_get_contents($FilePath),
+			)
+		));
+		return $Result;
+	}
+}
+
 if (!function_exists('ExtractZip')) {
 	function ExtractZip($ZipFile, $Directory = NULL) {
 		if ($Directory === NULL) {
