@@ -2,13 +2,16 @@
 
 if (!function_exists('MinifyJavasript')) {
 	function MinifyJavasript($FilePath) {
+		$PostFields = array(
+			'code_url' => '',
+			'download' => '',
+			'js_code' => file_get_contents($FilePath),
+		);
+		$PostFields = http_build_query($PostFields);
 		$Result = ClientRequest(array(
 			'Url' => 'http://marijnhaverbeke.nl/uglifyjs',
-			'PostFields' => array(
-				'code_url' => '',
-				'download' => '',
-				'js_code' => file_get_contents($FilePath),
-			)
+			'Post' => True,
+			'PostFields' => $PostFields
 		));
 		return $Result;
 	}
