@@ -1,5 +1,30 @@
 <?php
 
+if (!function_exists('InflateArray')) {
+	function InflateArray($Data) {
+		$Result = array();
+		foreach ($Data as $Key => $Value) {
+			if (strpos($Key, '.') !== FALSE) {
+				$Keys = explode('.', $Key);
+				$Collection =& $Result;
+				foreach ($Keys as $SubKey) {
+					if (!isset($Collection[$SubKey])) $Collection[$SubKey] = array();
+					$Collection =& $Collection[$SubKey];
+				}
+				if (count($Collection) == 0) {
+					$Collection = $Value;
+				} else {
+					mergeArrays($Collection, $Value);
+				}
+			} else {
+				$Collection =& $Result[$Key];
+				$Collection = mergeArrays($Value, $Collection);
+			}
+		}
+		return $Result;
+	}
+}
+
 if (!function_exists('GetValue')) {
 	/**
 	* Return the value from an associative array or an object.
