@@ -97,8 +97,8 @@ if (!function_exists('ImageMagick')) {
 
 		$ReturnValue = Null;
 		$Out = Null;
-		$Cmd = "{$ImPath}/$Command $Source $Options $ResultImage";
-		$ExecuteResult = exec($Cmd, $Out, $ReturnValue);
+		$Cmd = "$Command $Source $Options $ResultImage";
+		$ExecuteResult = exec("{$ImPath}/$Cmd", $Out, $ReturnValue);
 		if ($ReturnValue !== 0) {
 			if (function_exists('ErrorMessage')) {
 				$ErrorMessage = ErrorMessage('Cannot process image.', 'PHP', __FUNCTION__, $Cmd);
