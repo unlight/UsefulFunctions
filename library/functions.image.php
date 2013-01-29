@@ -59,7 +59,7 @@ if (!function_exists('ConvertImage')) {
 		if ($Extension === False) {
 			$Extension = CleanupString(pathinfo($Source, 4));
 		}
-		$ResultImage = $TargetFolder.DS.$Filename.'.'.$Extension;
+		$ResultImage = $TargetFolder.'/'.$Filename.'.'.$Extension;
 		
 		if (!file_exists($ResultImage)) {
 			$Source = GetImageSource($Source);
