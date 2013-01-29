@@ -1,7 +1,7 @@
 {
     "name": "iamthes/useful-functions",
     "description": "Useful functions.",
-    "version": "3.15.4",
+    "version": "3.15.5",
     "autoload": {
         "files": ["autoload.php"]
     },
