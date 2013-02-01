@@ -59,7 +59,7 @@ if (!function_exists('ConvertImage')) {
 		if ($Extension === False) {
 			$Extension = CleanupString(pathinfo($Source, 4));
 		}
-		$ResultImage = $TargetFolder.DS.$Filename.'.'.$Extension;
+		$ResultImage = $TargetFolder.'/'.$Filename.'.'.$Extension;
 		
 		if (!file_exists($ResultImage)) {
 			$Source = GetImageSource($Source);
@@ -97,9 +97,17 @@ if (!function_exists('ImageMagick')) {
 
 		$ReturnValue = Null;
 		$Out = Null;
-		$Cmd = "{$ImPath}/$Command $Source $Options $ResultImage";
-		$ExecuteResult = exec($Cmd, $Out, $ReturnValue);
-		if ($ReturnValue !== 0) trigger_error(ErrorMessage('Cannot process image.', 'PHP', __FUNCTION__, $Cmd), E_USER_ERROR);
+		$Cmd = "$Command $Source $Options $ResultImage";
+		$ExecuteResult = exec("{$ImPath}/$Cmd", $Out, $ReturnValue);
+		if ($ReturnValue !== 0) {
+			if (function_exists('ErrorMessage')) {
+				$ErrorMessage = ErrorMessage('Cannot process image.', 'PHP', __FUNCTION__, $Cmd);
+			} else {
+				$ErrorMessage = "Cannot process image: $Cmd";
+			}
+			trigger_error($ErrorMessage, E_USER_ERROR);
+			return False;
+		}
 
 		return $ResultImage;
 	}
