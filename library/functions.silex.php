@@ -4,7 +4,7 @@
  * Silex specific functions.
  */
 
-function Application() {
+function Application($Name = '') {
 	static $Application;
 	if (is_null($Application)) {
 		foreach ($GLOBALS as $Key => $Value) {
@@ -14,5 +14,6 @@ function Application() {
 			}
 		}
 	}
+	if ($Name) return $Application[$Name];
 	return $Application;
 }
