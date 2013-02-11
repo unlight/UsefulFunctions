@@ -17,3 +17,10 @@ if (!function_exists('ValidateDnsEmail')) {
 		return $Result;
 	}
 }
+
+
+if (!function_exists('ValidateUrlPath')) {
+	function ValidateUrlPath($Value, $Field = '') {
+		return ValidateRegex($Value, '/^([\/[a-z0-9\-]+)?$/');
+	}
+}
