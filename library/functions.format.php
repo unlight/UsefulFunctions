@@ -37,3 +37,15 @@ if (!function_exists('FormatText')) {
 		return $Result;
 	}
 }
+
+if (!function_exists('FormatTimespan')) {
+	function FormatTimespan($timespan) {
+		//$timespan -= 86400 * ($days = (int) floor($timespan / 86400));
+		$timespan -= 3600 * ($hours = (int) floor($timespan / 3600));
+		$timespan -= 60 * ($minutes = (int) floor($timespan / 60));
+		$seconds = $timespan;
+
+		$Result = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+		return $Result;
+	}
+}

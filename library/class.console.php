@@ -141,7 +141,7 @@ class Console extends Gdn_Pluggable {
 	public static function TimeSeconds() {
 		static $Started;
 		if (is_null($Started)) $Started = Now();
-		return Gdn_Format::Timespan(Now() - $Started);
+		return FormatTimespan(Now() - $Started);
 	}
 	
 	public static function Check() {
