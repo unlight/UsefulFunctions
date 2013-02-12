@@ -91,5 +91,6 @@ require USEFULFUNCTIONS_LIBRARY.'/functions.validate.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.debug.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.misc.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.geo.php';
+require USEFULFUNCTIONS_LIBRARY.'/functions.format.php';
 require USEFULFUNCTIONS_LIBRARY.'/functions.deprecated.php';
 require USEFULFUNCTIONS_VENDORS.'/XML2Array.php';
