@@ -340,3 +340,35 @@ if (!function_exists('Camelize')) {
 		return $String;
 	}
 }
+
+
+if (!function_exists('ToPascalCase')) {
+	function ToPascalCase($String) {
+		return Camelize($String);
+	}
+}
+
+
+if (!function_exists('ToSnakeCase')) {
+	function ToSnakeCase($String) {
+		$Parts = preg_split('/([A-Z])/', $String, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		for ($i = 1, $Length = count($Parts); $i < $Length; $i++) { 
+			$IsUpper = ctype_upper($Parts[$i]);
+			if ($IsUpper) {
+				$Parts[$i] = '_' . $Parts[$i];
+			}
+		}
+		$NewString = implode('', $Parts);
+		$NewString = strtolower($NewString);
+		$NewString = preg_replace('/_+/', '_', $NewString);
+		return $NewString;
+	}
+}
+
+if (!function_exists('ToCamelCase')) {
+	function ToCamelCase($String) {
+		$String = ToPascalCase($String);
+		$String[0] = strtolower($String[0]);
+		return $String;
+	}
+}
