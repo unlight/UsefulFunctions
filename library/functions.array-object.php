@@ -18,6 +18,7 @@ if (!function_exists('InflateArray')) {
 				}
 			} else {
 				$Collection =& $Result[$Key];
+				if ($Collection === NULL) $Collection = array();
 				$Collection = mergeArrays($Value, $Collection);
 			}
 		}
