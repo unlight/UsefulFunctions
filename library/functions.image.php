@@ -8,7 +8,7 @@ if (!function_exists('MontageImage')) {
 	function MontageImage($Sources, $Options) {
 
 		$Source = reset($Sources);
-		$Filename = CleanupString(pathinfo($Source, 8)).'-'.Crc32Value($Source, $Options);
+		$Filename = CleanupString(pathinfo($Source, 8)).'-'.Crc32Value($Sources, $Options);
 		$Extension = CleanupString(pathinfo($Source, 4));
 		$ResultImage = 'uploads/cached/'.$Filename.'.'.$Extension;
 		
