@@ -145,7 +145,7 @@ if (!function_exists('SendEmailMessage')) {
 		$Options = array_merge($Defaults, (array)$Options);
 		extract($Options, EXTR_SKIP);
 		
-		$PhpMailer = new PhpMailer($ThrowExceptions);
+		$PhpMailer = new PHPMailer($ThrowExceptions);
 		
 		$PhpMailer->Priority = $Priority;
 		$PhpMailer->ContentType = $ContentType;
