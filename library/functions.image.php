@@ -91,8 +91,8 @@ if (!function_exists('ImageMagick')) {
 		static $ImPath;
 		if ($ImPath === Null) {
 			$ImPath = C('Plugins.UsefulFunctions.ImPath', '/usr/local/bin');
-			$ImPath = realpath($ImPath);
-			if ($ImPath == False) throw new Exception('ImageMagick not found.');
+			// $ImPath = realpath($ImPath);
+			// if ($ImPath == False) throw new Exception('ImageMagick not found.');
 		}
 
 		$ReturnValue = Null;
