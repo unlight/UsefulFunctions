@@ -194,8 +194,8 @@ if (!function_exists('GenerateCleanTargetName')) {
 			$Extension = pathinfo($Name, 4);
 			$Name = pathinfo($Name, 8);
 		}
-		$Extension = Gdn_Format::Clean($Extension);
-		$BaseName = Gdn_Format::Clean($Name);
+		$Extension = CleanupString($Extension);
+		$BaseName = CleanupString($Name);
 		// check for file with same name
 		$TestName = $BaseName;
 		$TargetFile = $TargetFolder . DS . $TestName . '.' . $Extension;
