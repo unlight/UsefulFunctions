@@ -1,5 +1,18 @@
 <?php
 
+if (!function_exists('GetMimeType')) {
+	function GetMimeType($FilePath) {
+		if (is_file($FilePath)) {
+			exec("file -b --mime " . escapeshellarg($FilePath), $Out);
+			$T = GetValue(0, $Out);
+			$T = explode(';', $T);
+			$Result = GetValue(0, $T);
+			return $Result;
+		}
+	}
+}
+
+
 if (!function_exists('MinifyJavasript')) {
 	function MinifyJavasript($FilePath) {
 		$PostFields = array(
