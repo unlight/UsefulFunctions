@@ -198,7 +198,7 @@ if (!function_exists('GenerateCleanTargetName')) {
 		$BaseName = CleanupString($Name);
 		// check for file with same name
 		$TestName = $BaseName;
-		$TargetFile = $TargetFolder . DS . $TestName . '.' . $Extension;
+		$TargetFile = $TargetFolder . '/' . $TestName . '.' . $Extension;
 		if (!file_exists($TargetFile)) return $TargetFile;
 		$IsSameFile = ($TempFile != False && file_exists($TempFile) && Crc32File($TempFile) == Crc32File($TargetFile));
 		if ($IsSameFile || $bForceOverwriteExisting) return $TargetFile;
