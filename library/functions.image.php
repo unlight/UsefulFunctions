@@ -1,5 +1,14 @@
 <?php
 
+if (!function_exists('LoremPixelImage')) {
+	function LoremPixelImage($Options = False) {
+		$width = GetValue('width', $Options, 400);
+		$height = GetValue('height', $Options, 300);
+		$Content = file_get_contents("http://lorempixel.com/$width/$height/");
+		return $Content;
+	}
+}
+
 if (!function_exists('MontageImage')) {
 	/**
 	* Use the montage program to create a composite image by combining several separate images.
@@ -98,7 +107,7 @@ if (!function_exists('ImageMagick')) {
 		$ReturnValue = Null;
 		$Out = Null;
 		$Cmd = "$Command $Source $Options $ResultImage";
-		$ExecuteResult = exec("{$ImPath}/$Cmd", $Out, $ReturnValue);
+		$ExecuteResult = exec($ImPath . DIRECTORY_SEPARATOR . $Cmd, $Out, $ReturnValue);
 		if ($ReturnValue !== 0) {
 			if (function_exists('ErrorMessage')) {
 				$ErrorMessage = ErrorMessage('Cannot process image.', 'PHP', __FUNCTION__, $Cmd);

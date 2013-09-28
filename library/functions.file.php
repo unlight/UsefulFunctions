@@ -1,5 +1,18 @@
 <?php
 
+if (!function_exists('GetMimeType')) {
+	function GetMimeType($FilePath) {
+		if (is_file($FilePath)) {
+			exec("file -b --mime " . escapeshellarg($FilePath), $Out);
+			$T = GetValue(0, $Out);
+			$T = explode(';', $T);
+			$Result = GetValue(0, $T);
+			return $Result;
+		}
+	}
+}
+
+
 if (!function_exists('MinifyJavasript')) {
 	function MinifyJavasript($FilePath) {
 		$PostFields = array(
@@ -181,11 +194,11 @@ if (!function_exists('GenerateCleanTargetName')) {
 			$Extension = pathinfo($Name, 4);
 			$Name = pathinfo($Name, 8);
 		}
-		$Extension = Gdn_Format::Clean($Extension);
-		$BaseName = Gdn_Format::Clean($Name);
+		$Extension = CleanupString($Extension);
+		$BaseName = CleanupString($Name);
 		// check for file with same name
 		$TestName = $BaseName;
-		$TargetFile = $TargetFolder . DS . $TestName . '.' . $Extension;
+		$TargetFile = $TargetFolder . '/' . $TestName . '.' . $Extension;
 		if (!file_exists($TargetFile)) return $TargetFile;
 		$IsSameFile = ($TempFile != False && file_exists($TempFile) && Crc32File($TempFile) == Crc32File($TargetFile));
 		if ($IsSameFile || $bForceOverwriteExisting) return $TargetFile;

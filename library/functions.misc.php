@@ -155,7 +155,15 @@ if (!function_exists('SendEmailMessage')) {
 		
 		if (!$From) {
 			if (!$FromEmail) $FromEmail = C('Garden.Email.SupportAddress', '');
-			if (!$FromEmail) $FromEmail = 'noreply@'.Gdn::Request()->Host();
+			if (!$FromEmail) {
+				$FromEmail = 'noreply@';
+				if (class_exists('Gdn')) {
+					$FromEmail .= Gdn::Request()->Host();
+				} else {
+					$FromEmail .= StaticRequest('Host');
+				}
+				
+			}
 			if (!$FromName) $FromName = C('Garden.Email.SupportName', C('Garden.Title', ''));
 			$From = array('Name' => $FromName, 'Email' => $FromEmail);
 		}
