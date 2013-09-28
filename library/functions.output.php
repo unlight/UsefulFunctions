@@ -30,7 +30,12 @@ if (!function_exists('xHtml')) {
 // Gdn_Format::To($FileSize, 'Size')
 if (!function_exists('Size')) {
 	function Size($Bytes, $Precision = 2) {
-		return Gdn_Format::Bytes($Bytes, $Precision);
+		$Units = array('B', 'K', 'M', 'G', 'T');
+		$Bytes = max($Bytes, 0);
+		$Pow = floor(($Bytes ? log($Bytes) : 0) / log(1024));
+		$Pow = min($Pow, count($Units) - 1);
+		$Bytes /= pow(1024, $Pow);
+		return round($Bytes, $Precision) . $Units[$Pow]; 
 	}
 }
 
