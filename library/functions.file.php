@@ -3,10 +3,14 @@
 if (!function_exists('GetMimeType')) {
 	function GetMimeType($FilePath) {
 		if (is_file($FilePath)) {
-			exec("file -b --mime " . escapeshellarg($FilePath), $Out);
-			$T = GetValue(0, $Out);
-			$T = explode(';', $T);
-			$Result = GetValue(0, $T);
+			if (function_exists('mime_content_type')) {
+				$Result = mime_content_type($FilePath);
+			} else {
+				exec("file -b --mime " . escapeshellarg($FilePath), $Out);
+				$T = GetValue(0, $Out);
+				$T = explode(';', $T);
+				$Result = GetValue(0, $T);
+			}
 			return $Result;
 		}
 	}

@@ -297,7 +297,3 @@ if (!function_exists('Kick')) {
 		die($KickMessage);
 	}
 }
-
-
-
-#﻿
